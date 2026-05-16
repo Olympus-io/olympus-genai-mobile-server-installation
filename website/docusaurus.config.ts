@@ -11,10 +11,12 @@ const config: Config = {
     v4: true,
   },
 
-  // GitHub Pages URL — change `url` to a custom domain (e.g. https://docs.olympus.io)
-  // and set baseUrl: '/' if you later wire a CNAME.
-  url: 'https://olympus-io.github.io',
-  baseUrl: '/olympus-genai-mobile-server-installation/',
+  // Served from the custom domain configured by website/static/CNAME.
+  // If the CNAME is ever removed, revert to:
+  //   url: 'https://olympus-io.github.io'
+  //   baseUrl: '/olympus-genai-mobile-server-installation/'
+  url: 'https://setup.olympus.io',
+  baseUrl: '/',
 
   organizationName: 'Olympus-io',
   projectName: 'olympus-genai-mobile-server-installation',
