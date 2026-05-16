@@ -39,17 +39,16 @@ df -BG / | awk 'NR==2 { gsub("G","",$4); if ($4+0 >= 30) print "✅ "$4" GB free
 </TabItem>
 <TabItem value="windows-ps" label="🪟 Windows (PowerShell)">
 
+:::tip Lines are intentionally long
+Each check is one physical line so PowerShell pasted line-by-line still works. Use the copy button in the top-right of the block — don't hand-select.
+:::
+
 ```powershell
-if (docker info 2>$null) { Write-Host "✅ Docker is running" -ForegroundColor Green }
-else { Write-Host "❌ Docker is not running — start Docker Desktop and re-run this check" -ForegroundColor Red }
+if (docker info 2>$null) { Write-Host "✅ Docker is running" -ForegroundColor Green } else { Write-Host "❌ Docker is not running — start Docker Desktop and re-run this check" -ForegroundColor Red }
 
-$free = [math]::Round((Get-PSDrive C).Free / 1GB)
-if ($free -ge 30) { Write-Host ("✅ {0} GB free on C:" -f $free) -ForegroundColor Green }
-else { Write-Host ("❌ Only {0} GB free on C: — need 30 GB+" -f $free) -ForegroundColor Red }
+$free = [math]::Round((Get-PSDrive C).Free / 1GB); if ($free -ge 30) { Write-Host ("✅ {0} GB free on C:" -f $free) -ForegroundColor Green } else { Write-Host ("❌ Only {0} GB free on C: — need 30 GB+" -f $free) -ForegroundColor Red }
 
-if (Get-NetTCPConnection -LocalPort 8888 -ErrorAction SilentlyContinue) {
-  Write-Host "❌ Port 8888 is in use — see Troubleshooting" -ForegroundColor Red
-} else { Write-Host "✅ Port 8888 is free" -ForegroundColor Green }
+if (Get-NetTCPConnection -LocalPort 8888 -ErrorAction SilentlyContinue) { Write-Host "❌ Port 8888 is in use — see Troubleshooting" -ForegroundColor Red } else { Write-Host "✅ Port 8888 is free" -ForegroundColor Green }
 ```
 
 </TabItem>
@@ -180,19 +179,7 @@ fi
 <TabItem value="windows-ps" label="🪟 Windows (PowerShell)">
 
 ```powershell
-if (Get-Command nvidia-smi -ErrorAction SilentlyContinue) {
-  Write-Host "✅ GPU detected" -ForegroundColor Green
-  if (docker info 2>$null | Select-String -Quiet "nvidia") {
-    Write-Host "✅ NVIDIA Container Toolkit already configured" -ForegroundColor Green
-  } else {
-    Write-Host "⚠️  GPU found but Docker can't access it." -ForegroundColor Yellow
-    Write-Host "Install NVIDIA Container Toolkit for Windows:" -ForegroundColor Yellow
-    Write-Host "  https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-on-windows" -ForegroundColor Cyan
-    Write-Host "After installing, restart Docker Desktop and re-run this check." -ForegroundColor Yellow
-  }
-} else {
-  Write-Host "ℹ️  No NVIDIA GPU detected — switch back to the 'Without GPU' tab above." -ForegroundColor Cyan
-}
+if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Write-Host "ℹ️  No NVIDIA GPU detected — switch back to the 'Without GPU' tab above." -ForegroundColor Cyan } elseif (docker info 2>$null | Select-String -Quiet "nvidia") { Write-Host "✅ GPU detected and NVIDIA Container Toolkit already configured" -ForegroundColor Green } else { Write-Host "⚠️  GPU found but Docker can't access it. Install the NVIDIA Container Toolkit for Windows: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-on-windows — then restart Docker Desktop and re-run this check." -ForegroundColor Yellow }
 ```
 
 </TabItem>
