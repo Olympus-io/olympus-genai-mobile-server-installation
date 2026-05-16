@@ -1,0 +1,136 @@
+---
+title: Troubleshooting
+sidebar_label: Troubleshooting
+sidebar_position: 6
+description: Common issues and copy-paste fixes for the most likely install problems.
+---
+
+# Troubleshooting
+
+The most common issues during install, with one-line fixes you can copy and paste. Expand the one that matches your situation.
+
+<details>
+<summary><strong>❌ "Cannot connect to the Docker daemon"</strong></summary>
+
+Docker isn't running. Start it:
+
+- **macOS / Windows:** open the Docker Desktop app and wait for the whale icon to stop animating.
+- **Linux:** `sudo systemctl start docker` (and `sudo systemctl enable docker` to start it on boot).
+
+Re-run your install command afterwards.
+
+</details>
+
+<details>
+<summary><strong>❌ Port 8888 is already in use</strong></summary>
+
+Something else on your machine is listening on port 8888. Find and stop it, or change the wizard's port.
+
+**Find what's using the port:**
+
+```bash
+# Linux / macOS
+lsof -i :8888
+```
+
+```powershell
+# Windows PowerShell
+Get-NetTCPConnection -LocalPort 8888 | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Get-Process -Id $_ }
+```
+
+**Or run the wizard on a different host port** by changing `-p 8888:8888` to e.g. `-p 9999:8888` in your install command, then open `http://localhost:9999` instead.
+
+</details>
+
+<details>
+<summary><strong>❌ "denied: requested access to the resource is denied" when pulling the image</strong></summary>
+
+The install command ships with a read-only Docker Hub credential, so this usually means Docker isn't passing it through. Most often this happens if you have a personal `docker login` overriding it. Quick test:
+
+```bash
+docker logout
+```
+
+Then re-run the install command. If it still fails, double-check that you copy-pasted the command exactly, including the `DOCKER_USERNAME` and `DOCKER_TOKEN` lines.
+
+</details>
+
+<details>
+<summary><strong>❌ The first install is very slow or appears stuck</strong></summary>
+
+The full platform is ~6 GB across 29 container images and is downloaded in parallel after the wizard hits the **Deploy** step. On a 100 Mbps connection this takes ~10 minutes; on slow or metered connections, considerably longer.
+
+You can watch download progress in your original terminal (where `docker logs -f olympus-setup` is still running) — look for lines like `Pulling fs layer`, `Download complete`, etc.
+
+If a single image truly stalls, retry the wizard's **Deploy** step — it picks up where it left off; previously-downloaded layers are reused.
+
+</details>
+
+<details>
+<summary><strong>❌ I can't reach <code>http://&lt;server-ip&gt;:8888</code> from another machine</strong></summary>
+
+Your server is reachable on the network but the port is blocked by a firewall.
+
+- **Linux (ufw):** `sudo ufw allow 8888/tcp`
+- **Linux (firewalld):** `sudo firewall-cmd --add-port=8888/tcp --permanent && sudo firewall-cmd --reload`
+- **Windows:** open Windows Defender Firewall → Inbound Rules → New Rule → TCP → Specific local port `8888` → Allow.
+- **Cloud VM (AWS / GCP / Azure):** open inbound TCP 8888 in your VM's security group / network firewall rules.
+
+:::note
+For production, after install completes you'll only need ports **80** and **443** open, not 8888.
+:::
+
+</details>
+
+<details>
+<summary><strong>❌ The setup container exited or I lost the logs</strong></summary>
+
+Re-attach to the running container's logs:
+
+```bash
+docker logs -f olympus-setup
+```
+
+If `docker ps -a | grep olympus-setup` shows the container as `Exited`, restart it:
+
+```bash
+docker start olympus-setup && docker logs -f olympus-setup
+```
+
+If it keeps exiting, capture the full log for support:
+
+```bash
+docker logs olympus-setup > olympus-setup.log 2>&1
+```
+
+</details>
+
+<details>
+<summary><strong>❌ I want to start over from scratch</strong></summary>
+
+:::danger This deletes all your Olympus configuration and platform data
+Do this only if you genuinely want to restart from zero.
+:::
+
+```bash
+# Linux / macOS
+docker rm -f olympus-setup
+docker ps -aq --filter "label=com.olympus.managed=true" | xargs -r docker rm -f
+rm -rf "$HOME/olympus/app" "$HOME/olympus/data"
+```
+
+```powershell
+# Windows PowerShell
+docker rm -f olympus-setup
+docker ps -aq --filter "label=com.olympus.managed=true" | ForEach-Object { docker rm -f $_ }
+Remove-Item -Recurse -Force "$env:USERPROFILE\olympus\app", "$env:USERPROFILE\olympus\data"
+```
+
+Then re-run the [Install](./install) command.
+
+</details>
+
+## Still stuck?
+
+- 🐛 [Open an issue on GitHub](https://github.com/Olympus-io/olympus-genai-mobile-server-installation/issues)
+- ✉️ Email `support@olympus.io` — please include the output of `docker logs olympus-setup` so we can see what happened.

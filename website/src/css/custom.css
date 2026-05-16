@@ -1,0 +1,90 @@
+/**
+ * Olympus docs theme — based on Infima with cyan accents over a near-black background.
+ * Brand cyan (#00ACC4) is taken from the official olympus.io brand palette used in the
+ * email templates and the new logo treatment.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --ifm-color-primary: #00acc4;
+  --ifm-color-primary-dark: #009bb0;
+  --ifm-color-primary-darker: #0093a6;
+  --ifm-color-primary-darkest: #007988;
+  --ifm-color-primary-light: #1abacf;
+  --ifm-color-primary-lighter: #2cc0d3;
+  --ifm-color-primary-lightest: #4fcedd;
+
+  --ifm-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', ui-monospace, SFMono-Regular,
+    Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  --ifm-heading-font-weight: 700;
+  --ifm-code-font-size: 92%;
+  --ifm-navbar-height: 64px;
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #2cc0d3;
+  --ifm-color-primary-dark: #1abacf;
+  --ifm-color-primary-darker: #0fb5cb;
+  --ifm-color-primary-darkest: #0c95a7;
+  --ifm-color-primary-light: #4fcedd;
+  --ifm-color-primary-lighter: #6dd6e2;
+  --ifm-color-primary-lightest: #92e0ea;
+
+  --ifm-background-color: #0b0d10;
+  --ifm-background-surface-color: #11151a;
+  --ifm-navbar-background-color: rgba(11, 13, 16, 0.85);
+  --ifm-footer-background-color: #07090b;
+
+  --ifm-color-emphasis-300: #2a3037;
+  --ifm-toc-border-color: #1f242b;
+  --ifm-hr-border-color: #1f242b;
+
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .navbar {
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid #1f242b;
+}
+
+[data-theme='dark'] .footer {
+  border-top: 1px solid #1f242b;
+}
+
+/* Tighter, more confident typography */
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  letter-spacing: -0.015em;
+}
+
+.markdown h2 {
+  margin-top: 2.5rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+  padding-bottom: 0.4rem;
+}
+
+/* Code blocks: subtle border in dark mode */
+[data-theme='dark'] pre {
+  border: 1px solid #1f242b;
+}
+
+/* Tab labels: keep them readable at the OS-icon sizes used */
+.tabs__item {
+  font-weight: 600;
+}
+.tabs__item--active {
+  border-bottom-color: var(--ifm-color-primary);
+}
+
+/* Admonition (callout) softening for dark */
+[data-theme='dark'] .alert--tip {
+  --ifm-alert-background-color: rgba(0, 172, 196, 0.08);
+  --ifm-alert-border-color: rgba(0, 172, 196, 0.4);
+}

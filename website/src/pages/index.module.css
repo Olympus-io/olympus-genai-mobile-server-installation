@@ -1,0 +1,80 @@
+/**
+ * Custom Olympus hero — minimal, technical, dark-first.
+ */
+
+.heroBanner {
+  padding: 5rem 1rem 4rem;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(1100px 480px at 90% -10%, rgba(0, 172, 196, 0.18), transparent 60%),
+    radial-gradient(800px 360px at -5% 110%, rgba(0, 172, 196, 0.10), transparent 60%);
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.heroEyebrow {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary);
+}
+
+.heroTitle {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin: 0 0 1rem;
+  max-width: 24ch;
+}
+
+.heroAccent {
+  color: var(--ifm-color-primary);
+}
+
+.heroSubtitle {
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  max-width: 60ch;
+  margin: 0 0 2rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+[data-theme='dark'] .heroSubtitle {
+  color: var(--ifm-color-emphasis-600);
+}
+
+.buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.heroCta,
+.heroCtaSecondary {
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.heroMeta {
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-600);
+  margin: 0;
+}
+
+.heroMeta code {
+  background: rgba(0, 172, 196, 0.1);
+  color: var(--ifm-color-primary);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 172, 196, 0.25);
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 3rem 1rem 2.5rem;
+    text-align: left;
+  }
+}

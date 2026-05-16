@@ -1,0 +1,27 @@
+---
+title: Setup Wizard
+sidebar_label: Setup Wizard
+sidebar_position: 4
+description: The 8-step browser wizard walkthrough.
+---
+
+# Setup Wizard
+
+Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard walks you through 8 short steps. Your choices are remembered, so you can pause and resume.
+
+| Step                      | What you do                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| 1. **Welcome**            | Quick overview, click **Get Started**                                     |
+| 2. **Deployment Type**    | Choose **Public Cloud**, **Private Network**, or **Local Development**    |
+| 3. **Domain & DNS**       | Configure your domain and verify DNS records (Public Cloud only)          |
+| 4. **SSL/TLS**            | Choose **Let's Encrypt**, **Self-Signed**, or **Custom** certificates     |
+| 5. **Account Setup**      | Configure admin and database credentials                                  |
+| 6. **License**            | Activate your license or start a trial                                    |
+| 7. **Config Preview**     | Review all configuration before deployment                                |
+| 8. **Deploy**             | One-click deployment with real-time progress                              |
+
+:::tip
+The wizard saves your progress at every step. If you close the browser, just reopen `http://localhost:8888` to pick up where you left off.
+:::
+
+When deployment finishes, the wizard automatically redirects you to your new Olympus deployment. Continue to **[Post-Install →](./post-install)** to verify everything is healthy.
