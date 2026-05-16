@@ -19,7 +19,7 @@ docker run -d --name olympus-setup \
   -v "$HOME/olympus/data":"$HOME/olympus/data" \
   -e HOST_PROJECT_ROOT="$HOME/olympus/app" \
   olympusmobile/olympus-master-setup:latest
-# Open http://<server-ip>:8888 → 8-step wizard
+# Open http://<server-ip>:8888 → 9-step wizard
 ```
 
 Don't update this snippet here in isolation — it must stay aligned with the wizard's expected launch command (changes to `HOST_PROJECT_ROOT`, mounts, image tag, port all start in `olympus_master_setup_app/`).

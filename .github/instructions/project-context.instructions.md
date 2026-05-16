@@ -46,7 +46,7 @@ docker run -d --name olympus-setup \
   -v "$HOME/olympus/data":"$HOME/olympus/data" \
   -e HOST_PROJECT_ROOT="$HOME/olympus/app" \
   olympusmobile/olympus-master-setup:latest
-# Open http://<server-ip>:8888 → Complete 8-step wizard
+# Open http://<server-ip>:8888 → Complete 9-step wizard
 ```
 
 ---

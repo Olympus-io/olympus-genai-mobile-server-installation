@@ -15,9 +15,10 @@ const FeatureList: FeatureItem[] = [
     emoji: '🚀',
     description: (
       <>
-        A single <code>docker run</code> brings up the setup wizard. An 8-step
-        browser flow handles the rest — domain, SSL, accounts, license, deploy.
-        No build tools or language runtimes needed on the host.
+        A single <code>docker run</code> brings up the setup wizard. A 9-step
+        browser flow handles the rest — domain, SSL, accounts, GenAI, license,
+        optional services, deploy. No build tools or language runtimes needed
+        on the host.
       </>
     ),
   },

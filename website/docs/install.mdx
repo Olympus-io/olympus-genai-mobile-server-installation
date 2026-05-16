@@ -2,7 +2,7 @@
 title: Install
 sidebar_label: Install
 sidebar_position: 3
-description: Run the pre-flight check, set up GPU support if needed, then start the installer with one Docker command.
+description: Run the pre-flight check, pick the GPU or no-GPU path, then start the installer with one Docker command.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,13 +10,10 @@ import TabItem from '@theme/TabItem';
 
 # Install Olympus
 
-Three short steps:
+Two questions, then one Docker command:
 
-1. **Pre-flight check** — verify Docker is running, you have ≥30 GB free, and port 8888 is unused.
-2. **GPU setup** *(optional)* — skip if you don't have an NVIDIA GPU.
-3. **Run the installer** — one Docker command that starts the setup wizard.
-
-Pick your OS in the tabs below. Your choice is remembered across the page, so once you click your OS at the top, every later code block stays on that OS.
+1. **What OS are you on?** — pick the OS tab inside each code block. Your choice is remembered across the page.
+2. **Do you have an NVIDIA GPU?** — pick **Without GPU** if you're unsure or plan to use cloud AI providers (OpenAI / Anthropic / Gemini). Pick **With NVIDIA GPU** only if you want local AI models (Ollama, Stable Diffusion) running on your own hardware.
 
 ---
 
@@ -65,13 +62,93 @@ The pre-flight check uses PowerShell — switch to the PowerShell tab for this s
 
 ---
 
-## 2. GPU setup *(skip if no GPU)*
+## 2. Pick your install path
 
-:::info No NVIDIA GPU? Skip this section.
-The platform works fully without a GPU — you can use cloud AI providers (OpenAI, Anthropic, Gemini) instead.
+<Tabs groupId="hardware">
+<TabItem value="cpu" label="🧠 Without GPU (most machines)" default>
+
+:::info You picked the no-GPU path
+The platform works fully without a GPU — use cloud AI providers (OpenAI, Anthropic, Gemini) for chat/embeddings/vision. You can always switch to a GPU later by re-running with the **With NVIDIA GPU** path.
 :::
 
-If your machine has an NVIDIA GPU and you want local AI models (Ollama, Stable Diffusion), run the one-liner for your OS. It detects the GPU, installs the **NVIDIA Container Toolkit** if missing, and verifies Docker can actually use the GPU.
+### Run the installer
+
+Pick your OS and run the command. It pulls the setup image (~few hundred MB) and starts the browser wizard at `http://localhost:8888`.
+
+<Tabs groupId="os">
+<TabItem value="linux-mac" label="🐧 Linux / 🍎 macOS" default>
+
+```bash
+mkdir -p "$HOME/olympus/app" "$HOME/olympus/data" && \
+docker rm -f olympus-setup >/dev/null 2>&1 || true && \
+docker pull olympusmobile/olympus-master-setup:latest && \
+docker run -d \
+  --name olympus-setup \
+  -p 8888:8888 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v "$HOME/olympus/app":"$HOME/olympus/app" \
+  -v "$HOME/olympus/data":"$HOME/olympus/data" \
+  -e HOST_PROJECT_ROOT="$HOME/olympus/app" \
+  -e DOCKER_USERNAME="olympussupport" \
+  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" \
+  olympusmobile/olympus-master-setup:latest >/dev/null && \
+docker logs -f olympus-setup
+```
+
+</TabItem>
+<TabItem value="windows-ps" label="🪟 Windows (PowerShell)">
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\olympus\app", "$env:USERPROFILE\olympus\data" | Out-Null; `
+docker rm -f olympus-setup *> $null; `
+docker pull olympusmobile/olympus-master-setup:latest; `
+docker run -d `
+  --name olympus-setup `
+  -p 8888:8888 `
+  -v /var/run/docker.sock:/var/run/docker.sock `
+  -v "${env:USERPROFILE}\olympus\app:/olympus/app" `
+  -v "${env:USERPROFILE}\olympus\data:/olympus/data" `
+  -e HOST_PROJECT_ROOT="/olympus/app" `
+  -e DOCKER_USERNAME="olympussupport" `
+  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" `
+  olympusmobile/olympus-master-setup:latest > $null; `
+docker logs -f olympus-setup
+```
+
+</TabItem>
+<TabItem value="windows-cmd" label="🪟 Windows (Command Prompt)">
+
+```batch
+if not exist "%USERPROFILE%\olympus\app" mkdir "%USERPROFILE%\olympus\app"
+if not exist "%USERPROFILE%\olympus\data" mkdir "%USERPROFILE%\olympus\data"
+docker rm -f olympus-setup >nul 2>&1
+docker pull olympusmobile/olympus-master-setup:latest && ^
+docker run -d ^
+  --name olympus-setup ^
+  -p 8888:8888 ^
+  -v /var/run/docker.sock:/var/run/docker.sock ^
+  -v "%USERPROFILE%\olympus\app:/olympus/app" ^
+  -v "%USERPROFILE%\olympus\data:/olympus/data" ^
+  -e HOST_PROJECT_ROOT="/olympus/app" ^
+  -e DOCKER_USERNAME="olympussupport" ^
+  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" ^
+  olympusmobile/olympus-master-setup:latest >nul && ^
+docker logs -f olympus-setup
+```
+
+</TabItem>
+</Tabs>
+
+</TabItem>
+<TabItem value="gpu" label="🎮 With NVIDIA GPU">
+
+:::info You picked the GPU path
+This adds one extra step: install the **NVIDIA Container Toolkit** so Docker can pass the GPU through to containers. Then the installer command itself includes `--gpus all`.
+:::
+
+### 2a. Install + verify the NVIDIA Container Toolkit
+
+Run the one-liner for your OS. It detects the GPU, installs the toolkit if missing, and verifies Docker can actually use the GPU.
 
 <Tabs groupId="os">
 <TabItem value="linux-mac" label="🐧 Linux / 🍎 macOS" default>
@@ -95,7 +172,7 @@ if nvidia-smi >/dev/null 2>&1; then
     echo "✅ Docker GPU access confirmed!"
   fi
 else
-  echo "ℹ️ No NVIDIA GPU detected — skipping GPU setup (this is fine)"
+  echo "ℹ️ No NVIDIA GPU detected — switch back to the 'Without GPU' tab above."
 fi
 ```
 
@@ -114,47 +191,26 @@ if (Get-Command nvidia-smi -ErrorAction SilentlyContinue) {
     Write-Host "After installing, restart Docker Desktop and re-run this check." -ForegroundColor Yellow
   }
 } else {
-  Write-Host "ℹ️  No NVIDIA GPU detected — skipping (this is fine)" -ForegroundColor Cyan
+  Write-Host "ℹ️  No NVIDIA GPU detected — switch back to the 'Without GPU' tab above." -ForegroundColor Cyan
 }
 ```
 
 </TabItem>
 <TabItem value="windows-cmd" label="🪟 Windows (Command Prompt)">
 
-GPU detect uses PowerShell — switch to the PowerShell tab above for this step.
+GPU detection uses PowerShell — switch to the PowerShell tab above for this sub-step, then come back here for the installer command if you prefer `cmd`.
 
 </TabItem>
 </Tabs>
 
----
+:::caution Don't skip this verification
+Only continue to **2b** after you see `✅ Docker GPU access confirmed!` (Linux/macOS) or `✅ NVIDIA Container Toolkit already configured` (Windows). Running the installer with `--gpus all` against an unconfigured Docker will fail at container start.
+:::
 
-## 3. Run the installer
-
-Pick the command for your OS. **If Step 2 confirmed GPU access**, use the **"With GPU"** variant; otherwise use **"Without GPU"**.
+### 2b. Run the installer (with `--gpus all`)
 
 <Tabs groupId="os">
 <TabItem value="linux-mac" label="🐧 Linux / 🍎 macOS" default>
-
-**Without GPU** (most machines):
-
-```bash
-mkdir -p "$HOME/olympus/app" "$HOME/olympus/data" && \
-docker rm -f olympus-setup >/dev/null 2>&1 || true && \
-docker pull olympusmobile/olympus-master-setup:latest && \
-docker run -d \
-  --name olympus-setup \
-  -p 8888:8888 \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v "$HOME/olympus/app":"$HOME/olympus/app" \
-  -v "$HOME/olympus/data":"$HOME/olympus/data" \
-  -e HOST_PROJECT_ROOT="$HOME/olympus/app" \
-  -e DOCKER_USERNAME="olympussupport" \
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" \
-  olympusmobile/olympus-master-setup:latest >/dev/null && \
-docker logs -f olympus-setup
-```
-
-**With GPU** (only if Step 2 showed "✅ Docker GPU access confirmed"):
 
 ```bash
 mkdir -p "$HOME/olympus/app" "$HOME/olympus/data" && \
@@ -177,27 +233,6 @@ docker logs -f olympus-setup
 </TabItem>
 <TabItem value="windows-ps" label="🪟 Windows (PowerShell)">
 
-**Without GPU** (most machines):
-
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\olympus\app", "$env:USERPROFILE\olympus\data" | Out-Null; `
-docker rm -f olympus-setup *> $null; `
-docker pull olympusmobile/olympus-master-setup:latest; `
-docker run -d `
-  --name olympus-setup `
-  -p 8888:8888 `
-  -v /var/run/docker.sock:/var/run/docker.sock `
-  -v "${env:USERPROFILE}\olympus\app:/olympus/app" `
-  -v "${env:USERPROFILE}\olympus\data:/olympus/data" `
-  -e HOST_PROJECT_ROOT="/olympus/app" `
-  -e DOCKER_USERNAME="olympussupport" `
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" `
-  olympusmobile/olympus-master-setup:latest > $null; `
-docker logs -f olympus-setup
-```
-
-**With GPU** (only if Step 2 showed "✅ NVIDIA Container Toolkit already configured"):
-
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\olympus\app", "$env:USERPROFILE\olympus\data" | Out-Null; `
 docker rm -f olympus-setup *> $null; `
@@ -219,28 +254,6 @@ docker logs -f olympus-setup
 </TabItem>
 <TabItem value="windows-cmd" label="🪟 Windows (Command Prompt)">
 
-**Without GPU** (most machines):
-
-```batch
-if not exist "%USERPROFILE%\olympus\app" mkdir "%USERPROFILE%\olympus\app"
-if not exist "%USERPROFILE%\olympus\data" mkdir "%USERPROFILE%\olympus\data"
-docker rm -f olympus-setup >nul 2>&1
-docker pull olympusmobile/olympus-master-setup:latest && ^
-docker run -d ^
-  --name olympus-setup ^
-  -p 8888:8888 ^
-  -v /var/run/docker.sock:/var/run/docker.sock ^
-  -v "%USERPROFILE%\olympus\app:/olympus/app" ^
-  -v "%USERPROFILE%\olympus\data:/olympus/data" ^
-  -e HOST_PROJECT_ROOT="/olympus/app" ^
-  -e DOCKER_USERNAME="olympussupport" ^
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" ^
-  olympusmobile/olympus-master-setup:latest >nul && ^
-docker logs -f olympus-setup
-```
-
-**With GPU** (only if `docker info | findstr /i nvidia` shows output):
-
 ```batch
 if not exist "%USERPROFILE%\olympus\app" mkdir "%USERPROFILE%\olympus\app"
 if not exist "%USERPROFILE%\olympus\data" mkdir "%USERPROFILE%\olympus\data"
@@ -259,6 +272,9 @@ docker run -d ^
   olympusmobile/olympus-master-setup:latest >nul && ^
 docker logs -f olympus-setup
 ```
+
+</TabItem>
+</Tabs>
 
 </TabItem>
 </Tabs>
@@ -283,4 +299,4 @@ When you see that line, **open `http://localhost:8888` in your browser** (or `ht
 First image pulls can be slow on metered or international connections — the setup image is small, but the full platform downloads later total ~6 GB across 29 images.
 :::
 
-Once the wizard opens, head to **[Setup Wizard →](./wizard)** for the 8-step walkthrough.
+Once the wizard opens, head to **[Setup Wizard →](./wizard)** for the 9-step walkthrough.

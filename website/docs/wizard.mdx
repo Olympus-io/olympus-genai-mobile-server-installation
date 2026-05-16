@@ -2,26 +2,171 @@
 title: Setup Wizard
 sidebar_label: Setup Wizard
 sidebar_position: 4
-description: The 8-step browser wizard walkthrough.
+description: The 9-step browser wizard walkthrough — what you'll see on each screen and what each choice means.
 ---
 
 # Setup Wizard
 
-Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard walks you through 8 short steps. Your choices are remembered, so you can pause and resume.
+Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard walks you through 9 short steps. Your choices are saved at every step, so you can close the browser and reopen `http://localhost:8888` to resume exactly where you left off.
 
-| Step                      | What you do                                                               |
-| ------------------------- | ------------------------------------------------------------------------- |
-| 1. **Welcome**            | Quick overview, click **Get Started**                                     |
-| 2. **Deployment Type**    | Choose **Public Cloud**, **Private Network**, or **Local Development**    |
-| 3. **Domain & DNS**       | Configure your domain and verify DNS records (Public Cloud only)          |
-| 4. **SSL/TLS**            | Choose **Let's Encrypt**, **Self-Signed**, or **Custom** certificates     |
-| 5. **Account Setup**      | Configure admin and database credentials                                  |
-| 6. **License**            | Activate your license or start a trial                                    |
-| 7. **Config Preview**     | Review all configuration before deployment                                |
-| 8. **Deploy**             | One-click deployment with real-time progress                              |
-
-:::tip
-The wizard saves your progress at every step. If you close the browser, just reopen `http://localhost:8888` to pick up where you left off.
+:::tip Read this section before clicking through
+Each step below describes what you'll see, what each option means, and any gotchas. The wizard's own helper text is intentionally short — this page is the long version.
 :::
 
-When deployment finishes, the wizard automatically redirects you to your new Olympus deployment. Continue to **[Post-Install →](./post-install)** to verify everything is healthy.
+---
+
+## 1. Deployment Type
+
+**What you do:** Pick where Olympus will live. This is the most important choice — it gates which SSL options, DNS checks, and domain helpers appear in later steps.
+
+**Your options:**
+
+- **Public Network** — internet-facing server. Unlocks **Let's Encrypt** auto-renewing certificates and real DNS validation. Best for production deployments on a cloud VM with a public domain you control.
+- **Private Network** — intranet, VPN, or air-gapped LAN. Use **self-signed** or **custom** certificates; DNS validation can be skipped.
+- **Local Machine** — laptop, dev box, single-user install. Auto-fills the domain as `olympus.local` and walks you through `/etc/hosts` setup. Skips DNS entirely.
+
+:::info Heads up
+You can't switch deployment type later without redeploying. Public Network requires a real domain you actually control and the ability to point its DNS at this machine.
+:::
+
+---
+
+## 2. Domain Configuration
+
+**What you do:** Enter the primary domain Olympus will be reachable at (e.g. `files.acme.com`). All subdomains the platform needs — `api.`, `admin.`, `mail.`, etc. — derive from this single value.
+
+For **Local Machine**, you can type a short base name like `olympus` and the wizard turns it into `olympus.local`. You'll see the exact `/etc/hosts` lines you need to paste.
+
+For **Public** / **Private Network**, the wizard validates that DNS records for your domain (and key subdomains) resolve to this server's IP. There's a **Skip DNS check** escape hatch for private networks where the DNS is internal-only.
+
+**Your options:**
+
+- Primary domain (required)
+- Domain mode toggle (for Local Machine: short name → `.local` vs. custom full domain)
+- DNS validation pass/skip
+
+:::caution DNS must propagate
+Even after you create the right A records at your registrar, propagation can take minutes-to-hours. If DNS validation fails, wait and retry — the wizard preserves your inputs.
+:::
+
+---
+
+## 3. Security & SSL
+
+**What you do:** Choose how the platform terminates HTTPS. The available options depend on the deployment type you picked in Step 1.
+
+**Your options:**
+
+- **Let's Encrypt** *(Public Network only)* — free, auto-renewing certificates. The wizard asks for a notification email Let's Encrypt will send expiry warnings to. Requires ports **80** and **443** to be reachable from the internet during issuance.
+- **Self-Signed** *(Private / Local only)* — wizard generates a 3-year RSA-2048 cert with wildcard SANs covering all the platform subdomains. You can download the root cert to install on client devices so browsers don't warn.
+- **Custom Certificates** — upload your own PEM-encoded private key + certificate chain (leaf + intermediates). The wizard validates the chain, domain match, and expiry (must have ≥1 month remaining).
+
+:::caution Public Network can't use self-signed
+The Let's Encrypt issuance flow requires Public Network mode. If you're on a private network but want a real certificate, generate one externally and upload via **Custom Certificates**.
+:::
+
+---
+
+## 4. Account Setup
+
+**What you do:** Set the initial administrator credentials and the internal PostgreSQL password the platform will use to talk to its own database.
+
+**Your options:**
+
+- **Administrator username** (defaults to `admin`, editable)
+- **Administrator email** — used for license activation in a later step and password recovery
+- **Administrator password** — has a **Generate** button for a secure random value
+- **PostgreSQL password** — also has a **Generate** button
+
+:::caution Avoid these characters in passwords
+The wizard rejects `#`, `@`, `:`, `/`, `?`, `%`, `[`, and `]` — these characters break URL-encoded database connection strings. The Generate button produces a safe value automatically.
+:::
+
+---
+
+## 5. GenAI Settings
+
+**What you do:** Wire up AI providers so the platform is fully functional the moment it boots. Everything on this screen is optional — the platform deploys cleanly with all AI providers disabled, you can just configure them later in the Admin Panel.
+
+**Public providers** (work everywhere):
+
+- **Google Gemini** — API key + model selection
+- **OpenAI** — API key + model selection
+- **Anthropic Claude** — API key + model selection
+
+For each provider, the wizard validates the key and shows you the catalog of models it can actually see.
+
+**Self-hosted providers** (NVIDIA GPU required):
+
+- **Ollama** — local LLMs. Disabled / Self-Hosted (with model pull list) / Remote URL (point at an existing Ollama server)
+- **Stable Diffusion** — local image generation. Couples with self-hosted Ollama, requires a GPU
+
+**Default model roles** — at the bottom, pick which configured provider+model handles each role: embedding, chat, summary, vision, MCP chat, MCP image.
+
+:::info No GPU? Skip the self-hosted section
+Self-hosted Ollama and Stable Diffusion are auto-disabled on hosts without an NVIDIA GPU. Public providers work fine without one. The platform also deploys cleanly with **everything** disabled — you just won't have AI features until you configure them later.
+:::
+
+---
+
+## 6. License
+
+**What you do:** Choose your edition. Olympus comes in two flavors.
+
+**Your options:**
+
+- **Olympus Core (Community)** — free forever, no license key needed. Just select and proceed.
+- **Olympus Business & Enterprise** — paid edition with two sub-paths:
+  - **I have a license** — paste your key in the `OLY-LIC-XXXX-XXXX-XXXX-XXXX` format. The wizard validates it and shows max users, expiry, and the device fingerprint it'll be locked to.
+  - **Start free trial** — name + email gets you 30 days of all Enterprise features, up to 10 users.
+
+A feature-comparison table on the screen shows exactly what each edition includes.
+
+:::caution Enterprise licenses are device-locked
+The trial and paid license bind to this machine's hardware fingerprint (OS, CPU, hostname). Moving the deployment to a new server requires regenerating the license — contact support before doing that.
+:::
+
+---
+
+## 7. Configuration Preview
+
+**What you do:** Read-only review of the actual config files the wizard will generate during deployment — `.env`, `appConfig.json`, `production.js`, `init.sql`, the Docker Compose files, and the nginx vhost.
+
+A file list runs down the left side; click a file to see its contents with syntax highlighting on the right. Scan for the values that matter most: the right domain, the right SSL mode, the AI providers you actually enabled.
+
+**Heads up:** Auto-generated security keys (JWT secrets, VAPID keys, etc.) are **not** shown here — they're generated at deployment time, not at preview time. Don't worry that you can't see them.
+
+---
+
+## 8. Optional Services
+
+**What you do:** Toggle on optional sidecar services. All four sections default to off and the platform deploys fine without any of them.
+
+**Your options:**
+
+- **MailHog (local email testing)** — catches all outbound email and exposes it at `mail.{domain}`. Useful for dev and demos, **never enable in production** — real customers won't get emails.
+- **File Sharing (NFS / SMB)** — create up to 3 containerized file servers that mount host paths into the platform. NFS isn't available on Windows hosts; use SMB there.
+- **Primary Users** — only appears if you set up at least one NFS mount. Create login accounts that get immediate access to the share when the platform boots.
+- **OpenClaw Bot** *(Enterprise only)* — multi-tenant AI assistant. Toggle to enable.
+
+:::caution File-sharing paths are not auto-created
+The wizard format-validates the host paths but doesn't check they exist. Make sure the directories are created on the host before deploying, or the mounts will fail at container start.
+:::
+
+---
+
+## 9. Final Deployment
+
+**What you do:** One last full review — a 6-section summary showing deployment type, domain, SSL mode, admin account, license edition, AI providers, and optional-services counts.
+
+Below the summary, a checklist shows exactly what the deployment will do: generate configs, start ~29 containers, initialize the database, request/install SSL, bring the platform online.
+
+Tick the **"I have reviewed everything"** box, click **Deploy & Start Platform**, and watch a live progress feed. Deployment takes **2–5 minutes** depending on whether images need to be pulled.
+
+:::caution One-way door
+After clicking Deploy, you can't edit prior steps in this wizard run. If something looks wrong on the summary, fix it now. (You can always re-run the wizard later for a clean redeploy.)
+:::
+
+---
+
+When the progress feed turns all green, the wizard auto-redirects you to your new Olympus deployment. Continue to **[Post-Install →](./post-install)** to verify everything is healthy.

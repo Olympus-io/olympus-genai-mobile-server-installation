@@ -30,7 +30,7 @@ function HomepageHeader() {
           </Link>
         </div>
         <p className={styles.heroMeta}>
-          One <code>docker run</code> · 8-step browser wizard · ~15 minutes
+          One <code>docker run</code> · 9-step browser wizard · ~15 minutes
         </p>
       </div>
     </header>

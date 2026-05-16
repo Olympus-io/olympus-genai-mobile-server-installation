@@ -2,7 +2,7 @@
 
 **Olympus** is a self-hosted enterprise file management and GenAI platform. This guide takes you from a fresh machine — server, desktop, or laptop — to a fully running system you can use in your browser.
 
-> 📦 You run **one Docker command**, then complete an **8-step browser wizard**.
+> 📦 You run **one Docker command**, then complete a **9-step browser wizard**.
 > ⏱️ Allow **15–30 minutes** end-to-end — most of that is downloading container images on the first run.
 > 🧑‍💻 Aimed at IT administrators. You do **not** need to be a developer.
 
@@ -394,20 +394,23 @@ When you see that line, **open `http://localhost:8888` in your browser** (or `ht
 
 ## 🖥️ Web-Based Setup Wizard
 
-Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard walks you through 8 short steps:
+Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard walks you through 9 short steps:
 
-| Step                   | What you do                                                                            |
-| ---------------------- | -------------------------------------------------------------------------------------- |
-| 1. **Welcome**         | Get started with the setup process                                                     |
-| 2. **Deployment Type** | Choose **Public Cloud**, **Private Network**, or **Local Development**                 |
-| 3. **Domain & DNS**    | Configure your domain and verify DNS records (Public Cloud only)                       |
-| 4. **SSL/TLS**         | Choose **Let's Encrypt**, **Self-Signed**, or **Custom** certificates                  |
-| 5. **Account Setup**   | Configure admin and database credentials                                               |
-| 6. **License**         | Activate your license or start a trial                                                 |
-| 7. **Config Preview**  | Review all configuration before deployment                                             |
-| 8. **Deploy**          | One-click deployment with real-time progress                                           |
+| Step                        | What you do                                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------------------------ |
+| 1. **Deployment Type**      | Choose **Public Network**, **Private Network**, or **Local Machine**                             |
+| 2. **Domain Configuration** | Set your primary domain; verify DNS (public/private) or `/etc/hosts` mappings (local)            |
+| 3. **Security & SSL**       | Pick **Let's Encrypt** (public only), **Self-Signed**, or **Custom** PEM upload                  |
+| 4. **Account Setup**        | Admin username/email/password + PostgreSQL password (Generate buttons available)                 |
+| 5. **GenAI Settings**       | Optional — wire up Gemini/OpenAI/Claude API keys, and Ollama/Stable Diffusion if you have a GPU  |
+| 6. **License**              | **Olympus Core** (free) or **Enterprise** (paid key or 30-day trial)                             |
+| 7. **Configuration Preview** | Read-only review of all generated config files (`.env`, `appConfig.json`, Compose, nginx…)      |
+| 8. **Optional Services**    | MailHog (test email), NFS/SMB file sharing, primary users, OpenClaw Bot                          |
+| 9. **Final Deployment**     | Summary review, confirm checkbox, click **Deploy & Start Platform** (2–5 minutes)                |
 
-The wizard remembers your choices, so you can stop and resume later if needed.
+The wizard saves at every step — close the browser any time and reopen `http://localhost:8888` to resume.
+
+> 📖 Each step has a longer walkthrough with options, gotchas, and screenshots on the [Setup Wizard docs page](https://setup.olympus.io/docs/wizard).
 
 ---
 
