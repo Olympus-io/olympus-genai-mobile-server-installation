@@ -647,9 +647,25 @@
                     "token",
                     "refresh-access-token"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
                 }
               },
               "response": [
+                {
+                  "name": "200 response",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"accessToken\":\"eyJ-REDACTED.JWT.TOKEN\",\"refreshToken\":\"3f560491-6467-4682-ae0c-0c2cfb05d546\",\"user\":{\"id\":1,\"email\":\"admin@deepakpandey.in\",\"emailStatus\":\"confirmed\",\"mobile\":null,\"mobileStatus\":\"confirmed\",\"name\":\"Admin\",\"isSuperAdmin\":true,\"isAdUser\":false,\"isGuestUser\":false,\"isAnonymousUser\":false,\"sid\":null,\"otpExpiresAt\":\"1567076023000\",\"lastSeenAt\":1780134400000,\"isFileHostingAllowed\":false}}"
+                },
                 {
                   "name": "400 response",
                   "status": "HTTP 400",
