@@ -300,7 +300,20 @@
                   "raw": "{\n  \"rememberToken\": \"{{rememberToken}}\",\n  \"otp\": \"123456\"\n}"
                 }
               },
-              "response": []
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const r = pm.response.json();",
+                      "if (r.accessToken) { pm.collectionVariables.set('userToken', r.accessToken); }",
+                      "if (r.refreshToken) { pm.collectionVariables.set('refreshToken', r.refreshToken); }"
+                    ]
+                  }
+                }
+              ]
             }
           ]
         },
@@ -334,7 +347,20 @@
                   "raw": "{\n  \"apiKey\": \"{{clientApiKey}}\",\n  \"email\": \"guest@example.com\",\n  \"firstName\": \"Guest\",\n  \"lastName\": \"User\",\n  \"password\": \"TempPass!1\"\n}"
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "200 response",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"user\":{\"id\":55003,\"email\":\"pmguest1780134068@example.com\",\"emailStatus\":\"unconfirmed\",\"mobile\":null,\"mobileStatus\":\"confirmed\",\"name\":\"Postman Guest\",\"isSuperAdmin\":false,\"isAdUser\":false,\"isGuestUser\":true,\"isAnonymousUser\":false,\"sid\":\"1780134068724\",\"otpExpiresAt\":\"1567076023000\",\"lastSeenAt\":null,\"isFileHostingAllowed\":false},\"usersHomeDirectory\":{\"createdAt\":\"1780134068768\",\"updatedAt\":\"1780134068763\",\"id\":2920278,\"name\":\"My Home\",\"originalName\":\"My Home\",\"uniqueName\":\"81adcf1bb3b78ba31a4678f09e22399b\",\"size\":0,\"driveFsName\":\"/users-home/guest-user-55003/My Home/\",\"mountId\":\"5\",\"directoryId\":2920277,\"depthLevel\":3,\"ownerIds\":[],\"createdNow\":true}}}"
+                }
+              ]
             }
           ]
         },
