@@ -171,7 +171,6 @@ Content-Type: application/json
       "name": "new-filename.pdf",
       "originalName": "original-name.pdf",
       "size": 9168220,
-      "uniqueName": "5b400fd88e8cff01e9a0748c0a213469",
       "mimetype": "application/pdf",
       "viewLink": "/FolderName/new-filename.pdf",
       "directoryId": 17907,
@@ -273,7 +272,6 @@ Authorization: Bearer {accessToken}
       "name": "Inflation of Gold Prices.txt",
       "originalName": "Inflation of Gold Prices.txt",
       "size": "4421",
-      "uniqueName": "a68ebc9588021df0b80614047ff3fb3a",
       "mimetype": "text/plain",
       "viewLink": "//MCP/Inflation of Gold Prices.txt",
       "mountId": "7",
@@ -922,7 +920,6 @@ Content-Type: application/json
   "data": {
     "sharedItemData": {
       "id": 361,
-      "uniqueId": "b83d63519238385501ce7ce4cd9703b4",
       "sharedBy": "2",
       "nodeType": 1,
       "userId": "9",
@@ -963,7 +960,6 @@ Authorization: Bearer {accessToken}
     "sharedItemData": [
       {
         "id": 359,
-        "uniqueId": "ded33a87ac32741bfab4a051652b8fe0",
         "sharedBy": "2",
         "nodeType": 2,
         "permission": "admin",
@@ -1003,7 +999,6 @@ Content-Type: application/json
   "data": {
     "sharedItemData": {
       "id": 578,
-      "uniqueId": "675465ca6c5df4bf21336b97547d786e",
       "sharedBy": "40",
       "nodeType": 2,
       "userId": "46",
@@ -1091,11 +1086,11 @@ Content-Type: application/json
 #### favorites_remove — Remove from favorites
 
 ```
-DELETE ${OLYMPUS_API_URL}/api/v1/favourites/remove?uniqueId={uniqueId}
+DELETE ${OLYMPUS_API_URL}/api/v1/favourites/remove?entityId={entityId}&entityType={entityType}
 Authorization: Bearer {accessToken}
 ```
 
-`uniqueId` is the unique identifier of the favourite entry (returned from `favorites_get_all`).
+`entityId` is the numeric file or directory id, and `entityType` must be `"File"` or `"Directory"` — the same pair the `favorites_add` endpoint takes (returned from `favorites_get_all`).
 
 ---
 
