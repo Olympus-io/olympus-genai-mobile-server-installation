@@ -1,0 +1,45 @@
+---
+title: Post-Install
+sidebar_label: Post-Install
+sidebar_position: 5
+description: Verify your deployment is healthy and find the URLs you can use to access Olympus.
+---
+
+# Post-Install
+
+When deployment completes, the wizard automatically redirects you to your running Olympus platform. You can also reach it directly at the URLs you configured during the wizard.
+
+## Access URLs
+
+For production (Public Cloud) deployments:
+
+- 🌐 **Main App** — `https://mobile.yourdomain.com`
+- 🔌 **API** — `https://mobile-api.yourdomain.com`
+- 🤖 **MCP server** — https://mcp.yourdomain.com (SSE at /sse, Streamable HTTP at /mcp)
+- 📊 **Grafana (monitoring)** — `https://grafana.yourdomain.com`
+
+For local-only installs, replace `yourdomain.com` with the host you chose in the wizard (often `localhost` or your server's IP).
+
+## Verify all services are healthy
+
+```bash
+docker ps
+```
+
+You should see ~35 containers, all in the `Up` state. The `STATUS` column may show `(healthy)` for the ones with built-in health checks.
+
+If any service is in `Restarting` or `Exited` state for more than a minute, jump to the **[Troubleshooting](./troubleshooting)** page — most issues have a one-line fix.
+
+## First login
+
+1. Open the **Main App** URL in your browser.
+2. Log in with the **admin account** you created in Step 5 of the wizard.
+3. The first page you'll see is the file-management dashboard. From here you can:
+   - Mount NFS/SMB directories so Olympus can scan and index your existing files.
+   - Configure GenAI providers (OpenAI / Anthropic / Gemini / local Ollama).
+   - Invite teammates and configure permissions.
+
+## Where to go next
+
+- The full **API reference** lives in the `postman-collection/` Postman collection in this repo.
+- If you need help, see **[Troubleshooting →](./troubleshooting)** or email `support@olympus.io`.

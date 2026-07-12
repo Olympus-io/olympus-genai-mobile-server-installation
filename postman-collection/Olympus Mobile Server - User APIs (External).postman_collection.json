@@ -1,0 +1,4091 @@
+{
+  "info": {
+    "name": "Olympus Mobile Server - User APIs (External)",
+    "description": "Non-superadmin (Public + User Panel) endpoints of the Olympus Mobile Server.\nSet serverUrl, clientApiKey and your login credentials in the environment, run 'Login as User' first, then any request.\nAdmin/superadmin endpoints are intentionally excluded.",
+    "_postman_id": "f62beaaf-463a-4dde-bf04-0ae27ab90026",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "GET /api/v1/entrance/get-auth-modes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/entrance/get-auth-modes",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "entrance",
+                    "get-auth-modes"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "200 response",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"ssoSettings\": {\"twoFactorAuthConfig\": {\"otpChannel\": \"EMAIL\"}, \"authProvider\": \"otp\", \"ssoEnabled\": false}}}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/entrance/recover-password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/entrance/recover-password",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "entrance",
+                    "recover-password"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"{{userEmail}}\"\n}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST /api/v1/entrance/resend-otp",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/entrance/resend-otp",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "entrance",
+                    "resend-otp"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rememberToken\": \"{{rememberToken}}\"\n}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST /api/v1/entrance/send-otp",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/entrance/send-otp",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "entrance",
+                    "send-otp"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"channel\": \"EMAIL\"\n}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "POST /api/v1/entrance/verify-update-password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/entrance/verify-update-password",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "entrance",
+                    "verify-update-password"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "PUT /api/v1/entrance/logged-in",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/entrance/logged-in",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "entrance",
+                    "logged-in"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login as User (saves userToken)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/entrance/login",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "entrance",
+                    "login"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"apiKey\": \"{{clientApiKey}}\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+                }
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const r = pm.response.json();",
+                      "if (r.accessToken) { pm.collectionVariables.set('userToken', r.accessToken); }",
+                      "if (r.refreshToken) { pm.collectionVariables.set('refreshToken', r.refreshToken); }",
+                      ""
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "PUT /api/v1/entrance/verify-otp",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/entrance/verify-otp",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "entrance",
+                    "verify-otp"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rememberToken\": \"{{rememberToken}}\",\n  \"otp\": \"123456\"\n}"
+                }
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const r = pm.response.json();",
+                      "if (r.accessToken) { pm.collectionVariables.set('userToken', r.accessToken); }",
+                      "if (r.refreshToken) { pm.collectionVariables.set('refreshToken', r.refreshToken); }"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Guest Onboarding",
+          "item": [
+            {
+              "name": "POST /api/v1/guest-user-onboarding/register",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/guest-user-onboarding/register",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "guest-user-onboarding",
+                    "register"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"apiKey\": \"{{clientApiKey}}\",\n  \"email\": \"guest@example.com\",\n  \"firstName\": \"Guest\",\n  \"lastName\": \"User\",\n  \"password\": \"TempPass!1\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "200 response",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"user\":{\"id\":55003,\"email\":\"pmguest1780134068@example.com\",\"emailStatus\":\"unconfirmed\",\"mobile\":null,\"mobileStatus\":\"confirmed\",\"name\":\"Postman Guest\",\"isSuperAdmin\":false,\"isAdUser\":false,\"isGuestUser\":true,\"isAnonymousUser\":false,\"sid\":\"1780134068724\",\"otpExpiresAt\":\"1567076023000\",\"lastSeenAt\":null,\"isFileHostingAllowed\":false},\"usersHomeDirectory\":{\"createdAt\":\"1780134068768\",\"updatedAt\":\"1780134068763\",\"id\":2920278,\"name\":\"My Home\",\"originalName\":\"My Home\",\"size\":0,\"driveFsName\":\"/users-home/guest-user-55003/My Home/\",\"mountId\":\"5\",\"directoryId\":2920277,\"depthLevel\":3,\"ownerIds\":[],\"createdNow\":true}}}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Utility",
+          "item": [
+            {
+              "name": "GET /api/v1/utility/get-app-branding",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/utility/get-app-branding",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "utility",
+                    "get-app-branding"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "200 response",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"appBranding\": {\"logos\": {\"loginPageLogo\": {\"url\": \"/assets/images/olympus_logo.png\", \"alt\": \"Olympus Logo\"}, \"headerLogo\": {\"url\": \"/assets/images/olympus_logo.png\", \"alt\": \"Olympus Logo\"}}, \"appLinks\": [{\"linkName\": \"Privacy Policy\", \"linkUrl\": \"http://www.olympus.io/\", \"linkStyle\": \"normal\"}, {\"linkName\": \"About Us\", \"linkUrl\": \"http://www.olympus.io/about-us/\", \"linkStyle\": \"bordered\"}]}}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/utility/get-queued-job-status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/utility/get-queued-job-status",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "utility",
+                    "get-queued-job-status"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"jobId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/utility/get-queued-job-status`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/utility/get-system-time",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/utility/get-system-time",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "utility",
+                    "get-system-time"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "200 response",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"systemTime\": 1780130887652}}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Panel",
+      "item": [
+        {
+          "name": "Account",
+          "item": [
+            {
+              "name": "GET /api/v1/account/me",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/account/me",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "account",
+                    "me"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"user\":{\"id\":3,\"email\":\"deepak@olympus.io\",\"emailStatus\":\"confirmed\",\"mobile\":null,\"mobileStatus\":\"confirmed\",\"name\":\"Deepak\",\"isSuperAdmin\":false,\"isAdUser\":false,\"isGuestUser\":false,\"isAnonymousUser\":false,\"sid\":\"<redacted>\",\"otpExpiresAt\":\"1567076023000\",\"lastSeenAt\":1780232200000,\"isFileHostingAllowed\":true}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/account/subscribe-self-notification",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/account/subscribe-self-notification",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "account",
+                    "subscribe-self-notification"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\": [{\"code\": \"ONLY_SOCKETS_ALLOWED\", \"message\": \"Only socket requests are allowed to this end point. But you seems to be HTTP.\"}]}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/account/logout-from-all-apps",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/account/logout-from-all-apps",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "account",
+                    "logout-from-all-apps"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"userId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/account/logout-from-all-apps`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Auth Tokens",
+          "item": [
+            {
+              "name": "POST /api/v1/token/refresh-access-token",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/token/refresh-access-token",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "token",
+                    "refresh-access-token"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "200 response",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"accessToken\":\"eyJ-REDACTED.JWT.TOKEN\",\"refreshToken\":\"3f560491-6467-4682-ae0c-0c2cfb05d546\",\"user\":{\"id\":1,\"email\":\"admin@deepakpandey.in\",\"emailStatus\":\"confirmed\",\"mobile\":null,\"mobileStatus\":\"confirmed\",\"name\":\"Admin\",\"isSuperAdmin\":true,\"isAdUser\":false,\"isGuestUser\":false,\"isAnonymousUser\":false,\"sid\":null,\"otpExpiresAt\":\"1567076023000\",\"lastSeenAt\":1780134400000,\"isFileHostingAllowed\":false}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"refreshToken\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/token/refresh-access-token`) due to 1 missing or invalid parameter.\"}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const r = pm.response.json();",
+                      "// refresh returns a fresh accessToken (and may rotate refreshToken).",
+                      "if (r.accessToken) { pm.collectionVariables.set('userToken', r.accessToken); }",
+                      "if (r.refreshToken) { pm.collectionVariables.set('refreshToken', r.refreshToken); }"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "PUT /api/v1/token/blacklist",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/token/blacklist",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "token",
+                    "blacklist"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"token\": \"{{accessToken}}\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "200 response",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"message\": \"Token Saved.\", \"savedData\": {\"reason\": \"\", \"message\": \"This access token is blacklisted. To continue please get a new token.\"}}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Comments",
+          "item": [
+            {
+              "name": "DELETE /api/v1/directory/comment/delete-comment",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/comment/delete-comment",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "comment",
+                    "delete-comment"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"commentId\": 999999\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"destroyedRecord\":{\"createdAt\":1780232451581,\"updatedAt\":1780232451626,\"id\":1232,\"payload\":\"Postman dir comment (edited)\",\"accountId\":3,\"entityId\":\"2920619\",\"entityType\":\"directory\"}}}"
+                }
+              ]
+            },
+            {
+              "name": "DELETE /api/v1/file/comment/delete-comment",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/comment/delete-comment",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "comment",
+                    "delete-comment"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"commentId\": 999999\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"destryedRecord\":{\"createdAt\":1780232451493,\"updatedAt\":1780232451536,\"id\":1231,\"payload\":\"Postman file comment (edited)\",\"accountId\":3,\"entityId\":\"6806414\",\"entityType\":\"file\"}}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/comment/get-comments",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/comment/get-comments?directoryId=2918732&page=1&limit=10",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "comment",
+                    "get-comments"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "2918732"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"comments\":[{\"id\":1232,\"payload\":\"Postman dir comment\",\"accountId\":3,\"entityId\":\"2920619\",\"entityType\":\"directory\",\"updatedAt\":1780232451581,\"user\":{\"id\":3,\"email\":\"deepak@olympus.io\",\"name\":\"Deepak\",\"sid\":\"<redacted>\"}}]}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/comment/get-comments",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/comment/get-comments",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "comment",
+                    "get-comments"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"comments\":[{\"id\":1231,\"payload\":\"Postman file comment\",\"accountId\":3,\"entityId\":\"6806414\",\"entityType\":\"file\",\"updatedAt\":1780232451493,\"user\":{\"id\":3,\"email\":\"deepak@olympus.io\",\"name\":\"Deepak\",\"sid\":\"<redacted>\"}}]}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "PATCH /api/v1/directory/comment/update-comment",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/comment/update-comment",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "comment",
+                    "update-comment"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"{{commentId}}\",\n  \"payload\": \"Updated comment\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"updatedRecord\":{\"createdAt\":1780232451581,\"updatedAt\":1780232451626,\"id\":1232,\"payload\":\"Postman dir comment (edited)\",\"accountId\":3,\"entityId\":\"2920619\",\"entityType\":\"directory\"}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"payload\\\" is required, but it was not defined.\", \"\\\"id\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`PATCH /api/v1/directory/comment/update-comment`) due to 2 missing or invalid parameters.\"}"
+                }
+              ]
+            },
+            {
+              "name": "PATCH /api/v1/file/comment/update-comment",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/comment/update-comment",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "comment",
+                    "update-comment"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"{{commentId}}\",\n  \"payload\": \"Updated comment\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"updatedRecord\":{\"createdAt\":1780232451493,\"updatedAt\":1780232451536,\"id\":1231,\"payload\":\"Postman file comment (edited)\",\"accountId\":3,\"entityId\":\"6806414\",\"entityType\":\"file\"}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"payload\\\" is required, but it was not defined.\", \"\\\"id\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`PATCH /api/v1/file/comment/update-comment`) due to 2 missing or invalid parameters.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/directory/comment/add-comment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/comment/add-comment",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "comment",
+                    "add-comment"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": 2918732,\n  \"payload\": \"Sample comment\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"createdRecord\":{\"createdAt\":1780232451581,\"updatedAt\":1780232451581,\"id\":1232,\"payload\":\"Postman dir comment\",\"accountId\":3,\"entityId\":\"2920619\",\"entityType\":\"directory\",\"user\":{\"name\":\"Deepak\",\"email\":\"deepak@olympus.io\",\"id\":3}}}}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/file/comment/add-comment",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/comment/add-comment",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "comment",
+                    "add-comment"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": 6801269,\n  \"payload\": \"Sample comment\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"createdRecord\":{\"createdAt\":1780232451493,\"updatedAt\":1780232451493,\"id\":1231,\"payload\":\"Postman file comment\",\"accountId\":3,\"entityId\":\"6806414\",\"entityType\":\"file\",\"user\":{\"name\":\"Deepak\",\"email\":\"deepak@olympus.io\",\"id\":3}}}}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Directories",
+          "item": [
+            {
+              "name": "DELETE /api/v1/directory/delete",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/delete",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "delete"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": 999999\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"directory\":{\"createdAt\":1780232450000,\"updatedAt\":1780232450000,\"id\":2920619,\"name\":\"postman-test-1780232450456\",\"originalName\":\"postman-test-1780232450456\",\"size\":0,\"driveFsName\":\"/postman-test-1780232450456/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":null,\"directoryId\":2920548},\"otherDeletedDirectories\":[2920621,2920620]}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/create-zip",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/create-zip",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "create-zip"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/download",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/download",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "download"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"linkId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/directory/download`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/get-all-parents",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/get-all-parents?directoryId=2918732",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "get-all-parents"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "2918732"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"id\":2920619,\"name\":\"postman-test-1780232450456\",\"directoryid\":2920548,\"depth\":2,\"parents\":[{\"f1\":2920548,\"f2\":\"mount1\",\"f3\":\"/\"},{\"f1\":2920619,\"f2\":\"postman-test-1780232450456\",\"f3\":\"/postman-test-1780232450456/\"}]}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/get-child-directories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/get-child-directories?directoryId=2917604&limit=5&page=1",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "get-child-directories"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "2917604"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"directories\":[{\"createdAt\":1780130280000,\"updatedAt\":1780130280000,\"id\":2920551,\"name\":\"docs\",\"originalName\":\"docs\",\"size\":0,\"driveFsName\":\"/docs/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":2920548,\"permission\":\"admin\"},{\"createdAt\":1778500067000,\"updatedAt\":1778500067000,\"id\":2920553,\"name\":\"folder test #111rttr\",\"originalName\":\"folder test #111rttr\",\"size\":0,\"driveFsName\":\"/folder test #111rttr/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":2920548,\"permission\":\"admin\"},{\"createdAt\":1778954064000,\"updatedAt\":1778954064000,\"id\":2920554,\"name\":\"olympus-docs\",\"originalName\":\"olympus-docs\",\"size\":0,\"driveFsName\":\"/olympus-docs/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":2920548,\"permission\":\"admin\"},{\"createdAt\":1780130281000,\"updatedAt\":1780130281000,\"id\":2920556,\"name\":\"postman-folder-1780130281\",\"originalName\":\"postman-folder-1780130281\",\"size\":0,\"driveFsName\":\"/postman-folder-1780130281/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":2920548,\"permission\":\"admin\"},{\"createdAt\":1780130374000,\"updatedAt\":1780130374000,\"id\":2920555,\"name\":\"postman-folder-1780130374\",\"originalName\":\"postman-folder-1780130374\",\"size\":0,\"driveFsName\":\"/postman-folder-1780130374/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":2920548,\"permission\":\"admin\"},{\"createdAt\":1780130463000,\"updatedAt\":1780130463000,\"id\":2920558,\"name\":\"postman-folder-1780130463\",\"originalName\":\"postman-folder-1780130463\",\"size\":0,\"driveFsName\":\"/postman-folder-1780130463/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":2920548,\"permission\":\"admin\"},{\"createdAt\":1780130888000,\"updatedAt\":1780130888000,\"id\":2920552,\"name\":\"postman-folder-1780130888\",\"originalName\":\"postman-folder-1780130888\",\"size\":0,\"driveFsName\":\"/postman-folder-1780130888/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":2920548,\"permission\":\"admin\"},{\"createdAt\":1778666154000,\"updatedAt\":1778666154000,\"id\":2920557,\"name\":\"test-zip\",\"originalName\":\"test-zip\",\"size\":0,\"driveFsName\":\"/test-zip/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":2920548,\"permission\":\"admin\"}],\"currentPage\":1,\"limit\":25,\"total\":8,\"from\":1,\"to\":8,\"nextPage\":null}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/get-detail",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/get-detail?directoryId=2917604",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "get-detail"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "2917604"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"directory\":{\"createdAt\":1780232450000,\"updatedAt\":1780232450000,\"id\":2920619,\"name\":\"postman-test-1780232450456\",\"originalName\":\"postman-test-1780232450456\",\"size\":0,\"driveFsName\":\"/postman-test-1780232450456/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":null,\"directoryId\":2920548,\"permission\":\"admin\",\"mountPointDetails\":{\"id\":6,\"enabled\":true,\"mountType\":\"nfs\",\"accessControlType\":\"CREATOR_ADMIN_OTHERS_NULL\",\"isSharingEnabled\":true,\"sharingLevel\":\"BOTH\",\"allowAnonymousSharing\":true,\"smbVersion\":3,\"nfsVersion\":3,\"defaultSharingExpiryPeriod\":0,\"enableRealTimeFilePermissionCheck\":true,\"enableFileOwnershipSync\":false,\"isUsersHome\":false,\"applicableUserTypes\":[],\"maxFileSizeBytes\":null,\"isGenAiEnabled\":true,\"name\":\"mount1\"},\"isFavourite\":false,\"rootDetails\":{\"createdAt\":1780231111015,\"updatedAt\":1780232029101,\"id\":2920548,\"name\":\"mount1\",\"originalName\":\"mount1\",\"size\":0,\"driveFsName\":\"/\",\"mountId\":\"6\",\"depthLevel\":0,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":null}}}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/get-files",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/get-files?directoryId=2917604&limit=5&page=1",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "get-files"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "2917604"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"files\":[],\"currentPage\":1,\"limit\":25,\"total\":0,\"from\":1,\"to\":0,\"nextPage\":null}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/get-root-directories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/get-root-directories",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "get-root-directories"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"directories\":[{\"createdAt\":1780231111015,\"updatedAt\":1780232029101,\"id\":2920548,\"name\":\"mount1\",\"originalName\":\"mount1\",\"size\":0,\"driveFsName\":\"/\",\"mountId\":\"6\",\"depthLevel\":0,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":null,\"mountPoint\":\"mount1\",\"permission\":\"read\",\"mountPointDetails\":{\"id\":6,\"enabled\":true,\"mountType\":\"nfs\",\"accessControlType\":\"CREATOR_ADMIN_OTHERS_NULL\",\"isSharingEnabled\":true,\"sharingLevel\":\"BOTH\",\"allowAnonymousSharing\":true,\"smbVersion\":3,\"nfsVersion\":3,\"defaultSharingExpiryPeriod\":0,\"enableRealTimeFilePermissionCheck\":true,\"enableFileOwnershipSync\":false,\"isUsersHome\":false,\"applicableUserTypes\":[],\"maxFileSizeBytes\":null,\"isGenAiEnabled\":true,\"name\":\"mount1\"}},{\"createdAt\":1780231130548,\"updatedAt\":1780232082365,\"id\":2920549,\"name\":\"mount2\",\"originalName\":\"mount2\",\"size\":0,\"driveFsName\":\"/\",\"mountId\":\"7\",\"depthLevel\":0,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232082362\",\"directoryId\":null,\"mountPoint\":\"mount2\",\"permission\":\"read\",\"mountPointDetails\":{\"id\":7,\"enabled\":true,\"mountType\":\"smb\",\"accessControlType\":\"FULL_RW\",\"isSharingEnabled\":true,\"sharingLevel\":\"BOTH\",\"allowAnonymousSharing\":true,\"smbVersion\":3,\"nfsVersion\":3,\"defaultSharingExpiryPeriod\":0,\"enableRealTimeFilePermissionCheck\":true,\"enableFileOwnershipSync\":true,\"isUsersHome\":false,\"applicableUserTypes\":[],\"maxFileSizeBytes\":null,\"isGenAiEnabled\":true,\"name\":\"mount2\"}}]}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/search-directories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/search-directories?q=docs&limit=10",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "search-directories"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "docs"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"searchTerm\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/directory/search-directories`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/search-files-by-name",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/search-files-by-name?q=pdf&directoryId=2917604",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "search-files-by-name"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "pdf"
+                    },
+                    {
+                      "key": "directoryId",
+                      "value": "2917604"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"searchTerm\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/directory/search-files-by-name`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/subscribe-directory-changes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-changes",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "subscribe-directory-changes"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/subscribe-directory-events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-events",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "subscribe-directory-events"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/unsubscribe-directory-changes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-changes",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "unsubscribe-directory-changes"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"directoryId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/directory/unsubscribe-directory-changes`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/directory/unsubscribe-directory-events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-events",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "unsubscribe-directory-events"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"directoryId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/directory/unsubscribe-directory-events`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/directory/create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/create",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "create"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"postman-folder-{{ts}}\",\n  \"directoryId\": 2917604,\n  \"mountId\": 1\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"directory\":{\"createdAt\":\"1780232450000\",\"updatedAt\":\"1780232450000\",\"id\":2920619,\"name\":\"postman-test-1780232450456\",\"originalName\":\"postman-test-1780232450456\",\"size\":0,\"driveFsName\":\"/postman-test-1780232450456/\",\"mountId\":\"6\",\"directoryId\":2920548,\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":null,\"createdNow\":true,\"permission\":\"admin\"}}}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/directory/move",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/move",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "move"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": 2918732,\n  \"sourceDirectoryId\": 2917604,\n  \"destinationDirectoryId\": 2917604\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"directory\":{\"createdAt\":1780232450000,\"updatedAt\":1780232450861,\"id\":2920620,\"name\":\"sub-a-renamed\",\"originalName\":\"sub-a\",\"size\":0,\"driveFsName\":\"/postman-test-1780232450456/sub-b/sub-a-renamed/\",\"mountId\":\"6\",\"depthLevel\":3,\"ownerIds\":[],\"lastSeenGeneration\":null,\"directoryId\":2920621,\"permission\":\"admin\"}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\": [{\"code\": \"E_CANNOT_MOVE_HOME\", \"message\": \"You cannot move your home folder.\"}]}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/directory/rename",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/rename",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "rename"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": 2918732,\n  \"newName\": \"docs\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"directory\":{\"createdAt\":1780232450000,\"updatedAt\":1780232450809,\"id\":2920620,\"name\":\"sub-a-renamed\",\"originalName\":\"sub-a\",\"size\":0,\"driveFsName\":\"/postman-test-1780232450456/sub-a-renamed/\",\"mountId\":\"6\",\"depthLevel\":2,\"ownerIds\":[],\"lastSeenGeneration\":null,\"directoryId\":2920619,\"permission\":\"admin\",\"previousName\":\"sub-a\"}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\": [{\"code\": \"E_CANNOT_RENAME_HOME\", \"message\": \"You cannot rename your home folder.\"}]}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/directory/save-zipped-folder-here",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/save-zipped-folder-here",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "save-zipped-folder-here"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"linkId\": \"{{zipLinkId}}\",\n  \"directoryId\": 2918732\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\": [{\"code\": \"LINK_INVALID\", \"message\": \"This download link is invalid or has expired.\"}]}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Favourites",
+          "item": [
+            {
+              "name": "DELETE /api/v1/favourites/remove",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/favourites/remove?entityId={{favEntityId}}&entityType=File",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "favourites",
+                    "remove"
+                  ],
+                  "query": [
+                    {
+                      "key": "entityId",
+                      "value": "{{favEntityId}}"
+                    },
+                    {
+                      "key": "entityType",
+                      "value": "File"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/favourites/list",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/favourites/list?page=1&limit=10",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "favourites",
+                    "list"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"favourites\":[]}}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/favourites/add",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/favourites/add",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "favourites",
+                    "add"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entityId\": {{favEntityId}},\n  \"entityType\": \"File\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"createdRecord\":{\"createdAt\":1780232687675,\"updatedAt\":1780232687675,\"id\":1,\"entityId\":\"6806415\",\"entityType\":\"file\",\"nodeType\":1,\"mountId\":\"6\",\"userId\":\"3\"},\"favoritedRecord\":{\"createdAt\":1780232687000,\"updatedAt\":1780232687000,\"id\":6806415,\"name\":\"fav-share.txt\",\"originalName\":\"fav-share.txt\",\"size\":\"21\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/pm-fav-share-1780232687399/fav-share.txt\",\"iconLink\":null,\"mountId\":\"6\",\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"directoryId\":2920622,\"type\":\"File\",\"permission\":\"admin\"}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"entityId\\\" is required, but it was not defined.\", \"\\\"entityType\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/favourites/add`) due to 2 missing or invalid parameters.\"}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Files",
+          "item": [
+            {
+              "name": "DELETE /api/v1/file/delete",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/delete",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "delete"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": 999999\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"file\":{\"createdAt\":1780232450000,\"updatedAt\":1780232451779,\"id\":6806414,\"name\":\"postman-renamed.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/sub-b/postman-renamed.txt\",\"iconLink\":null,\"mountId\":\"6\",\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"directoryId\":2920621}}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/download",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/download",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "download"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/download-with-link",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/download-with-link",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "download-with-link"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"linkId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/file/download-with-link`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/get-detail",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/get-detail?fileId=6801269",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "get-detail"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "6801269"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"file\":{\"createdAt\":1780232450000,\"updatedAt\":1780232450000,\"id\":6806414,\"name\":\"postman-test.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/postman-test.txt\",\"iconLink\":null,\"mountId\":\"6\",\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"directoryId\":2920619,\"permission\":\"admin\",\"mountPointDetails\":{\"createdAt\":1780231110999,\"updatedAt\":1780231110999,\"id\":6,\"enabled\":true,\"mountType\":\"nfs\",\"mountPath\":\"nfs-server-1:/mount1\",\"accessControlType\":\"CREATOR_ADMIN_OTHERS_NULL\",\"isSharingEnabled\":true,\"sharingLevel\":\"BOTH\",\"allowAnonymousSharing\":true,\"lastIncrementalScan\":null,\"smbVersion\":3,\"nfsVersion\":3,\"mountOptions\":\"nolock,soft\",\"options\":{},\"mountPointAdminUserIds\":[3,5003],\"defaultSharingExpiryPeriod\":0,\"enableRealTimeFilePermissionCheck\":true,\"enableFileOwnershipSync\":false,\"isUsersHome\":false,\"applicableUserTypes\":[],\"maxFileSizeBytes\":null,\"isGenAiEnabled\":true,\"absoluteMountDirectoryPath\":\"/app/mounted_drives/nfs-server-1__mount1\",\"name\":\"mount1\"},\"rootDetails\":{\"createdAt\":1780231111015,\"updatedAt\":1780232029101,\"id\":2920548,\"name\":\"mount1\",\"originalName\":\"mount1\",\"size\":0,\"driveFsName\":\"/\",\"mountId\":\"6\",\"depthLevel\":0,\"ownerIds\":[],\"lastSeenGeneration\":\"1780232029098\",\"directoryId\":null},\"isFavourite\":false}}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/get-download-link",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/get-download-link",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "get-download-link"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"downloadDetails\":{\"fileId\":6806414,\"name\":\"postman-test.txt\",\"size\":48,\"filePath\":\"/app/mounted_drives/nfs-server-1__mount1/postman-test-1780232450456/postman-test.txt\",\"contentType\":\"text/plain\",\"downloadUrl\":\"https://mobile-api.deepakpandey.in/api/v1/file/download-with-link?linkId=f741ba02-3b78-4826-af35-4079d6b0212e\",\"user\":{\"name\":\"Deepak\",\"email\":\"deepak@olympus.io\",\"id\":3,\"isFileHostingAllowed\":true},\"smbMountPointName\":\"/app/mounted_drives/nfs-server-1__mount1\",\"file\":{\"createdAt\":1780232450000,\"updatedAt\":1780232450000,\"id\":6806414,\"name\":\"postman-test.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/postman-test.txt\",\"iconLink\":null,\"mountId\":\"6\",\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"directoryId\":2920619},\"fileOwnerId\":3,\"isFileHostingAllowed\":true}}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/search-files",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/search-files?q=pdf&limit=10",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "search-files"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "pdf"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"searchTerm\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/file/search-files`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/subscribe-file-events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/subscribe-file-events",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "subscribe-file-events"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/unsubscribe-file-events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/unsubscribe-file-events",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "unsubscribe-file-events"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"fileId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/file/unsubscribe-file-events`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/file/get-content-chunks",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/get-content-chunks",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "get-content-chunks"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": \"{{fileId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\": [{\"code\": \"INVALID_INPUT\", \"message\": \"Either fileId or directoryId is required.\"}]}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/file/move",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/move",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "move"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": 6801269,\n  \"sourceDirectoryId\": 2917604,\n  \"destinationDirectoryId\": 2918732\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"file\":{\"createdAt\":1780232450000,\"updatedAt\":1780232451347,\"id\":6806414,\"name\":\"postman-renamed.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/sub-b/postman-renamed.txt\",\"iconLink\":null,\"mountId\":\"6\",\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"directoryId\":2920621,\"permission\":\"admin\"}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\": [{\"code\": \"FILE_NOT_FOUND\", \"message\": \"Oops! The file you are trying to move doesn't exists.\"}]}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/file/rename",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/rename",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "rename"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": 6801269,\n  \"newName\": \"renamed.pdf\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"file\":{\"createdAt\":1780232450000,\"updatedAt\":1780232451272,\"id\":6806414,\"name\":\"postman-renamed.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/postman-renamed.txt\",\"iconLink\":null,\"mountId\":\"6\",\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"directoryId\":2920619,\"permission\":\"admin\"}}}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/file/update",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/update",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "update"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/file/upload",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/upload",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "upload"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"file\":{\"createdAt\":\"1780232450000\",\"updatedAt\":\"1780232450000\",\"id\":6806414,\"name\":\"postman-test.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/postman-test.txt\",\"iconLink\":null,\"mountId\":\"6\",\"directoryId\":2920619,\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"createdNow\":true,\"skipped\":false,\"permission\":\"admin\"}}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "MCP Chat",
+          "item": [
+            {
+              "name": "DELETE /api/v1/mcp/clear-chat-history/:directoryId",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/clear-chat-history/:directoryId",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "clear-chat-history",
+                    ":directoryId"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE /api/v1/mcp/delete-chat-message/:messageId",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/delete-chat-message/:messageId",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "delete-chat-message",
+                    ":messageId"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET /api/v1/mcp/get-chat-history",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/get-chat-history",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "get-chat-history"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"directoryId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/mcp/get-chat-history`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/mcp/subscribe-chat-events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/subscribe-chat-events",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "subscribe-chat-events"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"sessionId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/mcp/subscribe-chat-events`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/mcp/unsubscribe-chat-events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/unsubscribe-chat-events",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "unsubscribe-chat-events"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"sessionId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/mcp/unsubscribe-chat-events`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/mcp/save-chat-message",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/save-chat-message",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "save-chat-message"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"directoryId\": \"{{directoryId}}\",\n  \"role\": \"user\",\n  \"messageText\": \"Hello\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"sessionId\\\" is required, but it was not defined.\", \"\\\"directoryId\\\" is required, but it was not defined.\", \"\\\"role\\\" is required, but it was not defined.\", \"\\\"messageText\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/mcp/save-chat-message`) due to 4 missing or invalid parameters.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/mcp/send-message",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/send-message",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "send-message"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"message\": \"Summarise this folder\",\n  \"directoryId\": \"{{directoryId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"sessionId\\\" is required, but it was not defined.\", \"\\\"message\\\" is required, but it was not defined.\", \"\\\"directoryId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/mcp/send-message`) due to 3 missing or invalid parameters.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/mcp/start-session",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/start-session",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "start-session"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"accessToken\": \"{{userToken}}\",\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"directoryId\": \"{{directoryId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"accessToken\\\" is required, but it was not defined.\", \"\\\"refreshToken\\\" is required, but it was not defined.\", \"\\\"directoryId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/mcp/start-session`) due to 3 missing or invalid parameters.\"}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sharing",
+          "item": [
+            {
+              "name": "DELETE /api/v1/share/delete-directory-sharing/:id",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/delete-directory-sharing/:id",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "delete-directory-sharing",
+                    ":id"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "DELETE /api/v1/share/delete-file-sharing/:id",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/delete-file-sharing/:id",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "delete-file-sharing",
+                    ":id"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "GET /api/v1/share/directory/get-folder-sharing-info",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/directory/get-folder-sharing-info?linkId={{linkId}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "directory",
+                    "get-folder-sharing-info"
+                  ],
+                  "query": [
+                    {
+                      "key": "linkId",
+                      "value": "{{linkId}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharingInfo\":{\"createdAt\":1780232688545,\"updatedAt\":1780232688545,\"id\":8,\"entityId\":\"2920622\",\"shareLink\":\"8892d257-ca8a-429d-821d-82d120433e46\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"120003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessId\":\"MTc4MDIzMjY4ODM0MkBhbm9ueW1vdXMtdXNlci5vbHltcHVz\",\"directory\":{\"createdAt\":1780232687000,\"updatedAt\":1780232687000,\"id\":2920622,\"name\":\"pm-fav-share-1780232687399\",\"originalName\":\"pm-fav-share-1780232687399\",\"size\":0,\"driveFsName\":\"/pm-fav-share-1780232687399/\",\"mountId\":\"6\",\"depthLevel\":1,\"ownerIds\":[],\"lastSeenGeneration\":null,\"directoryId\":2920548,\"path\":\"mount1/pm-fav-share-1780232687399/\"}}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"linkId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/share/directory/get-folder-sharing-info`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/share/directory/get-public-sharing-status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/directory/get-public-sharing-status",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "directory",
+                    "get-public-sharing-status"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/share/directory/get-shared-to-users-list",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/directory/get-shared-to-users-list",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "directory",
+                    "get-shared-to-users-list"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":[{\"id\":3,\"entityId\":\"2920619\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"linkExpiryDate\":null,\"permission\":\"read\",\"email\":\"pooja@deepakpandey.in\",\"name\":\"Pooja Pandey\",\"sid\":\"<redacted>\"}]}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/share/directory/remove-sharing",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/directory/remove-sharing?shareId={{shareId}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "directory",
+                    "remove-sharing"
+                  ],
+                  "query": [
+                    {
+                      "key": "shareId",
+                      "value": "{{shareId}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"removedSharedData\":{\"createdAt\":1780232688274,\"updatedAt\":1780232688274,\"id\":7,\"entityId\":\"2920622\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"shareId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/share/directory/remove-sharing`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/share/file/download-via-public-link",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file/download-via-public-link",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file",
+                    "download-via-public-link"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"linkId\\\" is required, but it was not defined.\", \"\\\"responseType\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/share/file/download-via-public-link`) due to 2 missing or invalid parameters.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/share/file/get-public-sharing-status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file/get-public-sharing-status",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file",
+                    "get-public-sharing-status"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"downloadLink\":\"https://mobile.deepakpandey.in/user/shared/file/public-download?linkId=33d0c7d8-8562-42d7-b172-351191d03027\"}}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/share/file/get-shared-to-users-list",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file/get-shared-to-users-list",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file",
+                    "get-shared-to-users-list"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":[{\"id\":1,\"entityId\":\"6806414\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"linkExpiryDate\":null,\"permission\":\"read\",\"email\":\"pooja@deepakpandey.in\",\"name\":\"Pooja Pandey\",\"sid\":\"<redacted>\"}]}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/share/file/remove-sharing",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file/remove-sharing?shareId={{shareId}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file",
+                    "remove-sharing"
+                  ],
+                  "query": [
+                    {
+                      "key": "shareId",
+                      "value": "{{shareId}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"removedSharedData\":{\"createdAt\":1780232687916,\"updatedAt\":1780232687916,\"id\":5,\"entityId\":\"6806415\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"shareId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/share/file/remove-sharing`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/share/directory/enable-public-access",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/directory/enable-public-access",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "directory",
+                    "enable-public-access"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"enablePublicAccess\": true,\n  \"isLinkProtected\": false,\n  \"password\": \"\",\n  \"isExpiryEnabled\": false,\n  \"permissionLevel\": \"read\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/share/directory/share-privately",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/directory/share-privately",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "directory",
+                    "share-privately"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"userEmail\": \"{{shareTargetEmail}}\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451950,\"updatedAt\":1780232451950,\"id\":3,\"entityId\":\"2920619\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0},\"note\":\"Permissions for descendant files and directories will be created asynchronously\"}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/share/file/enable-public-download",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file/enable-public-download",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file",
+                    "enable-public-download"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": \"{{fileId}}\",\n  \"enablePublicDownload\": true,\n  \"isLinkProtected\": false,\n  \"password\": \"\",\n  \"isExpiryEnabled\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"downloadLink\":\"https://mobile-api.deepakpandey.in/api/v1/share/file/download-via-public-link?linkId=33d0c7d8-8562-42d7-b172-351191d03027&responseType=file\"}}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/share/file/generate-temp-download-link",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file/generate-temp-download-link",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file",
+                    "generate-temp-download-link"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"linkId\": \"{{linkId}}\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"tempLinkId\":\"327ac9f7-b786-422c-b60f-fa17e8a74688\",\"downloadUrl\":\"https://mobile-api.deepakpandey.in/api/v1/file/download-with-link?linkId=327ac9f7-b786-422c-b60f-fa17e8a74688\",\"expiresIn\":900,\"fileName\":\"fav-share.txt\",\"fileSize\":\"21\"}}"
+                },
+                {
+                  "name": "400 response",
+                  "status": "HTTP 400",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"linkId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/share/file/generate-temp-download-link`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/share/file/share-privately",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file/share-privately",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file",
+                    "share-privately"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": \"{{fileId}}\",\n  \"userEmail\": \"{{shareTargetEmail}}\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-05-31)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451686,\"updatedAt\":1780232451686,\"id\":1,\"entityId\":\"6806414\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "serverUrl",
+      "value": "https://YOUR-OLYMPUS-SERVER"
+    },
+    {
+      "key": "clientApiKey",
+      "value": ""
+    },
+    {
+      "key": "userEmail",
+      "value": ""
+    },
+    {
+      "key": "userPassword",
+      "value": ""
+    },
+    {
+      "key": "userToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "mountId",
+      "value": ""
+    },
+    {
+      "key": "rootDirectoryId",
+      "value": ""
+    },
+    {
+      "key": "directoryId",
+      "value": ""
+    },
+    {
+      "key": "fileId",
+      "value": ""
+    },
+    {
+      "key": "favEntityId",
+      "value": ""
+    },
+    {
+      "key": "shareId",
+      "value": ""
+    },
+    {
+      "key": "linkId",
+      "value": ""
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rememberToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "commentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "zipLinkId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ts",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "shareTargetEmail",
+      "value": "colleague@example.com",
+      "type": "string"
+    }
+  ]
+}

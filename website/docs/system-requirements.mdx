@@ -1,0 +1,161 @@
+---
+title: System Requirements
+sidebar_label: System Requirements
+sidebar_position: 2
+description: Minimum and recommended specs, storage planning, DNS, and optional GPU support.
+---
+
+# System Requirements
+
+You only need to install **one piece of software** — Docker. Everything else runs inside containers that Olympus pulls automatically.
+
+## 1. Docker
+
+Pick your OS and follow the official installer:
+
+- 🐧 **Linux** — [Install Docker Engine](https://docs.docker.com/engine/install/)
+- 🍎 **macOS** — [Install Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/)
+- 🪟 **Windows** — [Install Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/) (WSL 2 backend recommended)
+
+Once installed, make sure Docker is **running**. On macOS/Windows, Docker Desktop shows a whale icon in the menu bar or system tray when active.
+
+## 2. Minimum specs
+
+| Resource       | Minimum     | Recommended                                  |
+| -------------- | ----------- | -------------------------------------------- |
+| **Disk Space** | 30 GB free  | 50+ GB (more if you'll manage lots of files) |
+| **RAM**        | 16 GB       | 32 GB                                        |
+| **vCPU**       | 4 cores     | 8 cores                                      |
+
+:::note
+The 30 GB minimum covers Docker images (~18 GB across ~35 containers), databases at rest, and basic operating headroom. Add more for the files you'll manage — see the storage planner below.
+:::
+
+## 3. Storage planner — how much disk do I actually need?
+
+The platform processes files through an AI pipeline: each file is split into text chunks, embedded as vectors (stored in **Milvus**), and indexed for full-text search (stored in **OpenSearch**). File/folder metadata and permissions are stored in **PostgreSQL**. The actual files live on NFS-mounted host directories.
+
+### How storage scales
+
+| Component             | What it stores                                                       | Storage driver                         |
+| --------------------- | -------------------------------------------------------------------- | -------------------------------------- |
+| **NFS (host disk)**   | Original files as-is                                                 | Raw file size                          |
+| **Milvus**            | One vector embedding per chunk (~4–6 KB depending on model)          | Number of chunks × vector dimension    |
+| **OpenSearch**        | Chunk text + metadata per chunk (~5–8 KB each)                       | Number of chunks × chunk text size     |
+| **PostgreSQL**        | File/directory metadata, permissions, ACLs, sharing (~1 KB per file) | Number of files + directories          |
+| **Redis**             | Sessions, cache, pub/sub                                             | ~100–200 MB (mostly constant)          |
+| **RabbitMQ**          | Job queues (transient)                                               | ~100–200 MB (mostly constant)          |
+| **CouchDB**           | GenAI model configs, chunk settings                                  | ~50–100 MB (mostly constant)           |
+
+### Example scenarios
+
+The estimates below assume a **1024-dimension embedding model** (e.g. Ollama `mxbai-embed-large`). OpenAI's 1536-dim model increases Milvus storage by ~50%.
+
+<details>
+<summary>📁 <strong>Small</strong> — Laptop / Home Server (~5,000 files, ~15 GB raw)</summary>
+
+| File Type      | Count | Avg Size | Chunks Generated |
+| -------------- | ----- | -------- | ---------------- |
+| PDFs           | 500   | 5 MB     | ~65,000          |
+| Images         | 3,000 | 2 MB     | ~3,000           |
+| Word/PPT docs  | 500   | 4 MB     | ~50,000          |
+| Spreadsheets   | 500   | 2 MB     | ~1,000           |
+| Text/HTML/CSV  | 500   | 1 MB     | ~5,000           |
+| **Total**      | **5,000** | **~15 GB** | **~124,000 chunks** |
+
+| Service                          | Estimated Storage |
+| -------------------------------- | ----------------- |
+| NFS (raw files on host)          | 15 GB             |
+| Milvus (vectors + index)         | ~800 MB           |
+| OpenSearch (text chunks + index) | ~1.3 GB           |
+| PostgreSQL (metadata)            | ~100 MB           |
+| **Additional storage needed**    | **~18 GB**        |
+| **Total with base (30 GB)**      | **~48 GB**        |
+
+</details>
+
+<details>
+<summary>📁 <strong>Medium</strong> — Team / Department (~50,000 files, ~500 GB raw)</summary>
+
+| File Type      | Count  | Avg Size | Chunks Generated |
+| -------------- | ------ | -------- | ---------------- |
+| PDFs           | 10,000 | 5 MB     | ~1,300,000       |
+| Images         | 20,000 | 2 MB     | ~20,000          |
+| Word/PPT docs  | 10,000 | 4 MB     | ~1,000,000       |
+| Spreadsheets   | 5,000  | 2 MB     | ~10,000          |
+| Text/HTML/CSV  | 5,000  | 1 MB     | ~45,000          |
+| **Total**      | **50,000** | **~500 GB** | **~2.4M chunks** |
+
+| Service                          | Estimated Storage |
+| -------------------------------- | ----------------- |
+| NFS (raw files on host)          | 500 GB            |
+| Milvus (vectors + index)         | ~15 GB            |
+| OpenSearch (text chunks + index) | ~25 GB            |
+| PostgreSQL (metadata)            | ~1 GB             |
+| **Additional storage needed**    | **~540 GB**       |
+| **Total with base (30 GB)**      | **~570 GB**       |
+
+</details>
+
+<details>
+<summary>📁 <strong>Large</strong> — Enterprise (~100,000 files, ~1 TB raw)</summary>
+
+| File Type      | Count  | Avg Size | Chunks Generated |
+| -------------- | ------ | -------- | ---------------- |
+| PDFs           | 20,000 | 5 MB     | ~2,600,000       |
+| Images         | 40,000 | 2 MB     | ~40,000          |
+| Word/PPT docs  | 20,000 | 4 MB     | ~2,000,000       |
+| Spreadsheets   | 10,000 | 2 MB     | ~20,000          |
+| Text/HTML/CSV  | 10,000 | 1 MB     | ~90,000          |
+| **Total**      | **100,000** | **~1 TB** | **~4.75M chunks** |
+
+| Service                          | Estimated Storage |
+| -------------------------------- | ----------------- |
+| NFS (raw files on host)          | 1 TB              |
+| Milvus (vectors + index)         | ~30 GB            |
+| OpenSearch (text chunks + index) | ~50 GB            |
+| PostgreSQL (metadata)            | ~2 GB             |
+| **Additional storage needed**    | **~1.08 TB**      |
+| **Total with base (30 GB)**      | **~1.1 TB**       |
+
+</details>
+
+### How chunks are calculated
+
+| File Type                              | Chunk Size    | Overlap | Typical Chunks per File |
+| -------------------------------------- | ------------- | ------- | ----------------------- |
+| PDF (5 MB, ~300K chars)                | 2,500 chars   | 250     | ~130                    |
+| Word doc (3 MB, ~200K chars)           | 2,500 chars   | 250     | ~90                     |
+| PowerPoint (5 MB, ~250K chars)         | 2,500 chars   | 250     | ~110                    |
+| Image (OCR/description ~1K chars)      | 2,500 chars   | 250     | ~1                      |
+| CSV/Excel (tabular data)               | 100,000 chars | 0       | ~1–2                    |
+| Text/HTML (1 MB, ~20K chars)           | 2,500 chars   | 250     | ~9                      |
+
+:::tip
+GenAI features (embedding & search) can be enabled or disabled **per mount point**. If you don't need AI features on a mount, disable GenAI to skip Milvus/OpenSearch storage for those files entirely.
+:::
+
+## 4. (Production only) A domain with DNS records
+
+For production deployments, point the following subdomains to your server's public IP **before installation**:
+
+- `mobile.yourdomain.com`
+- `mobile-api.yourdomain.com`
+- `mcp.yourdomain.com`
+- `grafana.yourdomain.com`
+
+You can verify a record is live with `nslookup mobile.yourdomain.com` (Windows / macOS / Linux all support this command).
+
+:::note Doing a local-only install?
+Skip DNS entirely. The wizard will let you choose **Private Network** or **Local Development** deployment modes.
+:::
+
+## 5. (Optional) NVIDIA GPU for local AI
+
+If your machine has an **NVIDIA GPU** and you want to use local AI models (Ollama, Stable Diffusion), Docker needs the **NVIDIA Container Toolkit** to access the GPU. The install page has a one-liner that auto-detects your GPU and installs the toolkit if needed.
+
+:::info No GPU? No problem.
+The platform runs fully without one. You can connect cloud AI providers (OpenAI, Anthropic, Gemini) instead — which is what most installations use anyway.
+:::
+
+When you're ready, head to **[Install →](./install)** to run the pre-flight check and the installer.
