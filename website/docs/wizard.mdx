@@ -128,36 +128,52 @@ The trial and paid license bind to this machine's hardware fingerprint (OS, CPU,
 
 ---
 
-## 7. Configuration Preview
+## 7. Optional Services
 
-**What you do:** Read-only review of the actual config files the wizard will generate during deployment — `.env`, `appConfig.json`, `production.js`, `init.sql`, the Docker Compose files, and the Envoy proxy config.
-
-A file list runs down the left side; click a file to see its contents with syntax highlighting on the right. Scan for the values that matter most: the right domain, the right SSL mode, the AI providers you actually enabled.
-
-**Heads up:** Auto-generated security keys (JWT secrets, VAPID keys, etc.) are **not** shown here — they're generated at deployment time, not at preview time. Don't worry that you can't see them.
-
----
-
-## 8. Optional Services
-
-**What you do:** Toggle on optional sidecar services. All four sections default to off and the platform deploys fine without any of them.
+**What you do:** Toggle on genuinely optional extras. This step defaults to off and the platform deploys fine without any of it.
 
 **Your options:**
 
 - **MailHog (local email testing)** — catches all outbound email and exposes it at `mail.{domain}`. Useful for dev and demos, **never enable in production** — real customers won't get emails.
-- **File Sharing (NFS / SMB)** — create up to 3 containerized file servers that mount host paths into the platform. NFS isn't available on Windows hosts; use SMB there.
-- **Primary Users** — only appears if you set up at least one NFS mount. Create login accounts that get immediate access to the share when the platform boots.
-- **OpenClaw Bot** *(Enterprise only)* — multi-tenant AI assistant. Toggle to enable.
 
-:::caution File-sharing paths are not auto-created
-The wizard format-validates the host paths but doesn't check they exist. Make sure the directories are created on the host before deploying, or the mounts will fail at container start.
+---
+
+## 8. File Shares
+
+**What you do:** Point Olympus at the storage it will manage. This is what gives the platform something to browse, so it's worth doing now rather than after deployment.
+
+The first share form is already open when you arrive — just fill it in.
+
+**Your two options:**
+
+- **Connect real shares** *(recommended for production)* — mount an existing NFS export or SMB share from your NAS, Windows Server, or storage appliance. You provide the server host, export/share path, and credentials for SMB.
+- **Use test shares** *(evaluation only)* — no NFS/SMB server needed. Olympus runs a small file server for a plain folder on this machine. Test shares are always **Full read/write** so you can start using the platform immediately.
+
+You can add up to **3** shares here. Each one becomes a browsable drive in the file panel after deployment.
+
+**Path format depends on your host OS** — the wizard detects it and shows examples:
+
+| Host | Example path |
+| ---- | ------------ |
+| Linux / macOS | `/srv/olympus/share` |
+| Windows | `D:\SharedData` |
+| Windows, installer launched from WSL | `/mnt/d/SharedData` |
+
+:::tip Real shares can wait, test shares cannot
+You can add **real** NFS/SMB shares later from **Admin Panel → Mount Settings**. The self-contained **test shares** can only be created here during setup.
 :::
+
+:::caution Folders are not auto-created
+The wizard validates the path format but cannot always confirm the folder exists — especially on Docker Desktop. Create the directory on the host before deploying, and on Docker Desktop make sure it's listed under **Settings → Resources → File Sharing**, or the mount will fail at container start.
+:::
+
+Deploying without any file share is allowed — the wizard will ask you to confirm, since Olympus will start with nothing to browse.
 
 ---
 
 ## 9. Final Deployment
 
-**What you do:** One last full review — a 6-section summary showing deployment type, domain, SSL mode, admin account, license edition, AI providers, and optional-services counts.
+**What you do:** One last full review — a summary showing deployment type, domain, SSL mode, admin account, license edition, AI providers, optional services, and the file shares you configured.
 
 Below the summary, a checklist shows exactly what the deployment will do: generate configs, start ~35 containers, initialize the database, request/install SSL, bring the platform online.
 

@@ -389,8 +389,8 @@ Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard
 | 4. **Account Setup**        | Admin username/email/password + PostgreSQL password (Generate buttons available)                 |
 | 5. **GenAI Settings**       | Optional — wire up Gemini/OpenAI/Claude API keys, and Ollama/Stable Diffusion if you have a GPU  |
 | 6. **License**              | **Olympus Core** (free) or **Enterprise** (paid key or 90-day trial)                             |
-| 7. **Configuration Preview** | Read-only review of all generated config files (`.env`, `appConfig.json`, Compose, Envoy…)      |
-| 8. **Optional Services**    | MailHog (test email), NFS/SMB file sharing, primary users, OpenClaw Bot                          |
+| 7. **Optional Services**    | MailHog (test email) — genuinely optional extras, safe to skip entirely                          |
+| 8. **File Shares**          | Point Olympus at the storage it manages — a real NFS/SMB share, or a self-contained test share   |
 | 9. **Final Deployment**     | Summary review, confirm checkbox, click **Deploy & Start Platform** (2–5 minutes)                |
 
 The wizard saves at every step — close the browser any time and reopen `http://localhost:8888` to resume.
@@ -401,7 +401,7 @@ The wizard saves at every step — close the browser any time and reopen `http:/
 
 ## ✅ Post-Installation
 
-When deployment completes, the wizard automatically redirects you to your running Olympus platform. You can also reach it directly at the URLs you configured in Step 3:
+When deployment completes, the wizard automatically redirects you to your running Olympus platform. You can also reach it directly at the URLs derived from the domain you set in wizard Step 2 (Domain Configuration):
 
 - 🌐 **Main App** — `https://mobile.yourdomain.com`
 - 🔌 **API** — `https://mobile-api.yourdomain.com`
