@@ -183,6 +183,12 @@ if (Get-NetTCPConnection -LocalPort 8888 -ErrorAction SilentlyContinue) { Write-
 
 </details>
 
+### Got a ❌? Fix it here
+
+- **Docker is not running** → start Docker Desktop, or `sudo systemctl start docker` on Linux, then re-run the check.
+- **Not enough disk space** → see [what you'll need](#-what-youll-need) for the real requirements.
+- **Port 8888 is in use** → see **"❌ Port 8888 is already in use"** under [Troubleshooting](#-troubleshooting). Most often this is **your own previous Olympus installer still running**, not another application. That section shows you how to tell which, then covers reopening the wizard you already have, restarting everything without reinstalling, or wiping for a clean fresh install.
+
 ---
 
 ## 🚀 Install
