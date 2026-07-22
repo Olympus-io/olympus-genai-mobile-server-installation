@@ -482,41 +482,9 @@ cd "$env:USERPROFILE\olympus\app"; docker compose up -d
 
 **A3 — Wipe everything and do a clean fresh install.**
 
-> ⚠️ **This permanently deletes all Olympus data** — uploaded files, user accounts, chat history and embeddings. There is no undo. Docker images are kept, so the reinstall is fast.
+This frees the port and gives you a clean slate. The full procedure is **"❌ I want to start over from scratch"** further down in [Troubleshooting](#-troubleshooting) — it is kept in one place so the commands cannot drift.
 
-```bash
-# Linux / macOS
-cd ~/olympus/app 2>/dev/null && docker compose down -v --remove-orphans
-
-# Remove anything left over — scoped to Olympus, nothing else on your machine
-docker ps -aq       --filter label=com.docker.compose.project=app | xargs -r docker rm -f
-docker volume ls -q --filter label=com.docker.compose.project=app | xargs -r docker volume rm -f
-docker network ls -q --filter label=com.docker.compose.project=app | xargs -r docker network rm
-
-# The installer and AI containers sit outside the compose project
-docker rm -f olympus-setup ollama sd-webui 2>/dev/null
-
-rm -rf ~/olympus
-```
-
-```powershell
-# Windows PowerShell
-cd "$env:USERPROFILE\olympus\app"; docker compose down -v --remove-orphans
-
-docker ps -aq       --filter label=com.docker.compose.project=app | ForEach-Object { docker rm -f $_ }
-docker volume ls -q --filter label=com.docker.compose.project=app | ForEach-Object { docker volume rm -f $_ }
-docker network ls -q --filter label=com.docker.compose.project=app | ForEach-Object { docker network rm $_ }
-
-docker rm -f olympus-setup ollama sd-webui 2>$null
-
-Remove-Item -Recurse -Force "$env:USERPROFILE\olympus"
-```
-
-Then re-run the install command from [Step 2](#step-2-install-olympus).
-
-> **Keeping your downloaded AI models:** the volume sweep also removes `app_ollama_data`, which holds your Ollama models — often 5–30 GB. To keep them, filter that volume out:
-> `docker volume ls -q --filter label=com.docker.compose.project=app | grep -v ollama_data | xargs -r docker volume rm -f`
-> (PowerShell: `... | Where-Object { $_ -notmatch "ollama_data" } | ForEach-Object { docker volume rm -f $_ }`)
+⚠️ It permanently deletes all Olympus data. Docker images are kept, so the reinstall is fast.
 
 ---
 
@@ -604,21 +572,49 @@ docker logs olympus-setup > olympus-setup.log 2>&1
 <details>
 <summary><strong>❌ I want to start over from scratch</strong></summary>
 
-Stop everything and remove the data directories. **This deletes all your Olympus configuration and platform data — do this only if you genuinely want to restart from zero.**
+> ⚠️ **This permanently deletes all your Olympus data** — uploaded files, user accounts, chat history and embeddings. There is no undo. Docker **images** are kept, so the reinstall is fast.
+>
+> 🧠 It also removes your downloaded AI models (`app_ollama_data`, `app_sd_models`), often 5–30 GB. To keep those, add `| grep -vE "ollama_data|sd_models"` before `xargs` on the volume line (PowerShell: `| Where-Object { $_ -notmatch "ollama_data|sd_models" }`).
+
+Run the block for your OS **in order** — the installer must go before the networks, and you must leave the folder before deleting it.
 
 ```bash
 # Linux / macOS
-docker rm -f olympus-setup
-docker ps -aq --filter "label=com.olympus.managed=true" | xargs -r docker rm -f
-rm -rf "$HOME/olympus/app" "$HOME/olympus/data"
+cd ~/olympus/app 2>/dev/null && docker compose down -v --remove-orphans
+
+# The installer is a standalone container, so the label sweep below does NOT match
+# it — and it stays attached to app_gateway-public, which blocks removing that
+# network. It has to go first.
+docker rm -f olympus-setup ollama sd-webui 2>/dev/null
+
+# Sweep anything left over — scoped to Olympus, nothing else on your machine
+docker ps -aq        --filter label=com.docker.compose.project=app | xargs -r docker rm -f
+docker volume ls -q  --filter label=com.docker.compose.project=app | xargs -r docker volume rm -f
+docker network ls -q --filter label=com.docker.compose.project=app | xargs -r docker network rm
+
+# Step out of the folder before deleting it
+cd ~ && rm -rf ~/olympus
 ```
 
 ```powershell
 # Windows PowerShell
-docker rm -f olympus-setup
-docker ps -aq --filter "label=com.olympus.managed=true" | ForEach-Object { docker rm -f $_ }
-Remove-Item -Recurse -Force "$env:USERPROFILE\olympus\app", "$env:USERPROFILE\olympus\data"
+cd "$env:USERPROFILE\olympus\app"; docker compose down -v --remove-orphans
+
+# The installer is a standalone container, so the label sweep below does NOT match
+# it — and it stays attached to app_gateway-public, which blocks removing that
+# network. It has to go first.
+docker rm -f olympus-setup ollama sd-webui 2>$null
+
+docker ps -aq        --filter label=com.docker.compose.project=app | ForEach-Object { docker rm -f $_ }
+docker volume ls -q  --filter label=com.docker.compose.project=app | ForEach-Object { docker volume rm -f $_ }
+docker network ls -q --filter label=com.docker.compose.project=app | ForEach-Object { docker network rm $_ }
+
+# Windows will not delete a folder your shell is sitting in — leave it first
+cd $env:USERPROFILE
+Remove-Item -Recurse -Force "$env:USERPROFILE\olympus"
 ```
+
+> **Deleting the folder alone is not enough.** The data lives in Docker **volumes**, not in `~/olympus`. Removing only the folder leaves all 11 volumes behind — and because the Compose project keeps the same name, the next install **reuses the old Postgres volume**, skips `init.sql`, and comes up with no admin account. Always run the volume sweep above.
 
 Then re-run the Step 2 install command.
 
