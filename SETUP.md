@@ -439,9 +439,84 @@ Re-run your install command afterwards.
 <details>
 <summary><strong>❌ Port 8888 is already in use</strong></summary>
 
-Something else on your machine is listening on 8888. Find and stop it, or change the wizard's port.
+**Most often this is a previous Olympus installer that is still running**, not another application. Find out which before doing anything — the fix is completely different:
 
-**Find what's using the port:**
+```bash
+docker ps -a --filter publish=8888 --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+```
+
+- **Lists `olympus-setup`** → a previous Olympus install holds the port. Go to **A**.
+- **Prints nothing** → another program on your machine holds it. Go to **B**.
+
+---
+
+**A. A previous Olympus install has the port**
+
+Pick the option that matches what you want. **None of these delete downloaded Docker images**, so nothing is re-downloaded afterwards.
+
+**A1 — Just reopen the wizard.** If the container above shows as `Up`, the installer is still running and there is nothing to fix. Open it:
+
+```
+http://localhost:8888
+```
+
+**A2 — Restart everything, keeping your existing deployment.** Use this after a reboot, or if the wizard became unresponsive. No data is lost:
+
+```bash
+# Linux / macOS
+docker start olympus-setup
+cd ~/olympus/app && docker compose up -d      # only if you already deployed
+```
+
+```powershell
+# Windows PowerShell
+docker start olympus-setup
+cd "$env:USERPROFILE\olympus\app"; docker compose up -d
+```
+
+**A3 — Wipe everything and do a clean fresh install.**
+
+> ⚠️ **This permanently deletes all Olympus data** — uploaded files, user accounts, chat history and embeddings. There is no undo. Docker images are kept, so the reinstall is fast.
+
+```bash
+# Linux / macOS
+cd ~/olympus/app 2>/dev/null && docker compose down -v --remove-orphans
+
+# Remove anything left over — scoped to Olympus, nothing else on your machine
+docker ps -aq       --filter label=com.docker.compose.project=app | xargs -r docker rm -f
+docker volume ls -q --filter label=com.docker.compose.project=app | xargs -r docker volume rm -f
+docker network ls -q --filter label=com.docker.compose.project=app | xargs -r docker network rm
+
+# The installer and AI containers sit outside the compose project
+docker rm -f olympus-setup ollama sd-webui 2>/dev/null
+
+rm -rf ~/olympus
+```
+
+```powershell
+# Windows PowerShell
+cd "$env:USERPROFILE\olympus\app"; docker compose down -v --remove-orphans
+
+docker ps -aq       --filter label=com.docker.compose.project=app | ForEach-Object { docker rm -f $_ }
+docker volume ls -q --filter label=com.docker.compose.project=app | ForEach-Object { docker volume rm -f $_ }
+docker network ls -q --filter label=com.docker.compose.project=app | ForEach-Object { docker network rm $_ }
+
+docker rm -f olympus-setup ollama sd-webui 2>$null
+
+Remove-Item -Recurse -Force "$env:USERPROFILE\olympus"
+```
+
+Then re-run the install command from [Step 2](#step-2-install-olympus).
+
+> **Keeping your downloaded AI models:** the volume sweep also removes `app_ollama_data`, which holds your Ollama models — often 5–30 GB. To keep them, filter that volume out:
+> `docker volume ls -q --filter label=com.docker.compose.project=app | grep -v ollama_data | xargs -r docker volume rm -f`
+> (PowerShell: `... | Where-Object { $_ -notmatch "ollama_data" } | ForEach-Object { docker volume rm -f $_ }`)
+
+---
+
+**B. Another program has the port**
+
+Find out what it is:
 
 ```bash
 # Linux / macOS
@@ -453,7 +528,9 @@ lsof -i :8888
 Get-NetTCPConnection -LocalPort 8888 | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Get-Process -Id $_ }
 ```
 
-**Or run the wizard on a different host port** by changing `-p 8888:8888` to e.g. `-p 9999:8888` in your install command, then open `http://localhost:9999` instead.
+Then either stop that program, **or run the installer on a different host port** — change `-p 8888:8888` to e.g. `-p 9999:8888` in your install command and open `http://localhost:9999` instead.
+
+> Port 8888 belongs to the **installer**, not to the platform. Once deployment finishes you reach Olympus on your own domain over ports 80/443, so using a different installer port has no lasting effect.
 
 </details>
 
