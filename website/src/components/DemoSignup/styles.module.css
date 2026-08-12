@@ -1,0 +1,224 @@
+.card {
+  position: relative;
+  padding: 1.75rem;
+  border-radius: 16px;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%), 0 18px 40px -28px rgb(0 0 0 / 45%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Teal edge, so the demo path reads as the primary action of the pair. */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, var(--ifm-color-primary), rgb(124 92 255));
+}
+
+.cardTitle {
+  margin: 0 0 0.35rem;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+}
+
+.cardSubtitle {
+  margin: 0 0 1.25rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .row { grid-template-columns: 1fr; }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--ifm-color-emphasis-600);
+  text-transform: lowercase;
+}
+
+.input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 9px;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ifm-color-primary) 22%, transparent);
+}
+
+.passwordWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.reveal {
+  position: absolute;
+  right: 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--ifm-color-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.35rem;
+  font-family: inherit;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* Off-screen rather than display:none — some bots skip hidden inputs. */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.submit {
+  margin-top: 0.35rem;
+  padding: 0.8rem 1rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ifm-color-primary);
+  color: #04191d;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.submit:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.submit:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.error {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  background: color-mix(in srgb, #e2725b 14%, transparent);
+  border: 1px solid color-mix(in srgb, #e2725b 40%, transparent);
+  color: #c1462c;
+}
+
+[data-theme='dark'] .error { color: #ffb3a1; }
+
+.footnote {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* ── Success state ──────────────────────────────────────────────────── */
+.successMark {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #04191d;
+  background: var(--ifm-color-primary);
+  margin-bottom: 0.9rem;
+}
+
+.successTitle {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+}
+
+.successBody {
+  margin: 0 0 1.25rem;
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.6;
+}
+
+.successCta {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  background: var(--ifm-color-primary);
+  color: #04191d;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.successCta:hover {
+  color: #04191d;
+  text-decoration: none;
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.tryList {
+  margin: 1.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit,
+  .successCta { transition: none; }
+
+  .submit:hover:not(:disabled),
+  .successCta:hover { transform: none; }
+}
