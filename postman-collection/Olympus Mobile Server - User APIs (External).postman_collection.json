@@ -2917,7 +2917,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/file/upload-chunk?uploadId={{uploadId}}&chunkIndex=0&chunkSha256=",
+         "raw": "{{serverUrl}}/api/v1/file/upload-chunk?uploadId={{uploadId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2931,14 +2931,6 @@
           {
            "key": "uploadId",
            "value": "{{uploadId}}"
-          },
-          {
-           "key": "chunkIndex",
-           "value": "0"
-          },
-          {
-           "key": "chunkSha256",
-           "value": ""
           }
          ]
         },
@@ -2946,13 +2938,18 @@
          "mode": "formdata",
          "formdata": [
           {
+           "key": "chunkIndex",
+           "value": "0",
+           "type": "text"
+          },
+          {
            "key": "chunk",
            "type": "file",
            "src": []
           }
          ]
         },
-        "description": "Send one part. The body is multipart/form-data with a single field named `chunk`.\n\nParts are ADDRESSED, not appended — `chunkIndex` says which slice this is, so parts may be sent in any order and re-sending one that already arrived is a successful no-op. That is what makes retrying safe when you cannot tell whether your request was lost or only its response.\n\nSlice boundaries: bytes `[chunkIndex * chunkSize, min((chunkIndex+1) * chunkSize, totalSize))`. Every part is exactly `chunkSize` except the last.\n\n`chunkSha256` is optional; when supplied a mismatch is reported as CHUNK_CHECKSUM_MISMATCH and is safe to retry."
+        "description": "Send one part. multipart/form-data with `chunkIndex` and a single file field `chunk`.\n\nIMPORTANT — append `chunkIndex` BEFORE the file. The server parses text fields as they stream, so one arriving after the file part is not visible to it.\n\n`chunkIndex` is in the BODY rather than the query string on purpose: a CORS preflight is cached per URL, so a per-chunk query parameter makes every part pay a fresh OPTIONS round trip. Keeping the URL constant across a session means browsers preflight once.\n\nParts are ADDRESSED, not appended — `chunkIndex` says which slice this is. They may be sent in any order AND SEVERAL AT ONCE (3 concurrent is a good default), and re-sending one that already arrived is a successful no-op. That is what makes retrying safe when you cannot tell whether your request was lost or only its response.\n\nSlice boundaries: bytes `[chunkIndex * chunkSize, min((chunkIndex+1) * chunkSize, totalSize))`. Every part is exactly `chunkSize` except the last.\n\n`chunkSha256` may be sent as an extra form field; a mismatch is reported as CHUNK_CHECKSUM_MISMATCH and is safe to retry."
        },
        "response": [
         {
