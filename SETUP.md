@@ -411,7 +411,7 @@ When deployment completes, the wizard automatically redirects you to your runnin
 
 - 🌐 **Main App** — `https://mobile.yourdomain.com`
 - 🔌 **API** — `https://mobile-api.yourdomain.com`
-- 🤖 **MCP server** — https://mcp.yourdomain.com (SSE at /sse, Streamable HTTP at /mcp)
+- 🤖 **MCP server** — https://mcp.yourdomain.com (Streamable HTTP at /mcp)
 - 📊 **Grafana (monitoring)** — `https://grafana.yourdomain.com`
 
 For local-only installs, replace `yourdomain.com` with the host you chose in the wizard (often `localhost` or your server's IP).
