@@ -231,6 +231,73 @@
        ]
       },
       {
+       "name": "POST /api/v1/entrance/public-folder-login",
+       "request": {
+        "method": "POST",
+        "header": [
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/entrance/public-folder-login",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "entrance",
+          "public-folder-login"
+         ]
+        },
+        "body": {
+         "mode": "raw",
+         "raw": "{\n  \"apiKey\": \"{{clientApiKey}}\",\n  \"linkId\": \"{{linkId}}\",\n  \"password\": \"{{linkPassword}}\"\n}"
+        },
+        "description": "Opens a public folder link. The server checks the link (exists, not expired, mount still allows anonymous folder sharing) and its password, then returns the same token bundle as /entrance/login, signed in as the link's anonymous account. `linkId` is the `accessCode` in the public folder URL; omit `password` for a link without one. This is the only way into an anonymous account — /entrance/login refuses them. Errors: 403 PASSWORD_REQUIRED, 403 INVALID_PASSWORD, 429 TOO_MANY_ATTEMPTS (10 wrong per IP / 100 per link per 15 min), 403 LINK_EXPIRED, 400 LINK_INVALID, 400 INVALID_CLIENT."
+       },
+       "response": [
+        {
+         "name": "OK",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"accessToken\":\"<jwt>\",\"refreshToken\":\"<uuid>\",\"user\":{\"id\":3101,\"email\":\"1792167183206@anonymous-user.olympus\",\"name\":\"Anonymous User - 3026757 - 3\",\"isAnonymousUser\":true}}"
+        },
+        {
+         "name": "Password required",
+         "status": "HTTP 403",
+         "code": 403,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"errors\":[{\"code\":\"PASSWORD_REQUIRED\",\"message\":\"Password is required for this link.\"}]}"
+        },
+        {
+         "name": "Too many attempts",
+         "status": "HTTP 429",
+         "code": 429,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"errors\":[{\"code\":\"TOO_MANY_ATTEMPTS\",\"message\":\"Too many incorrect password attempts. Please wait 15 minutes and try again.\"}]}"
+        }
+       ]
+      },
+      {
        "name": "PUT /api/v1/entrance/verify-otp",
        "request": {
         "method": "PUT",
@@ -3589,7 +3656,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
         },
         {
          "name": "404 response",
@@ -3705,7 +3772,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"removedSharedData\":{\"createdAt\":1780232688274,\"updatedAt\":1780232688274,\"id\":7,\"entityId\":\"2920622\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
+         "body": "{\"success\":true,\"data\":{\"removedSharedData\":{\"createdAt\":1780232688274,\"updatedAt\":1780232688274,\"id\":7,\"entityId\":\"2920622\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
         },
         {
          "name": "400 response",
@@ -3803,7 +3870,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"downloadLink\":\"https://mobile.deepakpandey.in/user/shared/file/public-download?linkId=33d0c7d8-8562-42d7-b172-351191d03027\"}}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"downloadLink\":\"https://mobile.deepakpandey.in/user/shared/file/public-download?linkId=33d0c7d8-8562-42d7-b172-351191d03027\"}}}"
         },
         {
          "name": "404 response",
@@ -3919,7 +3986,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"removedSharedData\":{\"createdAt\":1780232687916,\"updatedAt\":1780232687916,\"id\":5,\"entityId\":\"6806415\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
+         "body": "{\"success\":true,\"data\":{\"removedSharedData\":{\"createdAt\":1780232687916,\"updatedAt\":1780232687916,\"id\":5,\"entityId\":\"6806415\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
         },
         {
          "name": "400 response",
@@ -3983,7 +4050,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
         },
         {
          "name": "404 response",
@@ -4047,7 +4114,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451950,\"updatedAt\":1780232451950,\"id\":3,\"entityId\":\"2920619\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0},\"note\":\"Permissions for descendant files and directories will be created asynchronously\"}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451950,\"updatedAt\":1780232451950,\"id\":3,\"entityId\":\"2920619\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0},\"note\":\"Permissions for descendant files and directories will be created asynchronously\"}}"
         },
         {
          "name": "404 response",
@@ -4111,7 +4178,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"downloadLink\":\"https://mobile-api.deepakpandey.in/api/v1/share/file/download-via-public-link?linkId=33d0c7d8-8562-42d7-b172-351191d03027&responseType=file\"}}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"downloadLink\":\"https://mobile-api.deepakpandey.in/api/v1/share/file/download-via-public-link?linkId=33d0c7d8-8562-42d7-b172-351191d03027&responseType=file\"}}}"
         },
         {
          "name": "404 response",
@@ -4234,7 +4301,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451686,\"updatedAt\":1780232451686,\"id\":1,\"entityId\":\"6806414\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkPassword\":null,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451686,\"updatedAt\":1780232451686,\"id\":1,\"entityId\":\"6806414\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
         },
         {
          "name": "404 response",
