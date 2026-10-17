@@ -2281,6 +2281,66 @@
               ]
             },
             {
+              "name": "GET /api/v1/file/thumbnail",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/thumbnail?fileId={{fileId}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "thumbnail"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
+                  ]
+                },
+                "description": "Small preview of an image file for grid views: a WebP at most 320 px on its longest side, EXIF orientation applied, metadata stripped.\n\n- Access is the same as downloading the file.\n- `204 No Content` = no thumbnail for this file (show its type icon): not a JPEG/PNG/GIF/WebP/TIFF/AVIF, larger than 50 MB, undecodable, or watermarking is on for its type.\n- `ETag` + `Cache-Control: private, max-age=300`; send `If-None-Match` to get `304`.\n- `503` with `Retry-After` when the renderer is saturated.\n- Not recorded as a download in the audit log."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "image/webp"
+                    },
+                    {
+                      "key": "ETag",
+                      "value": "\"thumb-6817970-1792237488000-318\""
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "private, max-age=300"
+                    }
+                  ],
+                  "body": ""
+                },
+                {
+                  "name": "204 — no thumbnail for this file",
+                  "status": "No Content",
+                  "code": 204,
+                  "header": [],
+                  "body": ""
+                }
+              ]
+            },
+            {
               "name": "GET /api/v1/file/download-with-link",
               "request": {
                 "method": "GET",
@@ -2712,10 +2772,6 @@
                 "method": "POST",
                 "header": [
                   {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
-                  {
                     "key": "Authorization",
                     "value": "Bearer {{userToken}}"
                   }
@@ -2731,11 +2787,28 @@
                     "file",
                     "update"
                   ]
-                }
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}",
+                      "type": "text",
+                      "description": "Must come BEFORE the file part."
+                    },
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "**Send `fileId` before the `file` part** (or put it in the URL as `?fileId=`). Sails' multipart parser only hands an action the text fields that arrive ahead of the file stream, so for anything larger than one network chunk a `fileId` sent after the file is missing — the request is then refused with `400 MISSING_PARAM`."
               },
               "response": [
                 {
-                  "name": "404 response",
+                  "name": "404 — fileId does not exist or is not visible to you",
                   "status": "HTTP 404",
                   "code": 404,
                   "header": [
@@ -2745,6 +2818,18 @@
                     }
                   ],
                   "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+                },
+                {
+                  "name": "400 — fileId sent after the file part",
+                  "status": "Bad Request",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"MISSING_PARAM\", \"message\": \"fileId is required. On a multipart upload send it before the file part, or in the URL as ?fileId=.\"}"
                 }
               ]
             },
@@ -2753,10 +2838,6 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  },
                   {
                     "key": "Authorization",
                     "value": "Bearer {{userToken}}"
@@ -2773,7 +2854,24 @@
                     "file",
                     "upload"
                   ]
-                }
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}",
+                      "type": "text",
+                      "description": "Must come BEFORE the file part."
+                    },
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "**Send `directoryId` before the `file` part** (or put it in the URL as `?directoryId=`). Sails' multipart parser only hands an action the text fields that arrive ahead of the file stream, so for anything larger than one network chunk a `directoryId` sent after the file is missing — the request is then refused with `400 MISSING_PARAM`."
               },
               "response": [
                 {
@@ -2789,7 +2887,7 @@
                   "body": "{\"success\":true,\"data\":{\"file\":{\"createdAt\":\"1780232450000\",\"updatedAt\":\"1780232450000\",\"id\":6806414,\"name\":\"postman-test.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/postman-test.txt\",\"iconLink\":null,\"mountId\":\"6\",\"directoryId\":2920619,\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"createdNow\":true,\"skipped\":false,\"permission\":\"admin\"}}}"
                 },
                 {
-                  "name": "404 response",
+                  "name": "404 — directoryId does not exist or is not visible to you",
                   "status": "HTTP 404",
                   "code": 404,
                   "header": [
@@ -2799,6 +2897,18 @@
                     }
                   ],
                   "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+                },
+                {
+                  "name": "400 — directoryId sent after the file part",
+                  "status": "Bad Request",
+                  "code": 400,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"code\": \"MISSING_PARAM\", \"message\": \"directoryId is required. On a multipart upload send it before the file part, or in the URL as ?directoryId=.\"}"
                 }
               ]
             }
@@ -5210,7 +5320,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\"success\": true, \"data\": {\"totalUsers\": 3, \"newUsers\": 0, \"adLdapUsers\": 1, \"localUsers\": 2, \"guestUsers\": 0, \"adUsers\": 1, \"nonAdUsers\": 2}}"
+                  "body": "{\"success\": true, \"data\": {\"totalUsers\": 3, \"newUsers\": 0, \"adLdapUsers\": 1, \"localUsers\": 2, \"guestUsers\": 0}}"
                 }
               ]
             }
@@ -6702,6 +6812,70 @@
                     }
                   ],
                   "body": "{\"logs\":[{\"id\":10,\"question\":\"show me summary\",\"answer\":\"Based on the provided context, the platform is a highly advanced, scalable, and secure **Multi-Tenant File Sharing Cloud Platform** designed for enterprise-level collaboration, integrating cutting-edge Generative AI (GenAI) and Retrieval-Augmented Generation (RAG) capabilities.\\n\\nHere is a detailed and comprehensive summary of the platform's offerings, architecture, and capabilities.\\n\\n***\\n\\n### 🌐 Core Offering and Value Proposition\\n\\nThe platform provides a unified solution for secure document collaboration and AI-powered knowledge access. Its primary differentiators are the ability to add sophisticated AI features (like ChatGPT-style interactions) while maintaining **full control of client data**, making it ideal for regulated industries.\\n\\n**Key Functionalities:**\\n\\n*   **Document Collaboration:** Users can perform secure RAG/Q&A directly on any files or folders, ensuring that knowledge access is grounded in the client's private, proprietary data.\\n*   **Private AI Chat:** It integrates advanced GenAI services, allowing users to interact with documents and knowledge bases via a chatbot interface (MCP Server & Agent), all while keeping the data within the client's secure environment.\\n*   **White-Label Ready:** The platform is designed for seamless deployment under the client's own brand, offering full customization options.\\n\\n### 🔒 Security, Deployment, and Compliance\\n\\nSecurity and data control are paramount features of the platform. It is built with enterprise-grade security measures and offers maximum deployment flexibility.\\n\\n*   **Data Sovereignty:** The platform supports **On-premise or Private Cloud Deployment**, allowing organizations to keep client data entirely within their own infrastructure, ensuring maximum control.\\n*   **Security Measures:** Comprehensive security features include **end-to-end encryption, logging, auditing, and full compliance** support.\\n*   **Access Control:** It supports advanced directory service integration, including **AD Integration, SMB ACLs, and NFS Custom Permissions**, ensuring granular and comprehensive access control across all resources.\\n\\n### 🏗️ System Architecture Overview\\n\\nThe platform utilizes a robust, microservices-based architecture designed for high performance and seamless operation.\\n\\n**Key Components:**\\n\\n1.  **Traefik Reverse Proxy:** Acts as the public entry point for all external traffic, providing essential load balancing capabilities.\\n2.  **GenAI Services:** Dedicated AI-powered services that facilitate knowledge access and RAG support.\\n3.  **Mobile Server:** Specifically handles connections for mobile clients, enabling file collaboration services on the go.\\n4.  **MCP Server & Agent:** Manages the core chatbot functionality, allowing users to perform operations simply by chatting with the AI.\\n5.  **Databases & Storage:** Provides persistent, scalable storage and retrieval for all data.\\n\\n### 🚀 Scalability, Performance, and Web-Scale Proof\\n\\nThe platform is explicitly designed for massive scale and high availability, making it suitable for large enterprises.\\n\\n*   **Scalability:** It is built for **horizontal scaling** across all critical components, ensuring high performance even under heavy loads.\\n*   **Deployment Readiness:** It is **Kubernetes-ready**, offering flexible deployment options to meet diverse enterprise needs.\\n*   **Proven Metrics:** The platform boasts impressive performance metrics, including:\\n    *   **1000+ Tenants:** Proven multi-tenant support.\\n    *   **10B+ Vectors Indexed:** Massive capacity for vector search capabilities.\\n    *   **99.9% Uptime:** Ensuring continuous availability for critical operations.\\n    *   **100ms Query Latency:** Delivering blazing fast response times for all queries.\\n\\n### 💻 Technology Stack\\n\\nThe platform employs a modern and diverse technology stack to power its various services:\\n\\n**1. Infrastructure & Core Technologies:**\\n*   **Infrastructure:** Traefik, Nginx, Docker, Kubernetes.\\n*   **Messaging/Queueing:** RabbitMQ.\\n*   **Storage/Databases:** PostgreSQL, CouchDB, Redis, MinIO (Object Storage).\\n*   **Vector Search:** Milvus (for massive vector search capabilities).\\n*   **Search Engine:** OpenSearch.\\n\\n**2. Application Services:**\\n*   **Backend (Mobile):** Sails.js\\n*   **Backend (GenAI):** Flask\\n*   **Frontend (Mobile App):** Angular\\n*   **Frontend (GenAI Admin):** React\\n*   **Backend (Chatbot):** MCP Server & Agent (NodeJs)\\n\\n**3. AI Runtime:**\\n*   **Private Model Deployment:** Ollama is used for deploying private GenAI models.\\n*   **Connectors:** The platform supports multiple major AI models via connectors, including **ChatGPT, Claude (Anthropic), Google Gemini, and NVIDIA Nim**.\\n\\n***\\n\\n### Summary Conclusion\\n\\nIn essence, the platform is a comprehensive, secure, and highly scalable enterprise solution that merges traditional file sharing and collaboration tools with state-of-the-art, private GenAI capabilities. Its architecture is modular, its security is enterprise-grade (supporting on-prem and private cloud), and its performance metrics prove its capability to handle massive, multi-tenant workloads.\",\"chat_status\":\"completed\",\"processing_progress\":100,\"error_message\":null,\"selected_model\":\"ollama:gemma4:e4b\",\"entity_id\":\"6801350\",\"entity_type\":\"file\",\"metadata\":{\"responseMetaData\":{\"usedFileUniqueIds\":[6801350]},\"chatKnowledgeBase\":\"documentsWithModelKnowledge\"},\"user_id\":\"3\",\"user_name\":\"deepak@olympus.io\",\"created_at\":\"1779884154339\",\"processed_at\":\"1779884222369\",\"file_name\":\"Scalable-Multi-Tenant-File-Sharing-Cloud-Platform-with-GenAiRAG-Support (1).pptx\",\"directory_name\":null},{\"id\":9,\"question\":\"give me summary\",\"answer\":\"Based on the provided context, the platform is a comprehensive, scalable, and secure **Multi-Tenant File Sharing Cloud Platform** designed to integrate advanced Generative AI (GenAI) capabilities and Retrieval-Augmented Generation (RAG) for enterprise-grade file collaboration and knowledge access.\\n\\nHere is a detailed and comprehensive summary of the platform's offerings, architecture, and capabilities:\\n\\n---\\n\\n### 🌐 Core Offering and Purpose\\n\\nThe platform serves as an enterprise solution for secure file collaboration and knowledge management. Its primary differentiators are the ability to provide **Private AI Chat** (offering ChatGPT-style features while ensuring full control of client data) and enabling secure **Document Collaboration** through RAG/Q&A on any files or folders, all protected by enterprise-grade access control.\\n\\n### 🛡️ Enterprise Readiness and Deployment Flexibility\\n\\nThe solution is built with maximum flexibility and security in mind, catering to the strictest enterprise requirements:\\n\\n*   **Deployment Options:** It is highly flexible, supporting **On-Premise or Private Cloud Deployments**, allowing organizations to keep complete control over client data. It is also **White-Label Ready**, allowing deployment under the client's own brand with full customization options.\\n*   **Security & Compliance:** Security is paramount, featuring **End-to-end encryption, logging, auditing, and compliance** measures.\\n*   **Access Control:** It supports comprehensive directory service integration, including **AD Integration, SMB ACLs, and NFS Custom Permissions**, ensuring granular access control for all users.\\n\\n### 🧠 AI and Knowledge Capabilities\\n\\nThe platform integrates advanced AI services to transform raw data into actionable knowledge:\\n\\n*   **GenAI Services:** Provides AI-powered knowledge access and RAG support.\\n*   **Private AI Chat:** Allows users to interact with documents and knowledge bases via a chatbot interface (managed by the **MCP Server & Agent**), enabling operations by simply chatting.\\n*   **AI Runtime:** Supports multiple AI models, including **Ollama** for deploying private GenAI models, and connectors for major models like **ChatGPT, Claude (Anthropic), Google Gemini, and NVIDIA Nim**.\\n\\n### 🏗️ System Architecture and Technology Stack\\n\\nThe architecture is robust, designed for high performance and seamless operation, utilizing a modern, containerized, and scalable technology stack:\\n\\n**1. System Components:**\\n*   **Traefik Reverse Proxy:** Acts as the public entry point for all external traffic and handles load balancing.\\n*   **Mobile Server:** Dedicated to handling mobile client connections for file collaboration services.\\n*   **MCP Server:** Manages the chatbot functionality for easy operation.\\n*   **Databases & Storage:** Provides persistent data storage and retrieval for all components.\\n\\n**2. Core Technologies:**\\nThe platform relies on a powerful mix of technologies for scalability:\\n*   **Messaging:** RabbitMQ (for high-throughput message queuing via clustering).\\n*   **Vector Search:** Milvus (capable of indexing tens of billions of vectors, utilizing distributed query/data/index nodes, DiskANN, and NVMe caching).\\n*   **Search & Analytics:** OpenSearch (used for distributed search and analytics through sharding and replication).\\n*   **Databases:** PostgreSQL (with read replicas & sharding for scalability), CouchDB, and Redis (in cluster mode, supporting millions of operations per second).\\n*   **Object Storage:** MinIO (providing distributed object storage scaling up to exabytes).\\n\\n**3. Application Services:**\\nThe stack is multi-layered, ensuring dedicated functionality:\\n*   **Backend Services:** Sails.js (for Mobile App Services) and Flask (for GenAI Services).\\n*   **Frontend:** Angular (Mobile App Frontend) and React (GenAI App Administration).\\n*   **Infrastructure:** Docker and Kubernetes-ready, ensuring portability and scalability.\\n\\n### 🚀 Scalability and Performance Proof\\n\\nThe platform is explicitly designed for massive growth and high availability:\\n\\n*   **Multi-Tenant Scaling:** It is built to support **thousands of customers** with robust isolation and performance, utilizing horizontal scaling across APIs, Workers, Search, and Vector DBs.\\n*   **Proven Capabilities:** The system boasts proven web-scale capabilities, demonstrated by:\\n    *   **1000+ Concurrent Tenants** and **1000+ Tenants** supported.\\n    *   **10B+ Vectors Indexed**, confirming massive vector search capacity.\\n    *   **99.9% Uptime**, ensuring continuous availability.\\n    *   **100ms Query Latency**, indicating blazing fast response times.\\n\\nIn summary, the platform is a highly scalable, secure, and feature-rich enterprise solution that combines robust file sharing and collaboration tools with cutting-edge, private GenAI capabilities, all while maintaining the flexibility to deploy anywhere—from a private cloud to an on-premise data center.\",\"chat_status\":\"completed\",\"processing_progress\":100,\"error_message\":null,\"selected_model\":\"ollama:gemma4:e4b\",\"entity_id\":\"6801350\",\"entity_type\":\"file\",\"metadata\":{\"responseMetaData\":{\"usedFileUniqueIds\":[6801350]},\"chatKnowledgeBase\":\"documentsWithModelKnowledge\"},\"user_id\":\"3\",\"user_name\":\"deepak@olympus.io\",\"created_at\":\"1779883621101\",\"processed_at\":\"1779883689688\",\"file_name\":\"Scalable-Multi-Tenant-File-Sharing-Cloud-Platform-with-GenAiRAG-Support (1).pptx\",\"directory_name\":null},{\"id\":8,\"question\":\"show me summary\",\"answer\":\"Based on the provided context, the platform is a comprehensive, scalable, and highly secure **Multi-Tenant File Sharing Cloud Platform** that integrates advanced Generative AI (GenAI) capabilities and Retrieval-Augmented Generation (RAG) for enterprise-grade document collaboration.\\n\\nHere is a detailed and comprehensive summary of the platform's offerings, architecture, and capabilities:\\n\\n---\\n\\n### 🌐 Core Offering and Differentiators\\n\\nThe platform is designed to provide a robust solution for enterprise file collaboration, allowing organizations to perform secure RAG/Q&A directly on their files and folders. Its primary differentiators include:\\n\\n*   **Private AI Chat:** Users can access ChatGPT-style features while maintaining full control over client data, ensuring that AI capabilities are integrated without compromising data privacy.\\n*   **White-Label Readiness:** The platform is fully customizable, allowing clients to deploy it under their own brand.\\n*   **Deployment Control:** It offers maximum flexibility, supporting deployment **On Your Own Infrastructure** (on-premise or private cloud), which is crucial for maintaining strict control over client data.\\n*   **Enterprise Security:** Security is paramount, featuring end-to-end encryption, comprehensive logging, auditing, and compliance measures.\\n\\n### ⚙️ System Architecture and Technology Stack\\n\\nThe platform utilizes a robust, modular architecture designed for seamless operation and high performance, ensuring it is **Kubernetes-ready** and highly scalable.\\n\\n**Key Architectural Components:**\\n\\n1.  **Public Entry Point:** **Traefik Reverse Proxy** handles all external traffic, providing load balancing.\\n2.  **AI Services:** **GenAI Services** provide AI-powered knowledge access and RAG support.\\n3.  **Collaboration Services:** A **Mobile Server** handles connections for file collaboration services.\\n4.  **Operation Interface:** The **MCP Server** allows users to perform complex operations easily simply by chatting with a chatbot.\\n5.  **Data Layer:** Dedicated components for persistent data storage and retrieval.\\n\\n**Core Technologies and Stacks:**\\n\\n*   **Infrastructure:** The stack includes industry standards like **Traefik, Nginx, Docker**, and is built to be Kubernetes-ready.\\n*   **Data & Storage:** It uses a diverse set of technologies for optimal data handling, including **PostgreSQL, CouchDB, Redis, RabbitMQ, MinIO** (for object storage), **Milvus** (for vector search), and **OpenSearch**.\\n*   **Application Services:** The application layer is built using modern frameworks: **Sails.js** (Backend for Mobile App Services), **Flask** (Backend for GenAI Services), **Angular** (Mobile App Frontend), **React** (GenAI App Administration), and **MCP Server & Agent** (NodeJs).\\n*   **AI Runtime:** The AI capabilities are powered by **Ollama** for deploying private GenAI models. Furthermore, the platform offers connectors for major AI models, including **ChatGPT, Claude (Anthropic), Google Gemini,** and **NVIDIA Nim**.\\n\\n### 📈 Scalability, Performance, and Integration\\n\\nThe platform is engineered for massive scale and high availability, providing concrete metrics to prove its reliability:\\n\\n*   **Scalability:** It is designed for **horizontal scaling** across all critical components, ensuring performance even under heavy loads.\\n*   **Multi-Tenancy:** It boasts proven multi-tenant support, capable of handling **1000+ Tenants** and **1000+ Concurrent Tenants**.\\n*   **Performance Metrics:**\\n    *   **Query Latency:** Achieves blazing fast response times with a low **100ms** query latency.\\n    *   **Availability:** Maintains a high uptime of **99.9%**.\\n    *   **Data Scale:** Supports massive vector search capabilities, with the capacity to index **10B+ Vectors**.\\n*   **Enterprise Integration:** For comprehensive access control, the platform supports critical directory service integrations, including **AD Integration, SMB ACLs,** and **NFS Custom Permissions**.\\n\\nIn summary, the platform provides a complete, secure, and highly scalable ecosystem that merges enterprise-grade file sharing and collaboration with cutting-edge, private Generative AI capabilities, all while offering deployment flexibility from private cloud to on-premise infrastructure.\",\"chat_status\":\"completed\",\"processing_progress\":100,\"error_message\":null,\"selected_model\":\"ollama:gemma4:e4b\",\"entity_id\":\"6801350\",\"entity_type\":\"file\",\"metadata\":{\"responseMetaData\":{\"usedFileUniqueIds\":[6801350]},\"chatKnowledgeBase\":\"documentsWithModelKnowledge\"},\"user_id\":\"3\",\"user_name\":\"deepak@olympus.io\",\"created_at\":\"1779883507873\",\"processed_at\":\"1779883581214\",\"file_name\":\"Scalable-Multi-Tenant-File-Sharing-Cloud-Platform-with-GenAiRAG-Support (1).pptx\",\"directory_name\":null},{\"id\":7,\"question\":\"show me summary\",\"answer\":\"This platform is a comprehensive, scalable, multi-tenant file sharing cloud solution designed for enterprise collaboration, integrating advanced Generative AI (GenAI) and Retrieval-Augmented Generation (RAG) capabilities.\\n\\n**Core Value Proposition and Features:**\\nThe system provides secure, controlled access to knowledge and files, allowing users to perform private, ChatGPT-style Q&A directly on their documents while maintaining full data control. Key features include:\\n*   **AI-Powered Knowledge Access:** Secure RAG capabilities for querying any file or folder.\\n*   **Enterprise Security:** End-to-end encryption, comprehensive logging, auditing, and compliance features.\\n*   **Deployment Flexibility:** Supports both on-premise and private cloud deployments, ensuring client data remains within the enterprise's infrastructure.\\n*   **Customization:** White-label readiness allows deployment under the client's own brand.\\n\\n**Technical Architecture and Scalability:**\\nThe platform is built on a robust, horizontally scalable architecture designed to handle massive growth and high availability. It utilizes a modern technology stack (including PostgreSQL, Redis, MinIO, Milvus, and OpenSearch) to manage diverse workloads.\\n*   **AI Integration:** Supports multiple private GenAI models via Ollama and connectors for major LLMs (e.g., ChatGPT, Claude, Gemini).\\n*   **Scalability:** Designed for multi-tenant environments, proven to support thousands of customers with robust data isolation. Components are distributed to handle petabyte-scale object storage (MinIO), billions of vectors (Milvus), and high-throughput search/analytics (OpenSearch).\\n*   **Integration:** Offers advanced directory service integration (AD, SMB ACLs, NFS) for granular, enterprise-grade access control.\\n\\nIn summary, the platform offers a secure, highly scalable, and customizable collaboration environment that merges traditional file sharing with cutting-edge, private AI capabilities, all while providing the flexibility of on-premise or private cloud deployment.\",\"chat_status\":\"completed\",\"processing_progress\":100,\"error_message\":null,\"selected_model\":\"ollama:gemma4:e4b\",\"entity_id\":\"6801350\",\"entity_type\":\"file\",\"metadata\":{\"responseMetaData\":{\"usedFileUniqueIds\":[\"6801350\"]},\"chatKnowledgeBase\":\"documentsWithModelKnowledge\"},\"user_id\":\"3\",\"user_name\":\"deepak@olympus.io\",\"created_at\":\"1779883458704\",\"processed_at\":\"1779883497200\",\"file_name\":\"Scalable-Multi-Tenant-File-Sharing-Cloud-Platform-with-GenAiRAG-Support (1).pptx\",\"directory_name\":null},{\"id\":6,\"question\":\"Can you list all the files and folders in directory 2918732 along with their IDs? Look at all files in the directory to find this.\",\"answer\":\"I apologize, but the provided text is a set of rules and guidelines for a residential building. It does not contain any information regarding file systems, directory structures, or file IDs, so I cannot list the contents of directory 2918.\",\"chat_status\":\"completed\",\"processing_progress\":100,\"error_message\":null,\"selected_model\":null,\"entity_id\":\"2918732\",\"entity_type\":\"directory\",\"metadata\":{\"responseMetaData\":{\"usedFileUniqueIds\":[6802652,6803070]},\"chatKnowledgeBase\":\"documentsWithModelKnowledge\"},\"user_id\":\"3\",\"user_name\":\"deepak@olympus.io\",\"created_at\":\"1779467539616\",\"processed_at\":\"1779467560091\",\"file_name\":null,\"directory_name\":\"docs\"},{\"id\":5,\"question\":\"What is the directory ID of the child directory Gemini-Provider-Test in the current directory? Please list the child directories and their IDs.\",\"answer\":\"Answer is not available in the context.\",\"chat_status\":\"completed\",\"processing_progress\":100,\"error_message\":null,\"selected_model\":null,\"entity_id\":\"2918732\",\"entity_type\":\"directory\",\"metadata\":{\"responseMetaData\":{\"usedFileUniqueIds\":[6802652,6803070]},\"chatKnowledgeBase\":\"documentsWithModelKnowledge\"},\"user_id\":\"3\",\"user_n\n…[truncated]…"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/genai/qa-logs/export",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/genai/qa-logs/export",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "genai",
+                    "qa-logs",
+                    "export"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "",
+                      "description": "Case-insensitive match on the question text",
+                      "disabled": true
+                    },
+                    {
+                      "key": "status",
+                      "value": "",
+                      "description": "queued | processing | completed | failed",
+                      "disabled": true
+                    },
+                    {
+                      "key": "entityType",
+                      "value": "",
+                      "description": "file | directory",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Every Q&A log matching the filters as a CSV download (`text/csv`, UTF-8 with BOM), newest first — the same filters and rows as `GET /api/v1/genai/qa-logs`, without paging. Streamed in batches, so it is safe on large logs. Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a spreadsheet shows them as text instead of running them as formulas.\n\nColumns: ID, Question, Answer, Status, Model, Entity Type, Entity ID, File/Directory, User, User Email, Error, Created At (UTC), Processed At (UTC).\n\nSuper-admin only."
+              },
+              "response": [
+                {
+                  "name": "200 OK",
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/csv; charset=utf-8"
+                    },
+                    {
+                      "key": "Content-Disposition",
+                      "value": "attachment; filename=\"genai-qa-logs-20261017-113836.csv\""
+                    }
+                  ],
+                  "body": "﻿\"ID\",\"Question\",\"Answer\",\"Status\",\"Model\",\"Entity Type\",\"Entity ID\",\"File/Directory\",\"User\",\"User Email\",\"Error\",\"Created At (UTC)\",\"Processed At (UTC)\"\r\n\"50\",\"What does the pilot change?\",\"The pilot changes …\",\"completed\",\"gpt-4o\",\"file\",\"6806414\",\"pilot.pdf\",\"Deepak\",\"deepak@example.com\",\"\",\"2026-10-17T09:12:03.000Z\",\"2026-10-17T09:12:09.000Z\"\r\n"
                 }
               ]
             },

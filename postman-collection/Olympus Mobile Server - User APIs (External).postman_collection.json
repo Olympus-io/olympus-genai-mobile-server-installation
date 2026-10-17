@@ -2368,6 +2368,66 @@
        ]
       },
       {
+       "name": "GET /api/v1/file/thumbnail",
+       "request": {
+        "method": "GET",
+        "header": [
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/file/thumbnail?fileId={{fileId}}",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "file",
+          "thumbnail"
+         ],
+         "query": [
+          {
+           "key": "fileId",
+           "value": "{{fileId}}"
+          }
+         ]
+        },
+        "description": "Small preview of an image file for grid views: a WebP at most 320 px on its longest side, EXIF orientation applied, metadata stripped.\n\n- Access is the same as downloading the file.\n- `204 No Content` = no thumbnail for this file (show its type icon): not a JPEG/PNG/GIF/WebP/TIFF/AVIF, larger than 50 MB, undecodable, or watermarking is on for its type.\n- `ETag` + `Cache-Control: private, max-age=300`; send `If-None-Match` to get `304`.\n- `503` with `Retry-After` when the renderer is saturated.\n- Not recorded as a download in the audit log."
+       },
+       "response": [
+        {
+         "name": "200 OK",
+         "status": "OK",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "image/webp"
+          },
+          {
+           "key": "ETag",
+           "value": "\"thumb-6817970-1792237488000-318\""
+          },
+          {
+           "key": "Cache-Control",
+           "value": "private, max-age=300"
+          }
+         ],
+         "body": ""
+        },
+        {
+         "name": "204 — no thumbnail for this file",
+         "status": "No Content",
+         "code": 204,
+         "header": [],
+         "body": ""
+        }
+       ]
+      },
+      {
        "name": "GET /api/v1/file/download-with-link",
        "request": {
         "method": "GET",
@@ -2853,10 +2913,6 @@
         "method": "POST",
         "header": [
          {
-          "key": "Content-Type",
-          "value": "application/json"
-         },
-         {
           "key": "Authorization",
           "value": "Bearer {{userToken}}"
          }
@@ -2877,21 +2933,23 @@
          "mode": "formdata",
          "formdata": [
           {
+           "key": "fileId",
+           "value": "{{fileId}}",
+           "type": "text",
+           "description": "Must come BEFORE the file part."
+          },
+          {
            "key": "file",
            "type": "file",
            "src": []
-          },
-          {
-           "key": "fileId",
-           "value": "{{fileId}}",
-           "type": "text"
           }
          ]
-        }
+        },
+        "description": "**Send `fileId` before the `file` part** (or put it in the URL as `?fileId=`). Sails' multipart parser only hands an action the text fields that arrive ahead of the file stream, so for anything larger than one network chunk a `fileId` sent after the file is missing — the request is then refused with `400 MISSING_PARAM`."
        },
        "response": [
         {
-         "name": "404 response",
+         "name": "404 — fileId does not exist or is not visible to you",
          "status": "HTTP 404",
          "code": 404,
          "header": [
@@ -2901,6 +2959,18 @@
           }
          ],
          "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+        },
+        {
+         "name": "400 — fileId sent after the file part",
+         "status": "Bad Request",
+         "code": 400,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"code\": \"MISSING_PARAM\", \"message\": \"fileId is required. On a multipart upload send it before the file part, or in the URL as ?fileId=.\"}"
         }
        ]
       },
@@ -2909,10 +2979,6 @@
        "request": {
         "method": "POST",
         "header": [
-         {
-          "key": "Content-Type",
-          "value": "application/json"
-         },
          {
           "key": "Authorization",
           "value": "Bearer {{userToken}}"
@@ -2934,17 +3000,19 @@
          "mode": "formdata",
          "formdata": [
           {
+           "key": "directoryId",
+           "value": "{{directoryId}}",
+           "type": "text",
+           "description": "Must come BEFORE the file part."
+          },
+          {
            "key": "file",
            "type": "file",
            "src": []
-          },
-          {
-           "key": "directoryId",
-           "value": "{{directoryId}}",
-           "type": "text"
           }
          ]
-        }
+        },
+        "description": "**Send `directoryId` before the `file` part** (or put it in the URL as `?directoryId=`). Sails' multipart parser only hands an action the text fields that arrive ahead of the file stream, so for anything larger than one network chunk a `directoryId` sent after the file is missing — the request is then refused with `400 MISSING_PARAM`."
        },
        "response": [
         {
@@ -2960,7 +3028,7 @@
          "body": "{\"success\":true,\"data\":{\"file\":{\"createdAt\":\"1780232450000\",\"updatedAt\":\"1780232450000\",\"id\":6806414,\"name\":\"postman-test.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/postman-test.txt\",\"iconLink\":null,\"mountId\":\"6\",\"directoryId\":2920619,\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"createdNow\":true,\"skipped\":false,\"permission\":\"admin\"}}}"
         },
         {
-         "name": "404 response",
+         "name": "404 — directoryId does not exist or is not visible to you",
          "status": "HTTP 404",
          "code": 404,
          "header": [
@@ -2970,6 +3038,18 @@
           }
          ],
          "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+        },
+        {
+         "name": "400 — directoryId sent after the file part",
+         "status": "Bad Request",
+         "code": 400,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"code\": \"MISSING_PARAM\", \"message\": \"directoryId is required. On a multipart upload send it before the file part, or in the URL as ?directoryId=.\"}"
         }
        ]
       },

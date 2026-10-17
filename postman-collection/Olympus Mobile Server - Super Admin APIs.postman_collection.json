@@ -882,7 +882,7 @@
          "value": "application/json"
         }
        ],
-       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"totalUsers\": 3,\n    \"newUsers\": 0,\n    \"adLdapUsers\": 1,\n    \"localUsers\": 2,\n    \"guestUsers\": 0,\n    \"adUsers\": 1,\n    \"nonAdUsers\": 2\n  }\n}"
+       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"totalUsers\": 3,\n    \"newUsers\": 0,\n    \"adLdapUsers\": 1,\n    \"localUsers\": 2,\n    \"guestUsers\": 0\n  }\n}"
       }
      ]
     },
@@ -3473,6 +3473,13 @@
          "mode": "formdata",
          "formdata": [
           {
+           "key": "applicableUserTypes",
+           "value": "[\"guestUser\"]",
+           "type": "text",
+           "disabled": true,
+           "description": "Optional JSON array — any of adLdapUser, nonAdLdapUser, guestUser. Omitted or [] = every user type. Must come BEFORE the file part; anything that is not a JSON array is refused with 400 BAD_INPUT."
+          },
+          {
            "key": "file",
            "type": "file",
            "src": [],
@@ -4225,13 +4232,13 @@
           {
            "key": "search",
            "value": "",
-           "description": "Match on question / answer text",
+           "description": "Case-insensitive match on the question text",
            "disabled": true
           },
           {
            "key": "status",
            "value": "",
-           "description": "Filter by outcome status",
+           "description": "queued | processing | completed | failed",
            "disabled": true
           },
           {
@@ -4257,6 +4264,65 @@
           }
          ],
          "body": "{\n  \"logs\": [\n    {\n      \"id\": 9,\n      \"question\": \"Tell me about Climate change ?\",\n      \"answer\": \"Based on the provided context, climate change is defined as long-term shifts in temperatures and weather patterns. While such shifts can occur naturally, the context emphasizes that since the 1800s, human activities have become the main driver. This is primarily attributed to the burning of fossil fuels\\u2014coal, oil, and gas\\u2014which releases heat-trapping gases (greenhouse gases) into the atmosphere. These gases function like a blanket wrapped around the Earth, trapping the sun's heat and causing global temperatures to rise. The observable consequences of this warming, as stated in the context, include rising sea levels, shrinking glaciers, and an increase in extreme weather events worldwide.\\n\\nBu\\n\\n\\u2026 (truncated for this example)\",\n      \"chat_status\": \"completed\",\n      \"processing_progress\": 100,\n      \"error_message\": null,\n      \"selected_model\": \"deepseek:deepseek-v4-pro\",\n      \"entity_id\": \"6806534\",\n      \"entity_type\": \"file\",\n      \"metadata\": {\n        \"responseMetaData\": {\n          \"usedFileUniqueIds\": [\n            6806534\n          ]\n        },\n        \"chatKnowledgeBase\": \"documentsWithModelKnowledge\"\n      },\n      \"user_id\": \"3\",\n      \"user_name\": \"jordan.lee@example.com\",\n      \"created_at\": \"1784044277287\",\n      \"processed_at\": \"1784044296813\",\n      \"file_name\": \"Climate-Change.pdf\",\n      \"directory_name\": null\n    }\n  ],\n  \"total\": 9,\n  \"page\": 1,\n  \"pageSize\": 5,\n  \"totalPages\": 2\n}"
+        }
+       ]
+      },
+      {
+       "name": "GET /api/v1/genai/qa-logs/export",
+       "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+         "raw": "{{baseUrl}}/api/v1/genai/qa-logs/export",
+         "host": [
+          "{{baseUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "genai",
+          "qa-logs",
+          "export"
+         ],
+         "query": [
+          {
+           "key": "search",
+           "value": "",
+           "description": "Case-insensitive match on the question text",
+           "disabled": true
+          },
+          {
+           "key": "status",
+           "value": "",
+           "description": "queued | processing | completed | failed",
+           "disabled": true
+          },
+          {
+           "key": "entityType",
+           "value": "",
+           "description": "file | directory",
+           "disabled": true
+          }
+         ]
+        },
+        "description": "Every Q&A log matching the filters as a CSV download (`text/csv`, UTF-8 with BOM), newest first — the same filters and rows as `GET /api/v1/genai/qa-logs`, without paging. Streamed in batches, so it is safe on large logs. Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a spreadsheet shows them as text instead of running them as formulas.\n\nColumns: ID, Question, Answer, Status, Model, Entity Type, Entity ID, File/Directory, User, User Email, Error, Created At (UTC), Processed At (UTC).\n\nSuper-admin only."
+       },
+       "response": [
+        {
+         "name": "200 OK",
+         "status": "OK",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "text/csv; charset=utf-8"
+          },
+          {
+           "key": "Content-Disposition",
+           "value": "attachment; filename=\"genai-qa-logs-20261017-113836.csv\""
+          }
+         ],
+         "body": "﻿\"ID\",\"Question\",\"Answer\",\"Status\",\"Model\",\"Entity Type\",\"Entity ID\",\"File/Directory\",\"User\",\"User Email\",\"Error\",\"Created At (UTC)\",\"Processed At (UTC)\"\r\n\"50\",\"What does the pilot change?\",\"The pilot changes …\",\"completed\",\"gpt-4o\",\"file\",\"6806414\",\"pilot.pdf\",\"Deepak\",\"deepak@example.com\",\"\",\"2026-10-17T09:12:03.000Z\",\"2026-10-17T09:12:09.000Z\"\r\n"
         }
        ]
       },
