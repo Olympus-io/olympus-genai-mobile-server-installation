@@ -5891,7 +5891,8 @@
                     "genai",
                     "default-models"
                   ]
-                }
+                },
+                "description": "The platform defaults for each capability — `embedding`, `summary`, `chat`, `vision` — plus the optional `utility` (query understanding; absent = the chat model), `retrieval.reranker` (`fast` · `multilingual` · `off`; absent = `fast`) and the active `chunkSettings`."
               },
               "response": [
                 {
@@ -7389,7 +7390,17 @@
                     "genai",
                     "default-models"
                   ]
-                }
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"chat\": \"chatgpt:gpt-5\",\n  \"summary\": \"chatgpt:gpt-5-mini\",\n  \"vision\": \"chatgpt:gpt-5\",\n  \"utility\": \"chatgpt:gpt-5-mini\",\n  \"retrieval\": {\n    \"reranker\": \"fast\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "description": "Set the default model per capability. Send only the keys you are changing; every model is a `provider:model` string (an Ollama tag keeps its own colon, e.g. `ollama:gemma4:latest`), and `\"\"` clears a role.\n\n- `embedding`, `chat`, `summary`, `vision` — the platform defaults.\n- `utility` *(optional)* — a small, fast model for **query understanding** (follow-up rewriting, search planning, routing) and other small steps of answering. `\"\"` = the chat model does them.\n- `retrieval.reranker` — the on-device reranker for answer retrieval: `fast` (English, default), `multilingual`, or `off`. Anything else is rejected with 400 details.\n- `chunkSettings` — per file type, merged per type (a partial save keeps the other types).\n\n⚠️ Changing `embedding` here does **not** migrate existing vectors — use *Embedding Administration → switch-embedding-model*, which queues the re-embed."
               },
               "response": []
             },
