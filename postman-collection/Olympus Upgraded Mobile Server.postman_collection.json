@@ -608,6 +608,108 @@
       "name": "User Panel",
       "item": [
         {
+          "name": "AI",
+          "description": "Per-file AI details (FE-19). Asking questions about files: chat-on-file / chat-on-directory.",
+          "item": [
+            {
+              "name": "GET /api/v1/genai/file-ai-details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/genai/file-ai-details?fileId=6818316",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "genai",
+                    "file-ai-details"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "6818316"
+                    }
+                  ]
+                },
+                "description": "A file's AI details (FE-19): overview, key points and tags written at indexing time, what its summary is (summaryKind: summary | text | image — `summary` is returned only for a model-written one), and its indexing job. Needs >= READ on the file (LIST is not enough — the overview quotes the content). `canGenerate` = write or admin. No model call."
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-10-18)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"fileId\": 6818316, \"genAiEnabled\": true, \"job\": {\"status\": \"completed\", \"progress\": 100, \"readyForAiChat\": true, \"embeddingModel\": \"ollama:mxbai-embed-large:latest\", \"updatedAt\": 1792302724761}, \"detailsAt\": 1792302724, \"detailsModel\": \"openrouter:nvidia/nemotron-3-ultra-550b-a55b:free\", \"hasDetails\": true, \"indexed\": true, \"keyPoints\": [\"40 MW solar farm near Ellsworth\", \"FID approved March 2027, \\u20ac52M budget\", \"Target commissioning Q3 2028\", \"Six workstreams on schedule with weekly owner's engineer reviews\", \"Key risk: grid connection delay up to 6 months\", \"No other deviations reported\"], \"overview\": \"Project Aurora is a 40 MW solar farm near Ellsworth with a \\u20ac52 million budget approved in March 2027. The consolidated progress report confirms the project remains on schedule for Q3 2028 commissioning, with weekly oversight by the owner's engineer. All six workstreams report steady progress, though the grid connection faces a potential six-month delay risk.\", \"summary\": \"**Summary:**\\n\\nProject Aurora is a 40 MW solar farm near Ellsworth. The document is a consolidated progress report covering all workstreams after the board\\u2019s final investment decision in March 2027 (\\u20ac52 million budget). Its purpose is to confirm that the project remains on schedule for commissioning in Q3 2028, with weekly oversight by the owner\\u2019s engineer.\\n\\n**Project Overview**  \\n- 40 MW solar farm near Ellsworth; FID approved March 2027, total budget \\u20ac52 million.  \\n- Target commissioning: Q3 2028.\\n\\n**Overall Status**  \\nAll six workstreams (grid connection, battery storage, permitting, maintenance contract, solar array, community consultation) report steady progress. Each has reviewed supplier quotes, updated the risk register, and confirmed that milestones remain on schedule. Weekly reviews with the owner\\u2019s engineer are ongoing across every workstream.\\n\\n**Key Risks**  \\nThe single largest identified risk is a potential delay to the grid connection, as the network operator may slip the substation upgrade by up to six months. No other deviations or issues are reported.\", \"summaryKind\": \"summary\", \"tags\": [\"solar farm\", \"project aurora\", \"ellsworth\", \"grid connection\", \"battery storage\", \"permitting\", \"maintenance contract\", \"community consultation\"], \"detailsError\": null, \"canGenerate\": true}}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/genai/generate-file-ai-details",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/genai/generate-file-ai-details",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "genai",
+                    "generate-file-ai-details"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": 6818316\n}"
+                },
+                "description": "Queue overview / key points / tags for an already-indexed file (one utility-model call over its stored summary; no re-embedding). Write access, AI quota pre-flight, at most once per file per minute. 202 queued; 409 NOT_INDEXED; 429 ALREADY_REQUESTED; 400 GENAI_DISABLED. Poll file-ai-details for the result."
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-10-18)",
+                  "status": "HTTP 202",
+                  "code": 202,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"queued\": true, \"fileId\": 6818316}}"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "Account",
           "item": [
             {
@@ -2652,6 +2754,63 @@
                     }
                   ],
                   "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"searchTerm\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/file/search-files`) due to 1 missing or invalid parameter.\"}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/file/search-files (tag collection)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/file/search-files?tag=grid connection&page=1&limit=20",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "file",
+                    "search-files"
+                  ],
+                  "query": [
+                    {
+                      "key": "tag",
+                      "value": "grid connection"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "Every file the caller can READ that carries this AI tag (FE-19 tag collections) — `tag` replaces `searchTerm`; results have matchedOn: \"tag\"."
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-10-18)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"files\": [{\"createdAt\": \"1792302671000\", \"updatedAt\": \"1792302671101\", \"id\": 6818316, \"name\": \"project-aurora.txt\", \"originalName\": \"project-aurora.txt\", \"size\": \"45495\", \"md5checksum\": \"ad39597b41afe7bf9d954e99b853beb7\", \"lockedBy\": null, \"mimetype\": \"text/plain\", \"thumbnail\": null, \"iconLink\": null, \"mountId\": \"9\", \"directoryId\": 3026953, \"ownerIds\": [], \"lastSeenGeneration\": \"4611686018427387904\", \"fsMtime\": \"1792302671000\", \"lockedAt\": null, \"permission\": \"admin\", \"matchedOn\": \"tag\", \"mountPoint\": \"mount1\", \"viewLink\": \"/b3-ai-1792302670/project-aurora.txt\"}], \"currentPage\": 1, \"limit\": 20, \"total\": 1, \"from\": 1, \"to\": 1, \"nextPage\": null}}"
                 }
               ]
             },
