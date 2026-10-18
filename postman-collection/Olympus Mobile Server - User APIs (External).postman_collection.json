@@ -506,6 +506,125 @@
        ]
       }
      ]
+    },
+    {
+     "name": "File Requests",
+     "description": "Upload-only links into a folder (FE-22). No account, no session: the token in the link is the whole capability.",
+     "item": [
+      {
+       "name": "GET /api/v1/share/file-request/info",
+       "request": {
+        "method": "GET",
+        "header": [
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/share/file-request/info?token={{fileRequestToken}}",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "share",
+          "file-request",
+          "info"
+         ],
+         "query": [
+          {
+           "key": "token",
+           "value": "{{fileRequestToken}}"
+          }
+         ]
+        },
+        "description": "Public — no auth. What the upload page shows: title, instructions, who is asking, whether a password is needed, expiry and the per-file size limit. Nothing about the folder itself. 404 REQUEST_NOT_FOUND, 410 REQUEST_EXPIRED, 403 REQUEST_CLOSED (sharing turned off on the mount, or the creator lost write access)."
+       },
+       "response": [
+        {
+         "name": "OK (live 2026-10-18)",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\":true,\"data\":{\"title\":\"Q3 receipts\",\"message\":\"Please send your Q3 receipts by Friday.\",\"requestedBy\":\"Deepak\",\"passwordRequired\":false,\"expiresAt\":1896134399999,\"maxFileSizeBytes\":5368709120}}"
+        }
+       ]
+      },
+      {
+       "name": "POST /api/v1/share/file-request/upload",
+       "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/share/file-request/upload?token={{fileRequestToken}}",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "share",
+          "file-request",
+          "upload"
+         ],
+         "query": [
+          {
+           "key": "token",
+           "value": "{{fileRequestToken}}"
+          }
+         ]
+        },
+        "body": {
+         "mode": "formdata",
+         "formdata": [
+          {
+           "key": "password",
+           "value": "",
+           "type": "text",
+           "disabled": true
+          },
+          {
+           "key": "uploaderName",
+           "value": "Jane Doe",
+           "type": "text"
+          },
+          {
+           "key": "uploaderEmail",
+           "value": "jane@example.com",
+           "type": "text"
+          },
+          {
+           "key": "file",
+           "type": "file",
+           "src": []
+          }
+         ]
+        },
+        "description": "Public — no auth. Upload one file through a file-request link. Text fields MUST come before the file part (Skipper). The file is written as the request's creator and never overwrites: a name already taken is stored as \"name (1).ext\" (the response gives the stored name). Rate limits: 200 uploads per hour per IP, 5000 per day per request (429 TOO_MANY_UPLOADS). Wrong password: 403 INVALID_PASSWORD (attempts limited, then 429 TOO_MANY_ATTEMPTS). Audited as FILE_REQUEST_UPLOAD, naming the uploader."
+       },
+       "response": [
+        {
+         "name": "OK (live 2026-10-18)",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\":true,\"data\":{\"received\":{\"name\":\"postman.txt\",\"size\":19}}}"
+        }
+       ]
+      }
+     ]
     }
    ]
   },
@@ -2804,6 +2923,53 @@
        ]
       },
       {
+       "name": "POST /api/v1/file/lock",
+       "request": {
+        "method": "POST",
+        "header": [
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         },
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/file/lock",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "file",
+          "lock"
+         ]
+        },
+        "body": {
+         "mode": "raw",
+         "raw": "{\n  \"fileId\": 6818281\n}"
+        },
+        "description": "Lock a file so nobody else can rename, move, delete or overwrite it until it is unlocked (needs write or admin on the file). Locking a file you already hold is a no-op; a file locked by someone else answers 423 FILE_LOCKED with lockedBy / lockedByName / lockedAt. Locks do not expire. Broadcasts FILE_LOCK_CHANGE to the folder's room."
+       },
+       "response": [
+        {
+         "name": "OK (live 2026-10-18)",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\":true,\"data\":{\"file\":{\"id\":6818281,\"directoryId\":3026920,\"lockedBy\":3,\"lockedAt\":1792301254673,\"lockedByName\":\"Deepak\"}}}"
+        }
+       ]
+      },
+      {
        "name": "POST /api/v1/file/move",
        "request": {
         "method": "POST",
@@ -2904,6 +3070,53 @@
           }
          ],
          "body": "{\"success\":true,\"data\":{\"file\":{\"createdAt\":1780232450000,\"updatedAt\":1780232451272,\"id\":6806414,\"name\":\"postman-renamed.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/postman-renamed.txt\",\"iconLink\":null,\"mountId\":\"6\",\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"directoryId\":2920619,\"permission\":\"admin\"}}}"
+        }
+       ]
+      },
+      {
+       "name": "POST /api/v1/file/unlock",
+       "request": {
+        "method": "POST",
+        "header": [
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         },
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/file/unlock",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "file",
+          "unlock"
+         ]
+        },
+        "body": {
+         "mode": "raw",
+         "raw": "{\n  \"fileId\": 6818281\n}"
+        },
+        "description": "Release a lock. Allowed for the holder, a file admin (a forced unlock — `forced: true`, audited as FILE_UNLOCK) or a super-admin; a system lock (lockedBy -1) only by a super-admin. Anyone else gets 403 NOT_LOCK_HOLDER; 409 LOCK_CHANGED if the lock changed hands mid-request. Unlocking an unlocked file is a no-op."
+       },
+       "response": [
+        {
+         "name": "OK (live 2026-10-18)",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\":true,\"data\":{\"file\":{\"id\":6818281,\"directoryId\":3026920,\"lockedBy\":null,\"lockedAt\":null,\"lockedByName\":null},\"forced\":false}}"
         }
        ]
       },
@@ -3637,6 +3850,55 @@
        "response": []
       },
       {
+       "name": "GET /api/v1/file-request/get",
+       "request": {
+        "method": "GET",
+        "header": [
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         },
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/file-request/get?directoryId=3026920",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "file-request",
+          "get"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "3026920"
+          }
+         ]
+        },
+        "description": "Your file request for a folder (one per user per folder), or null. Needs write or admin on the folder. The password is never returned — only passwordProtected."
+       },
+       "response": [
+        {
+         "name": "OK (live 2026-10-18)",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\":true,\"data\":{\"fileRequest\":{\"id\":4,\"directoryId\":3026920,\"link\":\"https://mobile.example.com/user/shared/file-request/Xq3vK9mR2tYp7LwN4bHc8DfJ6sGa1ZeU0oIkQ5nVrWy\",\"title\":\"Q3 receipts\",\"message\":\"Please send your Q3 receipts by Friday.\",\"passwordProtected\":false,\"expiresAt\":null,\"uploadCount\":3,\"lastUploadAt\":1792300955269,\"createdAt\":1792300793056}}}"
+        }
+       ]
+      },
+      {
        "name": "GET /api/v1/share/directory/get-folder-sharing-info",
        "request": {
         "method": "GET",
@@ -4083,6 +4345,53 @@
        ]
       },
       {
+       "name": "POST /api/v1/file-request/save",
+       "request": {
+        "method": "POST",
+        "header": [
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         },
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/file-request/save",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "file-request",
+          "save"
+         ]
+        },
+        "body": {
+         "mode": "raw",
+         "raw": "{\n  \"directoryId\": 3026920,\n  \"enabled\": true,\n  \"title\": \"Q3 receipts\",\n  \"message\": \"Please send your Q3 receipts by Friday.\",\n  \"isLinkProtected\": false,\n  \"password\": \"\",\n  \"isExpiryEnabled\": true,\n  \"expiryDate\": \"2030-01-31T23:59:59.999Z\"\n}"
+        },
+        "description": "Create or update your upload-only link into a folder (FE-22). `enabled: false` deletes it (its link stops working; turning it on again issues a new link). The mount must allow anonymous folder sharing (403 ANONYMOUS_DIRECTORY_SHARING_DISABLED / DIRECTORY_SHARING_DISABLED otherwise); a mount's top-level folder is refused (NOT_SHARABLE). Password: at least 6 characters with a letter and a digit, stored as a bcrypt hash; a blank password keeps the existing one. expiryDate is an ISO instant in the future."
+       },
+       "response": [
+        {
+         "name": "OK (live 2026-10-18)",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\":true,\"data\":{\"fileRequest\":{\"id\":4,\"directoryId\":3026920,\"link\":\"https://mobile.example.com/user/shared/file-request/Xq3vK9mR2tYp7LwN4bHc8DfJ6sGa1ZeU0oIkQ5nVrWy\",\"title\":\"Q3 receipts\",\"message\":\"Please send your Q3 receipts by Friday.\",\"passwordProtected\":false,\"expiresAt\":1896134399999,\"uploadCount\":3,\"lastUploadAt\":1792300955269,\"createdAt\":1792300793056}}}"
+        }
+       ]
+      },
+      {
        "name": "POST /api/v1/share/directory/enable-public-access",
        "request": {
         "method": "POST",
@@ -4489,6 +4798,12 @@
    "key": "shareTargetEmail",
    "value": "colleague@example.com",
    "type": "string"
+  },
+  {
+   "key": "fileRequestToken",
+   "value": "",
+   "type": "string",
+   "description": "The last path segment of a file-request link (…/user/shared/file-request/<token>)."
   }
  ]
 }
