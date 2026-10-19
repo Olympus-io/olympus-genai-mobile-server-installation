@@ -706,6 +706,215 @@
                   "body": "{\"success\": true, \"data\": {\"queued\": true, \"fileId\": 6818316}}"
                 }
               ]
+            },
+            {
+              "name": "POST /api/v1/genai/chat-on-everything",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/genai/chat-on-everything",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "genai",
+                    "chat-on-everything"
+                  ]
+                },
+                "description": "Ask a question across everything the caller can access (GENAI-41) — no file or folder id. Sails builds the scope from the caller's permissions (per GenAI-enabled mount: every folder on a wide-access mount, otherwise the folders their permissions reach READ — LIST-only folders are left out, because an answer quotes the documents) and the worker never widens it. Answered asynchronously like the file / folder chats: the row is created `queued`, progress and the streamed answer arrive on the caller's private socket room (subscribe-gen-ai-everything-events), and the stored row carries the answer and its citations. Stored with `entityType: \"all\"` and `entityId` = the caller. Optional: `selectedModel` (`provider:model`), `chatKnowledgeBase` (`restrictiveToDocuments` · `documentsWithModelKnowledge` · `documentsOrModelKnowledge`), `intent` (`lookup` · `summary` · `comparison`).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"question\": \"Which supplier is preferred, and why?\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-10-19)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"createdRecord\": {\"createdAt\": 1792381519836, \"updatedAt\": 1792381519836, \"id\": 1466, \"userQuestion\": \"Which supplier is preferred, and why?\", \"userId\": \"3\", \"entityId\": \"3\", \"entityType\": \"all\", \"selectedModel\": null, \"chatStatus\": \"queued\", \"processingProgress\": 0, \"errorMessage\": null, \"processedAt\": null, \"genAiServerResponse\": null, \"metaData\": {\"chatKnowledgeBase\": \"restrictiveToDocuments\", \"requestId\": \"08cac940-0d9c-4dd0-8820-855aa8b616c3\"}, \"user\": {\"name\": \"Deepak\", \"email\": \"deepak@olympus.io\", \"id\": 3}}}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/genai/get-everything-chats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/genai/get-everything-chats",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "genai",
+                    "get-everything-chats"
+                  ]
+                },
+                "description": "The caller's \"All your files\" conversation (GENAI-41), oldest first — each row with the answer, status and `metaData.responseMetaData.citations` (file id, path, page range, snippet). Private to the caller."
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-10-19)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"chats\": [{\"createdAt\": 1792381519836, \"updatedAt\": 1792381652138, \"id\": 1466, \"userQuestion\": \"Which supplier is preferred, and why?\", \"userId\": \"3\", \"entityId\": \"3\", \"entityType\": \"all\", \"selectedModel\": \"openrouter:nvidia/nemotron-3-ultra-550b-a55b:free\", \"chatStatus\": \"completed\", \"processingProgress\": 100, \"errorMessage\": null, \"processedAt\": \"1792381651003\", \"genAiServerResponse\": \"Based on the provided context, **Acme Ltd** is the preferred supplier because its delivery time is **5 days** [1].\", \"metaData\": {\"feedback\": {\"at\": 1792381652138, \"rating\": \"up\", \"comment\": \"Cited the right document.\"}, \"requestId\": \"08cac940-0d9c-4dd0-8820-855aa8b616c3\", \"responseMetaData\": {\"scope\": \"all\", \"intent\": \"lookup\", \"strategy\": \"lookup\", \"citations\": [{\"n\": 1, \"kind\": \"passage\", \"path\": \"/b4-genai-1792319582/supplier-review.pdf\", \"fileId\": 6818465, \"pageEnd\": 1, \"snippet\": \"Supplier review 2027: Acme Ltd is preferred because its delivery time is 5 days.\", \"fileName\": \"supplier-review.pdf\", \"mentions\": 1, \"pageStart\": 1}], \"answerModel\": \"openrouter:nvidia/nemotron-3-ultra-550b-a55b:free\"}, \"chatKnowledgeBase\": \"restrictiveToDocuments\"}, \"user\": {\"id\": 3, \"email\": \"deepak@olympus.io\", \"name\": \"Deepak\", \"sid\": \"1777641736772\"}, \"usedFiles\": [{\"createdAt\": 1792319982000, \"updatedAt\": 1792319982947, \"id\": 6818465, \"name\": \"supplier-review.pdf\", \"originalName\": \"supplier-review.pdf\", \"size\": \"992\", \"md5checksum\": \"fdd305b517e954e7ea26f9e6ebbf6a64\", \"lockedBy\": null, \"lockedAt\": null, \"mimetype\": \"application/pdf\", \"thumbnail\": null, \"iconLink\": null, \"mountId\": \"9\", \"ownerIds\": [], \"fsMtime\": \"1792319982000\", \"lastSeenGeneration\": \"4611686018427387904\", \"directoryId\": 3026994}]}]}}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/genai/subscribe-gen-ai-everything-events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/genai/subscribe-gen-ai-everything-events",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "genai",
+                    "subscribe-gen-ai-everything-events"
+                  ]
+                },
+                "description": "Socket-only (`isSocket`): join the caller's private room for \"All your files\" chat events — progress, the streamed answer (CHAT_STREAM) and the final row. Call over the Sails socket, not plain HTTP; the room is re-joined on reconnect. Pair with unsubscribe-gen-ai-everything-events."
+              },
+              "response": []
+            },
+            {
+              "name": "GET /api/v1/genai/unsubscribe-gen-ai-everything-events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/genai/unsubscribe-gen-ai-everything-events",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "genai",
+                    "unsubscribe-gen-ai-everything-events"
+                  ]
+                },
+                "description": "Socket-only: leave the room joined by subscribe-gen-ai-everything-events."
+              },
+              "response": []
+            },
+            {
+              "name": "POST /api/v1/genai/chat-feedback",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/genai/chat-feedback",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "genai",
+                    "chat-feedback"
+                  ]
+                },
+                "description": "Thumbs up / down on an AI answer, with an optional comment (≤ 1000 chars) (GENAI-42). Only the user who asked can rate it — anyone else gets 404. `rating`: `up` · `down` · `none` (clears it). Stored in the chat row's `metaData.feedback` beside its retrieval metadata, so a bad answer can be traced to its sources; shown in the admin Q&A log (filter `feedback=`).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"chatId\": 1466,\n  \"rating\": \"up\",\n  \"comment\": \"Cited the right document.\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "OK (live 2026-10-19)",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"chatId\": 1466, \"feedback\": {\"rating\": \"up\", \"comment\": \"Cited the right document.\", \"at\": 1792381652138}}}"
+                },
+                {
+                  "name": "Another user's answer (live 2026-10-19)",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\": [{\"code\": \"NOT_FOUND\", \"message\": \"That answer was not found.\"}]}"
+                }
+              ]
             }
           ]
         },
@@ -1574,7 +1783,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/get-child-directories?directoryId=2917604&limit=5&page=1",
+                  "raw": "{{serverUrl}}/api/v1/directory/get-child-directories?directoryId=2917604&limit=5&page=1&sortBy=size&sortOrder=desc",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -1596,6 +1805,16 @@
                     {
                       "key": "page",
                       "value": "1"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "size",
+                      "description": "name (default) · date · size · type. Folders have no size or type: sorted by those, folders fall back to name A→Z. Ties break on name A→Z in either direction (FE-21)."
+                    },
+                    {
+                      "key": "sortOrder",
+                      "value": "desc",
+                      "description": "asc · desc · neutral (no sort)"
                     }
                   ]
                 }
@@ -1678,7 +1897,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/get-files?directoryId=2917604&limit=5&page=1",
+                  "raw": "{{serverUrl}}/api/v1/directory/get-files?directoryId=2917604&limit=5&page=1&sortBy=size&sortOrder=desc",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -1700,6 +1919,16 @@
                     {
                       "key": "page",
                       "value": "1"
+                    },
+                    {
+                      "key": "sortBy",
+                      "value": "size",
+                      "description": "name (default) · date · size · type. Folders have no size or type: sorted by those, folders fall back to name A→Z. Ties break on name A→Z in either direction (FE-21)."
+                    },
+                    {
+                      "key": "sortOrder",
+                      "value": "desc",
+                      "description": "asc · desc · neutral (no sort)"
                     }
                   ]
                 }
@@ -2529,7 +2758,7 @@
                     }
                   ]
                 },
-                "description": "Small preview of an image file for grid views: a WebP at most 320 px on its longest side, EXIF orientation applied, metadata stripped.\n\n- Access is the same as downloading the file.\n- `204 No Content` = no thumbnail for this file (show its type icon): not a JPEG/PNG/GIF/WebP/TIFF/AVIF, larger than 50 MB, undecodable, or watermarking is on for its type.\n- `ETag` + `Cache-Control: private, max-age=300`; send `If-None-Match` to get `304`.\n- `503` with `Retry-After` when the renderer is saturated.\n- Not recorded as a download in the audit log."
+                "description": "Small preview of an image file for grid views: a WebP at most 320 px on its longest side, EXIF orientation applied, metadata stripped.\n\n- Access is the same as downloading the file.\n- `204 No Content` = no thumbnail for this file (show its type icon): not a JPEG/PNG/GIF/WebP/TIFF/AVIF, larger than 50 MB, undecodable, or watermarking is on for its type.\n- `ETag` + `Cache-Control: private, max-age=300`; send `If-None-Match` to get `304`.\n- `503` with `Retry-After` when the renderer is saturated.\n- Not recorded as a download in the audit log.\n\n**Documents and videos (FE-16).** A PDF, Office document or video is rendered in the background: the first request answers **202** with `Retry-After: 3` (no body) and queues the render; once it is cached the same request answers **200** with a WebP (ETag / 304 as for images), or **204** when it could not be rendered (not retried until the file changes). A PDF answers 204 while watermarking is on, like other watermarked types."
               },
               "response": [
                 {
@@ -3679,6 +3908,53 @@
                     }
                   ],
                   "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"accessToken\\\" is required, but it was not defined.\", \"\\\"refreshToken\\\" is required, but it was not defined.\", \"\\\"directoryId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/mcp/start-session`) due to 3 missing or invalid parameters.\"}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/mcp/confirm-action",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/mcp/confirm-action",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "mcp",
+                    "confirm-action"
+                  ]
+                },
+                "description": "Confirm or cancel a destructive tool call the in-app MCP agent is holding (MCP-32). When the model asks for a tool the server marks `destructiveHint` (delete, share, make public, remove…) it is not run: the exact call is stored for 30 min and the assistant message carries an action card (`metaData.actions`: id, tool, summary, status). Only the same user, on the same chat, can decide; `confirm` runs the STORED arguments — what runs is what was shown — and the card's status moves to running → done / failed; `cancel` drops it. The outcome arrives on the MCP chat socket room. `actionId` is the card's 16-character id; `messageId` the assistant message it hangs off. 404 for an unknown message or action; an expired or already-decided action is refused.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"messageId\": 1234,\n  \"actionId\": \"Xy3kP0aQ7mN2bV8c\",\n  \"decision\": \"confirm\"\n}"
+                }
+              },
+              "response": [
+                {
+                  "name": "Unknown message (live 2026-10-19)",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\": [{\"code\": \"NOT_FOUND\", \"message\": \"Chat message not found.\"}]}"
                 }
               ]
             }
@@ -6360,7 +6636,7 @@
                     "default-models"
                   ]
                 },
-                "description": "The platform defaults for each capability — `embedding`, `summary`, `chat`, `vision` — plus the optional `utility` (query understanding; absent = the chat model), `retrieval.reranker` (`fast` · `multilingual` · `off`; absent = `fast`) and the active `chunkSettings`."
+                "description": "The platform defaults for each capability — `embedding`, `summary`, `chat`, `vision` — plus the optional `utility` (query understanding; absent = the chat model), `retrieval` — `reranker` (`fast` · `multilingual` · `off`; absent = `fast`), `research` (`auto` · `off`), `wholeDocument` (`auto` · `off`) and `wholeDocumentMaxTokens` (absent = 40000) and the active `chunkSettings`."
               },
               "response": [
                 {
@@ -7265,9 +7541,16 @@
                     {
                       "key": "limit",
                       "value": "10"
+                    },
+                    {
+                      "key": "feedback",
+                      "value": "",
+                      "description": "'' (all) · up · down · any — the asker's verdict on the answer (GENAI-42); each log carries `metadata.feedback`",
+                      "disabled": true
                     }
                   ]
-                }
+                },
+                "description": "Filter by the asker's verdict with `feedback`. `entityType` also takes `all` — questions asked across everything the user can access (GENAI-41)."
               },
               "response": [
                 {
@@ -7861,14 +8144,14 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"chat\": \"chatgpt:gpt-5\",\n  \"summary\": \"chatgpt:gpt-5-mini\",\n  \"vision\": \"chatgpt:gpt-5\",\n  \"utility\": \"chatgpt:gpt-5-mini\",\n  \"retrieval\": {\n    \"reranker\": \"fast\"\n  }\n}",
+                  "raw": "{\n  \"chat\": \"chatgpt:gpt-5\",\n  \"summary\": \"chatgpt:gpt-5-mini\",\n  \"vision\": \"chatgpt:gpt-5\",\n  \"utility\": \"chatgpt:gpt-5-mini\",\n  \"retrieval\": {\n    \"reranker\": \"fast\",\n    \"research\": \"auto\",\n    \"wholeDocument\": \"auto\",\n    \"wholeDocumentMaxTokens\": 40000\n  }\n}",
                   "options": {
                     "raw": {
                       "language": "json"
                     }
                   }
                 },
-                "description": "Set the default model per capability. Send only the keys you are changing; every model is a `provider:model` string (an Ollama tag keeps its own colon, e.g. `ollama:gemma4:latest`), and `\"\"` clears a role.\n\n- `embedding`, `chat`, `summary`, `vision` — the platform defaults.\n- `utility` *(optional)* — a small, fast model for **query understanding** (follow-up rewriting, search planning, routing) and other small steps of answering. `\"\"` = the chat model does them.\n- `retrieval.reranker` — the on-device reranker for answer retrieval: `fast` (English, default), `multilingual`, or `off`. Anything else is rejected with 400 details.\n- `chunkSettings` — per file type, merged per type (a partial save keeps the other types).\n\n⚠️ Changing `embedding` here does **not** migrate existing vectors — use *Embedding Administration → switch-embedding-model*, which queues the re-embed."
+                "description": "Set the default model per capability. Send only the keys you are changing; every model is a `provider:model` string (an Ollama tag keeps its own colon, e.g. `ollama:gemma4:latest`), and `\"\"` clears a role.\n\n- `embedding`, `chat`, `summary`, `vision` — the platform defaults.\n- `utility` *(optional)* — a small, fast model for **query understanding** (follow-up rewriting, search planning, routing) and other small steps of answering. `\"\"` = the chat model does them.\n- `retrieval.reranker` — the on-device reranker for answer retrieval: `fast` (English, default), `multilingual`, or `off`. Anything else is rejected with 400 details.\n- `retrieval.research` — `auto` (default): a complex question runs a short tool-using research loop before the answer; `off`: never.\n- `retrieval.wholeDocument` — `auto` (default): when the documents a question is about fit, the answer is written from the whole text instead of retrieved passages (and follow-ups read them from the provider's prompt cache); `off`: always passages.\n- `retrieval.wholeDocumentMaxTokens` — the size cap for that, a whole number from 2000 to 900000 (default 40000; never more than half the answer model's window).\n- `chunkSettings` — per file type, merged per type (a partial save keeps the other types).\n\n⚠️ Changing `embedding` here does **not** migrate existing vectors — use *Embedding Administration → switch-embedding-model*, which queues the re-embed."
               },
               "response": []
             },

@@ -4246,10 +4246,16 @@
            "value": "",
            "description": "file | directory",
            "disabled": true
+          },
+          {
+           "key": "feedback",
+           "value": "",
+           "description": "'' (all) · up · down · any — the asker's verdict on the answer (GENAI-42); each log carries `metadata.feedback`",
+           "disabled": true
           }
          ]
         },
-        "description": "Paginated Q&A history: question, full answer, model used, latency, and the source entity. This returns **all users'** conversations, which is why it is super-admin gated."
+        "description": "Paginated Q&A history: question, full answer, model used, latency, and the source entity. This returns **all users'** conversations, which is why it is super-admin gated. Filter by the asker's verdict with `feedback`. `entityType` also takes `all` — questions asked across everything the user can access (GENAI-41)."
        },
        "response": [
         {
@@ -4380,7 +4386,7 @@
           "default-models"
          ]
         },
-        "description": "The platform defaults for each capability — `embedding`, `summary`, `chat`, `vision` — plus the optional `utility` (query understanding; absent = the chat model), `retrieval.reranker` (`fast` · `multilingual` · `off`; absent = `fast`) and the active `chunkSettings`."
+        "description": "The platform defaults for each capability — `embedding`, `summary`, `chat`, `vision` — plus the optional `utility` (query understanding; absent = the chat model), `retrieval` — `reranker` (`fast` · `multilingual` · `off`; absent = `fast`), `research` (`auto` · `off`), `wholeDocument` (`auto` · `off`) and `wholeDocumentMaxTokens` (absent = 40000) and the active `chunkSettings`."
        },
        "response": [
         {
@@ -4420,10 +4426,10 @@
           "default-models"
          ]
         },
-        "description": "Set the default model per capability. Send only the keys you are changing; every model is a `provider:model` string (an Ollama tag keeps its own colon, e.g. `ollama:gemma4:latest`), and `\"\"` clears a role.\n\n- `embedding`, `chat`, `summary`, `vision` — the platform defaults.\n- `utility` *(optional)* — a small, fast model for **query understanding** (follow-up rewriting, search planning, routing) and other small steps of answering. `\"\"` = the chat model does them.\n- `retrieval.reranker` — the on-device reranker for answer retrieval: `fast` (English, default), `multilingual`, or `off`. Anything else is rejected with 400 details.\n- `chunkSettings` — per file type, merged per type (a partial save keeps the other types).\n\n⚠️ Changing `embedding` here does **not** migrate existing vectors — use *Embedding Administration → switch-embedding-model*, which queues the re-embed.",
+        "description": "Set the default model per capability. Send only the keys you are changing; every model is a `provider:model` string (an Ollama tag keeps its own colon, e.g. `ollama:gemma4:latest`), and `\"\"` clears a role.\n\n- `embedding`, `chat`, `summary`, `vision` — the platform defaults.\n- `utility` *(optional)* — a small, fast model for **query understanding** (follow-up rewriting, search planning, routing) and other small steps of answering. `\"\"` = the chat model does them.\n- `retrieval.reranker` — the on-device reranker for answer retrieval: `fast` (English, default), `multilingual`, or `off`. Anything else is rejected with 400 details.\n- `retrieval.research` — `auto` (default): a complex question runs a short tool-using research loop before the answer; `off`: never.\n- `retrieval.wholeDocument` — `auto` (default): when the documents a question is about fit, the answer is written from the whole text instead of retrieved passages (and follow-ups read them from the provider's prompt cache); `off`: always passages.\n- `retrieval.wholeDocumentMaxTokens` — the size cap for that, a whole number from 2000 to 900000 (default 40000; never more than half the answer model's window).\n- `chunkSettings` — per file type, merged per type (a partial save keeps the other types).\n\n⚠️ Changing `embedding` here does **not** migrate existing vectors — use *Embedding Administration → switch-embedding-model*, which queues the re-embed.",
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"chat\": \"chatgpt:gpt-5\",\n  \"summary\": \"chatgpt:gpt-5-mini\",\n  \"vision\": \"chatgpt:gpt-5\",\n  \"utility\": \"chatgpt:gpt-5-mini\",\n  \"retrieval\": {\n    \"reranker\": \"fast\"\n  }\n}",
+         "raw": "{\n  \"chat\": \"chatgpt:gpt-5\",\n  \"summary\": \"chatgpt:gpt-5-mini\",\n  \"vision\": \"chatgpt:gpt-5\",\n  \"utility\": \"chatgpt:gpt-5-mini\",\n  \"retrieval\": {\n    \"reranker\": \"fast\",\n    \"research\": \"auto\",\n    \"wholeDocument\": \"auto\",\n    \"wholeDocumentMaxTokens\": 40000\n  }\n}",
          "options": {
           "raw": {
            "language": "json"
