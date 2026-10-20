@@ -116,6 +116,10 @@
          {
           "key": "Content-Type",
           "value": "application/json"
+         },
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
          }
         ],
         "url": {
@@ -130,9 +134,10 @@
           "send-otp"
          ]
         },
+        "description": "Sends a new one-time password to the signed-in user. Policy `is-logged-in`, so it needs the Bearer token; it takes no input — the recipient is always the caller, and the channel (email / SMS / both) comes from the admin two-factor settings.",
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"channel\": \"EMAIL\"\n}"
+         "raw": "{}"
         }
        },
        "response": []
@@ -158,6 +163,11 @@
           "entrance",
           "verify-update-password"
          ]
+        },
+        "description": "Complete a password reset: exchange the emailed `passwordResetToken` (from `recover-password`) for a new password.",
+        "body": {
+         "mode": "raw",
+         "raw": "{\n  \"password\": \"N3wStr0ng#Pass\",\n  \"passwordResetToken\": \"<token-from-reset-email>\"\n}"
         }
        },
        "response": []
@@ -183,6 +193,11 @@
           "entrance",
           "logged-in"
          ]
+        },
+        "description": "Okta/SSO callback verification: validates an externally issued JWT against the client key and mints an Olympus session. Fails with `OKTA_LOGIN_CHANNEL_DISABLED` unless the SSO provider is Okta.",
+        "body": {
+         "mode": "raw",
+         "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"apiKey\": \"{{clientApiKey}}\",\n  \"jwt\": \"<okta-id-token>\"\n}"
         }
        },
        "response": []
@@ -440,7 +455,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/utility/get-queued-job-status",
+         "raw": "{{serverUrl}}/api/v1/utility/get-queued-job-status?jobId=1",
          "host": [
           "{{serverUrl}}"
          ],
@@ -449,8 +464,15 @@
           "v1",
           "utility",
           "get-queued-job-status"
+         ],
+         "query": [
+          {
+           "key": "jobId",
+           "value": "1"
+          }
          ]
-        }
+        },
+        "description": "`jobId` is the `data.jobId` that `directory/create-zip` returns."
        },
        "response": [
         {
@@ -1068,20 +1090,25 @@
           "account",
           "logout-from-all-apps"
          ]
+        },
+        "description": "Signs out **only the caller** from every app: every access token the caller holds is blacklisted (the one on this request included) and their token rows are deleted, so no refresh token works again. Requires sign-in (`is-logged-in`, Bearer token). `userId` is optional and kept for older clients; when sent it must be the caller's own id — another user's id answers `403 FORBIDDEN`. An administrator signs another user out with `POST /api/v1/user/log-out-from-all-apps`. Sending this ends the session the collection is using — log in again afterwards.",
+        "body": {
+         "mode": "raw",
+         "raw": "{}"
         }
        },
        "response": [
         {
-         "name": "400 response",
-         "status": "HTTP 400",
-         "code": 400,
+         "name": "403 response",
+         "status": "HTTP 403",
+         "code": 403,
          "header": [
           {
            "key": "Content-Type",
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"userId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/account/logout-from-all-apps`) due to 1 missing or invalid parameter.\"}"
+         "body": "{\"errors\": [{\"code\": \"FORBIDDEN\", \"message\": \"You can only sign yourself out of all apps.\"}]}"
         }
        ]
       }
@@ -1242,7 +1269,7 @@
         },
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"commentId\": 999999\n}"
+         "raw": "{\n  \"id\": 999999\n}"
         }
        },
        "response": [
@@ -1289,7 +1316,7 @@
         },
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"commentId\": 999999\n}"
+         "raw": "{\n  \"id\": 999999\n}"
         }
        },
        "response": [
@@ -1322,7 +1349,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/comment/get-comments?directoryId=2918732&page=1&limit=10",
+         "raw": "{{serverUrl}}/api/v1/directory/comment/get-comments?directoryId=2918732",
          "host": [
           "{{serverUrl}}"
          ],
@@ -1337,14 +1364,6 @@
           {
            "key": "directoryId",
            "value": "2918732"
-          },
-          {
-           "key": "page",
-           "value": "1"
-          },
-          {
-           "key": "limit",
-           "value": "10"
           }
          ]
         }
@@ -1379,7 +1398,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/file/comment/get-comments",
+         "raw": "{{serverUrl}}/api/v1/file/comment/get-comments?fileId={{fileId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -1389,6 +1408,12 @@
           "file",
           "comment",
           "get-comments"
+         ],
+         "query": [
+          {
+           "key": "fileId",
+           "value": "{{fileId}}"
+          }
          ]
         }
        },
@@ -1707,7 +1732,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/create-zip",
+         "raw": "{{serverUrl}}/api/v1/directory/create-zip?directoryId={{directoryId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -1716,6 +1741,12 @@
           "v1",
           "directory",
           "create-zip"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "{{directoryId}}"
+          }
          ]
         }
        },
@@ -1749,7 +1780,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/download",
+         "raw": "{{serverUrl}}/api/v1/directory/download?linkId={{zipLinkId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -1758,6 +1789,12 @@
           "v1",
           "directory",
           "download"
+         ],
+         "query": [
+          {
+           "key": "linkId",
+           "value": "{{zipLinkId}}"
+          }
          ]
         }
        },
@@ -2061,7 +2098,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/search-directories?q=docs&limit=10",
+         "raw": "{{serverUrl}}/api/v1/directory/search-directories?searchTerm=docs&limit=10",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2073,7 +2110,7 @@
          ],
          "query": [
           {
-           "key": "q",
+           "key": "searchTerm",
            "value": "docs"
           },
           {
@@ -2113,7 +2150,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/search-files-by-name?q=pdf&directoryId=2917604",
+         "raw": "{{serverUrl}}/api/v1/directory/search-files-by-name?searchTerm=pdf&directoryId=2917604",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2125,7 +2162,7 @@
          ],
          "query": [
           {
-           "key": "q",
+           "key": "searchTerm",
            "value": "pdf"
           },
           {
@@ -2165,7 +2202,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-changes",
+         "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-changes?directoryId={{directoryId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2174,6 +2211,12 @@
           "v1",
           "directory",
           "subscribe-directory-changes"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "{{directoryId}}"
+          }
          ]
         }
        },
@@ -2207,7 +2250,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-events",
+         "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-events?directoryId={{directoryId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2216,6 +2259,12 @@
           "v1",
           "directory",
           "subscribe-directory-events"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "{{directoryId}}"
+          }
          ]
         }
        },
@@ -2249,7 +2298,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-changes",
+         "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-changes?directoryId={{directoryId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2258,6 +2307,12 @@
           "v1",
           "directory",
           "unsubscribe-directory-changes"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "{{directoryId}}"
+          }
          ]
         }
        },
@@ -2291,7 +2346,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-events",
+         "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-events?directoryId={{directoryId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2300,6 +2355,12 @@
           "v1",
           "directory",
           "unsubscribe-directory-events"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "{{directoryId}}"
+          }
          ]
         }
        },
@@ -2346,7 +2407,7 @@
         },
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"name\": \"postman-folder-{{ts}}\",\n  \"directoryId\": 2917604,\n  \"mountId\": 1\n}"
+         "raw": "{\n  \"name\": \"postman-folder-{{ts}}\",\n  \"directoryId\": 2917604\n}"
         }
        },
        "response": [
@@ -2508,7 +2569,7 @@
         },
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"linkId\": \"{{zipLinkId}}\",\n  \"directoryId\": 2918732\n}"
+         "raw": "{\n  \"linkId\": \"{{zipLinkId}}\"\n}"
         }
        },
        "response": [
@@ -2804,7 +2865,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/file/download",
+         "raw": "{{serverUrl}}/api/v1/file/download?fileId={{fileId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2813,6 +2874,12 @@
           "v1",
           "file",
           "download"
+         ],
+         "query": [
+          {
+           "key": "fileId",
+           "value": "{{fileId}}"
+          }
          ]
         }
        },
@@ -2906,7 +2973,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/file/download-with-link",
+         "raw": "{{serverUrl}}/api/v1/file/download-with-link?linkId=<linkId-from-get-download-link>",
          "host": [
           "{{serverUrl}}"
          ],
@@ -2915,8 +2982,21 @@
           "v1",
           "file",
           "download-with-link"
+         ],
+         "query": [
+          {
+           "key": "linkId",
+           "value": "<linkId-from-get-download-link>"
+          },
+          {
+           "key": "dl",
+           "value": "true",
+           "description": "true: send as an attachment (Download) instead of inline (Preview)",
+           "disabled": true
+          }
          ]
-        }
+        },
+        "description": "`linkId` is the id in the `downloadUrl` that `file/get-download-link` returns."
        },
        "response": [
         {
@@ -2996,7 +3076,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/file/get-download-link",
+         "raw": "{{serverUrl}}/api/v1/file/get-download-link?fileId={{fileId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -3005,6 +3085,12 @@
           "v1",
           "file",
           "get-download-link"
+         ],
+         "query": [
+          {
+           "key": "fileId",
+           "value": "{{fileId}}"
+          }
          ]
         }
        },
@@ -3050,7 +3136,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/file/search-files?q=pdf&limit=10",
+         "raw": "{{serverUrl}}/api/v1/file/search-files?searchTerm=pdf&limit=10",
          "host": [
           "{{serverUrl}}"
          ],
@@ -3062,7 +3148,7 @@
          ],
          "query": [
           {
-           "key": "q",
+           "key": "searchTerm",
            "value": "pdf"
           },
           {
@@ -3072,20 +3158,7 @@
          ]
         }
        },
-       "response": [
-        {
-         "name": "400 response",
-         "status": "HTTP 400",
-         "code": 400,
-         "header": [
-          {
-           "key": "Content-Type",
-           "value": "application/json"
-          }
-         ],
-         "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"searchTerm\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/file/search-files`) due to 1 missing or invalid parameter.\"}"
-        }
-       ]
+       "response": []
       },
       {
        "name": "GET /api/v1/file/search-files (tag collection)",
@@ -3159,7 +3232,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/file/subscribe-file-events",
+         "raw": "{{serverUrl}}/api/v1/file/subscribe-file-events?fileId={{fileId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -3168,6 +3241,12 @@
           "v1",
           "file",
           "subscribe-file-events"
+         ],
+         "query": [
+          {
+           "key": "fileId",
+           "value": "{{fileId}}"
+          }
          ]
         }
        },
@@ -3201,7 +3280,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/file/unsubscribe-file-events",
+         "raw": "{{serverUrl}}/api/v1/file/unsubscribe-file-events?fileId={{fileId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -3210,6 +3289,12 @@
           "v1",
           "file",
           "unsubscribe-file-events"
+         ],
+         "query": [
+          {
+           "key": "fileId",
+           "value": "{{fileId}}"
+          }
          ]
         }
        },
@@ -3914,7 +3999,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/mcp/get-chat-history",
+         "raw": "{{serverUrl}}/api/v1/mcp/get-chat-history?directoryId={{directoryId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -3923,6 +4008,24 @@
           "v1",
           "mcp",
           "get-chat-history"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "{{directoryId}}"
+          },
+          {
+           "key": "limit",
+           "value": "50",
+           "description": "Messages to return (default 50)",
+           "disabled": true
+          },
+          {
+           "key": "beforeId",
+           "value": "",
+           "description": "Only messages with a smaller id — the next page back",
+           "disabled": true
+          }
          ]
         }
        },
@@ -3956,7 +4059,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/mcp/subscribe-chat-events",
+         "raw": "{{serverUrl}}/api/v1/mcp/subscribe-chat-events?sessionId={{sessionId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -3965,6 +4068,12 @@
           "v1",
           "mcp",
           "subscribe-chat-events"
+         ],
+         "query": [
+          {
+           "key": "sessionId",
+           "value": "{{sessionId}}"
+          }
          ]
         }
        },
@@ -3998,7 +4107,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/mcp/unsubscribe-chat-events",
+         "raw": "{{serverUrl}}/api/v1/mcp/unsubscribe-chat-events?sessionId={{sessionId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -4007,6 +4116,12 @@
           "v1",
           "mcp",
           "unsubscribe-chat-events"
+         ],
+         "query": [
+          {
+           "key": "sessionId",
+           "value": "{{sessionId}}"
+          }
          ]
         }
        },
@@ -4423,7 +4538,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/share/directory/get-public-sharing-status",
+         "raw": "{{serverUrl}}/api/v1/share/directory/get-public-sharing-status?directoryId={{directoryId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -4433,6 +4548,12 @@
           "share",
           "directory",
           "get-public-sharing-status"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "{{directoryId}}"
+          }
          ]
         }
        },
@@ -4478,7 +4599,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/share/directory/get-shared-to-users-list",
+         "raw": "{{serverUrl}}/api/v1/share/directory/get-shared-to-users-list?directoryId={{directoryId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -4488,6 +4609,12 @@
           "share",
           "directory",
           "get-shared-to-users-list"
+         ],
+         "query": [
+          {
+           "key": "directoryId",
+           "value": "{{directoryId}}"
+          }
          ]
         }
        },
@@ -4594,7 +4721,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/share/file/download-via-public-link",
+         "raw": "{{serverUrl}}/api/v1/share/file/download-via-public-link?linkId={{linkId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -4604,6 +4731,30 @@
           "share",
           "file",
           "download-via-public-link"
+         ],
+         "query": [
+          {
+           "key": "linkId",
+           "value": "{{linkId}}"
+          },
+          {
+           "key": "responseType",
+           "value": "link",
+           "description": "file (default): stream the file · link: return its download details",
+           "disabled": true
+          },
+          {
+           "key": "password",
+           "value": "",
+           "description": "The link password, when the link has one",
+           "disabled": true
+          },
+          {
+           "key": "dl",
+           "value": "true",
+           "description": "true: send as an attachment instead of inline",
+           "disabled": true
+          }
          ]
         }
        },
@@ -4637,7 +4788,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/share/file/get-public-sharing-status",
+         "raw": "{{serverUrl}}/api/v1/share/file/get-public-sharing-status?fileId={{fileId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -4647,6 +4798,12 @@
           "share",
           "file",
           "get-public-sharing-status"
+         ],
+         "query": [
+          {
+           "key": "fileId",
+           "value": "{{fileId}}"
+          }
          ]
         }
        },
@@ -4692,7 +4849,7 @@
          }
         ],
         "url": {
-         "raw": "{{serverUrl}}/api/v1/share/file/get-shared-to-users-list",
+         "raw": "{{serverUrl}}/api/v1/share/file/get-shared-to-users-list?fileId={{fileId}}",
          "host": [
           "{{serverUrl}}"
          ],
@@ -4702,6 +4859,12 @@
           "share",
           "file",
           "get-shared-to-users-list"
+         ],
+         "query": [
+          {
+           "key": "fileId",
+           "value": "{{fileId}}"
+          }
          ]
         }
        },
@@ -4931,9 +5094,10 @@
           "share-privately"
          ]
         },
+        "description": "Optional `message`: a note to the recipient, shown in the invite email. Plain text, at most 500 characters — a longer one is refused (400 INPUTS_ERROR), not cut. Control and invisible characters are removed.",
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"userEmail\": \"{{shareTargetEmail}}\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false\n}",
+         "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"userEmail\": \"{{shareTargetEmail}}\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false,\n  \"message\": \"Here is the report we discussed.\"\n}",
          "options": {
           "raw": {
            "language": "json"
@@ -5118,9 +5282,10 @@
           "share-privately"
          ]
         },
+        "description": "Optional `message`: a note to the recipient, shown in the invite email. Plain text, at most 500 characters — a longer one is refused (400 INPUTS_ERROR), not cut. Control and invisible characters are removed.",
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"fileId\": \"{{fileId}}\",\n  \"userEmail\": \"{{shareTargetEmail}}\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false\n}",
+         "raw": "{\n  \"fileId\": \"{{fileId}}\",\n  \"userEmail\": \"{{shareTargetEmail}}\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false,\n  \"message\": \"Here is the report we discussed.\"\n}",
          "options": {
           "raw": {
            "language": "json"

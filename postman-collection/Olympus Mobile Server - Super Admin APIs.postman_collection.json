@@ -698,10 +698,10 @@
         "logout-from-all-apps"
        ]
       },
-      "description": "Blacklist every outstanding token for one user — the self-service version of `POST /api/v1/user/log-out-from-all-apps`. Policy is `true` (unauthenticated) because it is also called from the logout path after the token is already gone.",
+      "description": "Signs out **only the caller** from every app: every access token the caller holds is blacklisted (the one on this request included) and their token rows are deleted, so no refresh token works again. Requires sign-in (`is-logged-in`, Bearer token). `userId` is optional and kept for older clients; when sent it must be the caller's own id — another user's id answers `403 FORBIDDEN`. An administrator signs another user out with `POST /api/v1/user/log-out-from-all-apps`. Sending this ends the session the collection is using — log in again afterwards.",
       "body": {
        "mode": "raw",
-       "raw": "{\n  \"userId\": 1\n}",
+       "raw": "{}",
        "options": {
         "raw": {
          "language": "json"
@@ -2668,7 +2668,7 @@
          "value": "application/json"
         }
        ],
-       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"createdRecord\": {\n      \"createdAt\": 1784735038941,\n      \"updatedAt\": 1784735038941,\n      \"id\": 4,\n      \"ldapOn\": false,\n      \"serviceType\": 1,\n      \"ldapServerIp\": \"ldap://10.0.0.50:389\",\n      \"ldapOU\": \"OU=Employees\",\n      \"ldapBaseDN\": \"DC=example,DC=com\",\n      \"ldapAdmin\": \"CN=svc-olympus,OU=ServiceAccounts,DC=example,DC=com\",\n      \"ldapPassword\": \"S3rvic3P@ss\",\n      \"addEveryUserToDomainUsersGroup\": true\n    }\n  }\n}"
+       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"createdRecord\": {\n      \"createdAt\": 1784735038941,\n      \"updatedAt\": 1784735038941,\n      \"id\": 4,\n      \"ldapOn\": false,\n      \"serviceType\": 1,\n      \"ldapServerIp\": \"ldap://10.0.0.50:389\",\n      \"ldapOU\": \"OU=Employees\",\n      \"ldapBaseDN\": \"DC=example,DC=com\",\n      \"ldapAdmin\": \"CN=svc-olympus,OU=ServiceAccounts,DC=example,DC=com\",\n      \"ldapPassword\": \"••••••••\",\n      \"hasPassword\": true,\n      \"addEveryUserToDomainUsersGroup\": true\n    }\n  }\n}"
       },
       {
        "name": "409 Conflict — a row already exists",
@@ -2720,7 +2720,7 @@
         "get-settings"
        ]
       },
-      "description": "The stored configuration — **including `ldapPassword` in clear text**, which is why this read is super-admin gated. Returns `data: {}` when no directory is configured."
+      "description": "The stored configuration. The bind password is never returned: `ldapPassword` comes back as `••••••••` with `hasPassword`; sending that placeholder back to `update-settings` or `test-settings` keeps the stored password (only while the server address and bind account are unchanged). Returns `data: {}` when no directory is configured."
      },
      "response": [
       {
@@ -2734,7 +2734,7 @@
          "value": "application/json"
         }
        ],
-       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"adLdapSettings\": {\n      \"createdAt\": 1784735038941,\n      \"updatedAt\": 1784735038941,\n      \"id\": 4,\n      \"ldapOn\": false,\n      \"serviceType\": 1,\n      \"ldapServerIp\": \"ldap://10.0.0.50:389\",\n      \"ldapOU\": \"OU=Employees\",\n      \"ldapBaseDN\": \"DC=example,DC=com\",\n      \"ldapAdmin\": \"CN=svc-olympus,OU=ServiceAccounts,DC=example,DC=com\",\n      \"ldapPassword\": \"S3rvic3P@ss\",\n      \"addEveryUserToDomainUsersGroup\": true\n    }\n  }\n}"
+       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"adLdapSettings\": {\n      \"createdAt\": 1784735038941,\n      \"updatedAt\": 1784735038941,\n      \"id\": 4,\n      \"ldapOn\": false,\n      \"serviceType\": 1,\n      \"ldapServerIp\": \"ldap://10.0.0.50:389\",\n      \"ldapOU\": \"OU=Employees\",\n      \"ldapBaseDN\": \"DC=example,DC=com\",\n      \"ldapAdmin\": \"CN=svc-olympus,OU=ServiceAccounts,DC=example,DC=com\",\n      \"ldapPassword\": \"••••••••\",\n      \"hasPassword\": true,\n      \"addEveryUserToDomainUsersGroup\": true\n    }\n  }\n}"
       },
       {
        "name": "200 OK — not configured",
@@ -2796,7 +2796,7 @@
          "value": "application/json"
         }
        ],
-       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"adLdapSettings\": {\n      \"createdAt\": 1784735038941,\n      \"updatedAt\": 1784735038990,\n      \"id\": 4,\n      \"ldapOn\": false,\n      \"serviceType\": 1,\n      \"ldapServerIp\": \"ldap://10.0.0.50:389\",\n      \"ldapOU\": \"OU=Staff\",\n      \"ldapBaseDN\": \"DC=example,DC=com\",\n      \"ldapAdmin\": \"CN=svc-olympus,OU=ServiceAccounts,DC=example,DC=com\",\n      \"ldapPassword\": \"S3rvic3P@ss\",\n      \"addEveryUserToDomainUsersGroup\": false\n    }\n  }\n}"
+       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"adLdapSettings\": {\n      \"createdAt\": 1784735038941,\n      \"updatedAt\": 1784735038990,\n      \"id\": 4,\n      \"ldapOn\": false,\n      \"serviceType\": 1,\n      \"ldapServerIp\": \"ldap://10.0.0.50:389\",\n      \"ldapOU\": \"OU=Staff\",\n      \"ldapBaseDN\": \"DC=example,DC=com\",\n      \"ldapAdmin\": \"CN=svc-olympus,OU=ServiceAccounts,DC=example,DC=com\",\n      \"ldapPassword\": \"••••••••\",\n      \"hasPassword\": true,\n      \"addEveryUserToDomainUsersGroup\": false\n    }\n  }\n}"
       }
      ]
     },
@@ -2894,7 +2894,7 @@
          "value": "application/json"
         }
        ],
-       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"destroyedRecord\": {\n      \"createdAt\": 1784735038941,\n      \"updatedAt\": 1784735038990,\n      \"id\": 4,\n      \"ldapOn\": false,\n      \"serviceType\": 1,\n      \"ldapServerIp\": \"ldap://10.0.0.50:389\",\n      \"ldapOU\": \"OU=Staff\",\n      \"ldapBaseDN\": \"DC=example,DC=com\",\n      \"ldapAdmin\": \"CN=svc-olympus,OU=ServiceAccounts,DC=example,DC=com\",\n      \"ldapPassword\": \"S3rvic3P@ss\",\n      \"addEveryUserToDomainUsersGroup\": false\n    }\n  }\n}"
+       "body": "{\n  \"success\": true,\n  \"data\": {\n    \"destroyedRecord\": {\n      \"createdAt\": 1784735038941,\n      \"updatedAt\": 1784735038990,\n      \"id\": 4,\n      \"ldapOn\": false,\n      \"serviceType\": 1,\n      \"ldapServerIp\": \"ldap://10.0.0.50:389\",\n      \"ldapOU\": \"OU=Staff\",\n      \"ldapBaseDN\": \"DC=example,DC=com\",\n      \"ldapAdmin\": \"CN=svc-olympus,OU=ServiceAccounts,DC=example,DC=com\",\n      \"ldapPassword\": \"••••••••\",\n      \"hasPassword\": true,\n      \"addEveryUserToDomainUsersGroup\": false\n    }\n  }\n}"
       }
      ]
     }
@@ -3516,7 +3516,7 @@
         "description": "Update one seed entry, addressed by the uuid `id` from `get-settings` — used to narrow a seed to specific `applicableUserTypes`.",
         "body": {
          "mode": "raw",
-         "raw": "{\n  \"id\": \"{{seedFileId}}\"\n}",
+         "raw": "{\n  \"id\": \"{{seedFileId}}\",\n  \"applicableUserTypes\": [\"guestUser\"]\n}",
          "options": {
           "raw": {
            "language": "json"
@@ -4308,10 +4308,16 @@
            "value": "",
            "description": "file | directory",
            "disabled": true
+          },
+          {
+           "key": "feedback",
+           "value": "",
+           "description": "'' (all) · up · down · any — the asker's verdict on the answer (GENAI-42)",
+           "disabled": true
           }
          ]
         },
-        "description": "Every Q&A log matching the filters as a CSV download (`text/csv`, UTF-8 with BOM), newest first — the same filters and rows as `GET /api/v1/genai/qa-logs`, without paging. Streamed in batches, so it is safe on large logs. Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a spreadsheet shows them as text instead of running them as formulas.\n\nColumns: ID, Question, Answer, Status, Model, Entity Type, Entity ID, File/Directory, User, User Email, Error, Created At (UTC), Processed At (UTC).\n\nSuper-admin only."
+        "description": "Every Q&A log matching the filters as a CSV download (`text/csv`, UTF-8 with BOM), newest first — the same filters (including `feedback`) and rows as `GET /api/v1/genai/qa-logs`, without paging. Streamed in batches, so it is safe on large logs. Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a spreadsheet shows them as text instead of running them as formulas.\n\nColumns: ID, Question, Answer, Status, Model, Entity Type, Entity ID, File/Directory, User, User Email, Error, Feedback, Feedback Comment, Answer Strategy, Created At (UTC), Processed At (UTC).\n\nSuper-admin only."
        },
        "response": [
         {
@@ -4680,7 +4686,7 @@
          }
         ],
         "url": {
-         "raw": "{{baseUrl}}/api/v1/genai/model-providers/openrouter-oauth-exchange",
+         "raw": "{{baseUrl}}/api/v1/genai/model-providers/openrouter/oauth-exchange",
          "host": [
           "{{baseUrl}}"
          ],
@@ -4689,7 +4695,8 @@
           "v1",
           "genai",
           "model-providers",
-          "openrouter-oauth-exchange"
+          "openrouter",
+          "oauth-exchange"
          ]
         },
         "description": "Complete the OpenRouter OAuth **PKCE** flow: exchange the authorization `code` plus the `codeVerifier` held by the browser for a durable API key, which is then stored as `public.openrouter`.\n\nOpenRouter acts as a gateway — it is also the first OpenAI-compatible provider wired up for embeddings, not just chat.",

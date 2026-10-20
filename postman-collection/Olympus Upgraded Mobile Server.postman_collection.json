@@ -116,6 +116,10 @@
                   {
                     "key": "Content-Type",
                     "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
                   }
                 ],
                 "url": {
@@ -130,9 +134,10 @@
                     "send-otp"
                   ]
                 },
+                "description": "Sends a new one-time password to the signed-in user. Policy `is-logged-in`, so it needs the Bearer token; it takes no input — the recipient is always the caller, and the channel (email / SMS / both) comes from the admin two-factor settings.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"channel\": \"EMAIL\"\n}"
+                  "raw": "{}"
                 }
               },
               "response": []
@@ -158,6 +163,11 @@
                     "entrance",
                     "verify-update-password"
                   ]
+                },
+                "description": "Complete a password reset: exchange the emailed `passwordResetToken` (from `recover-password`) for a new password.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"N3wStr0ng#Pass\",\n  \"passwordResetToken\": \"<token-from-reset-email>\"\n}"
                 }
               },
               "response": []
@@ -183,6 +193,11 @@
                     "entrance",
                     "logged-in"
                   ]
+                },
+                "description": "Okta/SSO callback verification: validates an externally issued JWT against the client key and mints an Olympus session. Fails with `OKTA_LOGIN_CHANNEL_DISABLED` unless the SSO provider is Okta.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"apiKey\": \"{{clientApiKey}}\",\n  \"jwt\": \"<okta-id-token>\"\n}"
                 }
               },
               "response": []
@@ -416,7 +431,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/utility/get-queued-job-status",
+                  "raw": "{{serverUrl}}/api/v1/utility/get-queued-job-status?jobId=1",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -425,8 +440,15 @@
                     "v1",
                     "utility",
                     "get-queued-job-status"
+                  ],
+                  "query": [
+                    {
+                      "key": "jobId",
+                      "value": "1"
+                    }
                   ]
-                }
+                },
+                "description": "`jobId` is the `data.jobId` that `directory/create-zip` returns."
               },
               "response": [
                 {
@@ -1044,20 +1066,25 @@
                     "account",
                     "logout-from-all-apps"
                   ]
+                },
+                "description": "Signs out **only the caller** from every app: every access token the caller holds is blacklisted (the one on this request included) and their token rows are deleted, so no refresh token works again. Requires sign-in (`is-logged-in`, Bearer token). `userId` is optional and kept for older clients; when sent it must be the caller's own id — another user's id answers `403 FORBIDDEN`. An administrator signs another user out with `POST /api/v1/user/log-out-from-all-apps`. Sending this ends the session the collection is using — log in again afterwards.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
                 }
               },
               "response": [
                 {
-                  "name": "400 response",
-                  "status": "HTTP 400",
-                  "code": 400,
+                  "name": "403 response",
+                  "status": "HTTP 403",
+                  "code": 403,
                   "header": [
                     {
                       "key": "Content-Type",
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"userId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`POST /api/v1/account/logout-from-all-apps`) due to 1 missing or invalid parameter.\"}"
+                  "body": "{\"errors\": [{\"code\": \"FORBIDDEN\", \"message\": \"You can only sign yourself out of all apps.\"}]}"
                 }
               ]
             }
@@ -1218,7 +1245,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"commentId\": 999999\n}"
+                  "raw": "{\n  \"id\": 999999\n}"
                 }
               },
               "response": [
@@ -1265,7 +1292,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"commentId\": 999999\n}"
+                  "raw": "{\n  \"id\": 999999\n}"
                 }
               },
               "response": [
@@ -1298,7 +1325,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/comment/get-comments?directoryId=2918732&page=1&limit=10",
+                  "raw": "{{serverUrl}}/api/v1/directory/comment/get-comments?directoryId=2918732",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -1313,14 +1340,6 @@
                     {
                       "key": "directoryId",
                       "value": "2918732"
-                    },
-                    {
-                      "key": "page",
-                      "value": "1"
-                    },
-                    {
-                      "key": "limit",
-                      "value": "10"
                     }
                   ]
                 }
@@ -1355,7 +1374,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/file/comment/get-comments",
+                  "raw": "{{serverUrl}}/api/v1/file/comment/get-comments?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -1365,6 +1384,12 @@
                     "file",
                     "comment",
                     "get-comments"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -1421,6 +1446,10 @@
                     "comment",
                     "update-comment"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 999999,\n  \"payload\": \"Updated comment\"\n}"
                 }
               },
               "response": [
@@ -1476,6 +1505,10 @@
                     "comment",
                     "update-comment"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 999999,\n  \"payload\": \"Updated comment\"\n}"
                 }
               },
               "response": [
@@ -1665,7 +1698,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/create-zip",
+                  "raw": "{{serverUrl}}/api/v1/directory/create-zip?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -1674,6 +1707,12 @@
                     "v1",
                     "directory",
                     "create-zip"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -1707,7 +1746,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/download",
+                  "raw": "{{serverUrl}}/api/v1/directory/download?linkId=<zip-linkId>",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -1716,8 +1755,15 @@
                     "v1",
                     "directory",
                     "download"
+                  ],
+                  "query": [
+                    {
+                      "key": "linkId",
+                      "value": "<zip-linkId>"
+                    }
                   ]
-                }
+                },
+                "description": "`linkId` of a finished folder zip (started with `directory/create-zip`)."
               },
               "response": [
                 {
@@ -2019,7 +2065,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/search-directories?q=docs&limit=10",
+                  "raw": "{{serverUrl}}/api/v1/directory/search-directories?searchTerm=docs&limit=10",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2031,7 +2077,7 @@
                   ],
                   "query": [
                     {
-                      "key": "q",
+                      "key": "searchTerm",
                       "value": "docs"
                     },
                     {
@@ -2071,7 +2117,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/search-files-by-name?q=pdf&directoryId=2917604",
+                  "raw": "{{serverUrl}}/api/v1/directory/search-files-by-name?searchTerm=pdf&directoryId=2917604",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2083,7 +2129,7 @@
                   ],
                   "query": [
                     {
-                      "key": "q",
+                      "key": "searchTerm",
                       "value": "pdf"
                     },
                     {
@@ -2123,7 +2169,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-changes",
+                  "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-changes?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2132,6 +2178,12 @@
                     "v1",
                     "directory",
                     "subscribe-directory-changes"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -2165,7 +2217,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-events",
+                  "raw": "{{serverUrl}}/api/v1/directory/subscribe-directory-events?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2174,6 +2226,12 @@
                     "v1",
                     "directory",
                     "subscribe-directory-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -2207,7 +2265,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-changes",
+                  "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-changes?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2216,6 +2274,12 @@
                     "v1",
                     "directory",
                     "unsubscribe-directory-changes"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -2249,7 +2313,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-events",
+                  "raw": "{{serverUrl}}/api/v1/directory/unsubscribe-directory-events?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2258,6 +2322,12 @@
                     "v1",
                     "directory",
                     "unsubscribe-directory-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -2304,7 +2374,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"postman-folder-{{ts}}\",\n  \"directoryId\": 2917604,\n  \"mountId\": 1\n}"
+                  "raw": "{\n  \"name\": \"postman-folder-{{ts}}\",\n  \"directoryId\": 2917604\n}"
                 }
               },
               "response": [
@@ -2466,7 +2536,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"linkId\": \"{{zipLinkId}}\",\n  \"directoryId\": 2918732\n}"
+                  "raw": "{\n  \"linkId\": \"{{zipLinkId}}\"\n}"
                 }
               },
               "response": [
@@ -2717,7 +2787,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/file/download",
+                  "raw": "{{serverUrl}}/api/v1/file/download?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2726,6 +2796,12 @@
                     "v1",
                     "file",
                     "download"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -2819,7 +2895,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/file/download-with-link",
+                  "raw": "{{serverUrl}}/api/v1/file/download-with-link?linkId=<linkId-from-get-download-link>",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2828,8 +2904,21 @@
                     "v1",
                     "file",
                     "download-with-link"
+                  ],
+                  "query": [
+                    {
+                      "key": "linkId",
+                      "value": "<linkId-from-get-download-link>"
+                    },
+                    {
+                      "key": "dl",
+                      "value": "true",
+                      "description": "true: send as an attachment (Download) instead of inline (Preview)",
+                      "disabled": true
+                    }
                   ]
-                }
+                },
+                "description": "`linkId` is the id in the `downloadUrl` that `file/get-download-link` returns."
               },
               "response": [
                 {
@@ -2909,7 +2998,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/file/get-download-link",
+                  "raw": "{{serverUrl}}/api/v1/file/get-download-link?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2918,6 +3007,12 @@
                     "v1",
                     "file",
                     "get-download-link"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -2963,7 +3058,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/file/search-files?q=pdf&limit=10",
+                  "raw": "{{serverUrl}}/api/v1/file/search-files?searchTerm=pdf&limit=10",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -2975,7 +3070,7 @@
                   ],
                   "query": [
                     {
-                      "key": "q",
+                      "key": "searchTerm",
                       "value": "pdf"
                     },
                     {
@@ -2985,20 +3080,7 @@
                   ]
                 }
               },
-              "response": [
-                {
-                  "name": "400 response",
-                  "status": "HTTP 400",
-                  "code": 400,
-                  "header": [
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    }
-                  ],
-                  "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"searchTerm\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/file/search-files`) due to 1 missing or invalid parameter.\"}"
-                }
-              ]
+              "response": []
             },
             {
               "name": "GET /api/v1/file/search-files (tag collection)",
@@ -3072,7 +3154,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/file/subscribe-file-events",
+                  "raw": "{{serverUrl}}/api/v1/file/subscribe-file-events?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -3081,6 +3163,12 @@
                     "v1",
                     "file",
                     "subscribe-file-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -3114,7 +3202,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/file/unsubscribe-file-events",
+                  "raw": "{{serverUrl}}/api/v1/file/unsubscribe-file-events?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -3123,6 +3211,12 @@
                     "v1",
                     "file",
                     "unsubscribe-file-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -3636,7 +3730,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/mcp/chat-logs?page=1&limit=10",
+                  "raw": "{{serverUrl}}/api/v1/mcp/chat-logs?page=1&pageSize=10",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -3652,7 +3746,7 @@
                       "value": "1"
                     },
                     {
-                      "key": "limit",
+                      "key": "pageSize",
                       "value": "10"
                     }
                   ]
@@ -3688,7 +3782,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/mcp/get-chat-history",
+                  "raw": "{{serverUrl}}/api/v1/mcp/get-chat-history?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -3697,6 +3791,24 @@
                     "v1",
                     "mcp",
                     "get-chat-history"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50",
+                      "description": "Messages to return (default 50)",
+                      "disabled": true
+                    },
+                    {
+                      "key": "beforeId",
+                      "value": "",
+                      "description": "Only messages with a smaller id — the next page back",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -3730,7 +3842,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/mcp/subscribe-chat-events",
+                  "raw": "{{serverUrl}}/api/v1/mcp/subscribe-chat-events?sessionId=<sessionId-from-start-session>",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -3739,6 +3851,12 @@
                     "v1",
                     "mcp",
                     "subscribe-chat-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "sessionId",
+                      "value": "<sessionId-from-start-session>"
+                    }
                   ]
                 }
               },
@@ -3772,7 +3890,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/mcp/unsubscribe-chat-events",
+                  "raw": "{{serverUrl}}/api/v1/mcp/unsubscribe-chat-events?sessionId=<sessionId-from-start-session>",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -3781,6 +3899,12 @@
                     "v1",
                     "mcp",
                     "unsubscribe-chat-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "sessionId",
+                      "value": "<sessionId-from-start-session>"
+                    }
                   ]
                 }
               },
@@ -3824,6 +3948,11 @@
                     "mcp",
                     "save-chat-message"
                   ]
+                },
+                "description": "`role`: `user` · `assistant`. Optional: `imageUrl` (a generated image), `metaData` (JSON).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sessionId\": \"<sessionId-from-start-session>\",\n  \"directoryId\": \"{{directoryId}}\",\n  \"role\": \"user\",\n  \"messageText\": \"Hello\"\n}"
                 }
               },
               "response": [
@@ -3866,6 +3995,10 @@
                     "mcp",
                     "send-message"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sessionId\": \"<sessionId-from-start-session>\",\n  \"message\": \"Summarise this folder\",\n  \"directoryId\": \"{{directoryId}}\"\n}"
                 }
               },
               "response": [
@@ -3908,6 +4041,10 @@
                     "mcp",
                     "start-session"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"accessToken\": \"{{userToken}}\",\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"directoryId\": \"{{directoryId}}\"\n}"
                 }
               },
               "response": [
@@ -4170,7 +4307,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/share/directory/get-public-sharing-status",
+                  "raw": "{{serverUrl}}/api/v1/share/directory/get-public-sharing-status?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -4180,6 +4317,12 @@
                     "share",
                     "directory",
                     "get-public-sharing-status"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -4225,7 +4368,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/share/directory/get-shared-to-users-list",
+                  "raw": "{{serverUrl}}/api/v1/share/directory/get-shared-to-users-list?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -4235,6 +4378,12 @@
                     "share",
                     "directory",
                     "get-shared-to-users-list"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -4341,7 +4490,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/share/file/download-via-public-link",
+                  "raw": "{{serverUrl}}/api/v1/share/file/download-via-public-link?linkId={{linkId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -4351,6 +4500,30 @@
                     "share",
                     "file",
                     "download-via-public-link"
+                  ],
+                  "query": [
+                    {
+                      "key": "linkId",
+                      "value": "{{linkId}}"
+                    },
+                    {
+                      "key": "responseType",
+                      "value": "link",
+                      "description": "file (default): stream the file · link: return its download details",
+                      "disabled": true
+                    },
+                    {
+                      "key": "password",
+                      "value": "",
+                      "description": "The link password, when the link has one",
+                      "disabled": true
+                    },
+                    {
+                      "key": "dl",
+                      "value": "true",
+                      "description": "true: send as an attachment instead of inline",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -4384,7 +4557,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/share/file/get-public-sharing-status",
+                  "raw": "{{serverUrl}}/api/v1/share/file/get-public-sharing-status?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -4394,6 +4567,12 @@
                     "share",
                     "file",
                     "get-public-sharing-status"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -4439,7 +4618,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/share/file/get-shared-to-users-list",
+                  "raw": "{{serverUrl}}/api/v1/share/file/get-shared-to-users-list?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -4449,6 +4628,12 @@
                     "share",
                     "file",
                     "get-shared-to-users-list"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -4667,6 +4852,10 @@
                     "directory",
                     "enable-public-access"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"enablePublicAccess\": true,\n  \"isLinkProtected\": false,\n  \"password\": \"\",\n  \"isExpiryEnabled\": false,\n  \"permissionLevel\": \"read\"\n}"
                 }
               },
               "response": [
@@ -4722,6 +4911,11 @@
                     "directory",
                     "share-privately"
                   ]
+                },
+                "description": "Optional `message`: a note to the recipient, shown in the invite email. Plain text, at most 500 characters — a longer one is refused (400 INPUTS_ERROR), not cut. Control and invisible characters are removed.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"userEmail\": \"colleague@example.com\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false,\n  \"message\": \"Here is the report we discussed.\"\n}"
                 }
               },
               "response": [
@@ -4777,6 +4971,10 @@
                     "file",
                     "enable-public-download"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": \"{{fileId}}\",\n  \"enablePublicDownload\": true,\n  \"isLinkProtected\": false,\n  \"password\": \"\",\n  \"isExpiryEnabled\": false\n}"
                 }
               },
               "response": [
@@ -4891,6 +5089,11 @@
                     "file",
                     "share-privately"
                   ]
+                },
+                "description": "Optional `message`: a note to the recipient, shown in the invite email. Plain text, at most 500 characters — a longer one is refused (400 INPUTS_ERROR), not cut. Control and invisible characters are removed.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fileId\": \"{{fileId}}\",\n  \"userEmail\": \"colleague@example.com\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false,\n  \"message\": \"Here is the report we discussed.\"\n}"
                 }
               },
               "response": [
@@ -4955,6 +5158,11 @@
                     "ad-ldap",
                     "delete-settings"
                   ]
+                },
+                "description": "`id` from `GET /api/v1/ad-ldap/get-settings`.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": 1\n}"
                 }
               },
               "response": []
@@ -5029,7 +5237,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id\": 1,\n  \"serverUrl\": \"ldap://ad.example.com\"\n}"
+                  "raw": "{\n  \"id\": 1,\n  \"ldapServerIp\": \"ldap://ad.example.com\"\n}"
                 }
               },
               "response": [
@@ -5075,7 +5283,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"serviceType\": 2,\n  \"serverUrl\": \"ldap://ad.example.com\",\n  \"baseDn\": \"dc=example,dc=com\",\n  \"bindDn\": \"cn=admin\",\n  \"bindPassword\": \"redacted\"\n}"
+                  "raw": "{\n  \"ldapOn\": false,\n  \"serviceType\": 2,\n  \"ldapServerIp\": \"ldap://ad.example.com\",\n  \"ldapBaseDN\": \"dc=example,dc=com\",\n  \"ldapAdmin\": \"cn=admin\",\n  \"ldapPassword\": \"redacted\"\n}"
                 }
               },
               "response": []
@@ -5108,7 +5316,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"serviceType\": 2,\n  \"serverUrl\": \"ldap://ad.example.com\",\n  \"baseDn\": \"dc=example,dc=com\",\n  \"bindDn\": \"cn=admin\",\n  \"bindPassword\": \"redacted\"\n}"
+                  "raw": "{\n  \"serviceType\": 2,\n  \"ldapServerIp\": \"ldap://ad.example.com\",\n  \"ldapBaseDN\": \"dc=example,dc=com\",\n  \"ldapAdmin\": \"cn=admin\",\n  \"ldapPassword\": \"redacted\"\n}"
                 }
               },
               "response": []
@@ -5188,7 +5396,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"id\": 1,\n  \"isActive\": true\n}"
+                  "raw": "{\n  \"id\": 1,\n  \"status\": true\n}"
                 }
               },
               "response": []
@@ -5834,6 +6042,11 @@
                     ":id",
                     "toggle"
                   ]
+                },
+                "description": "`:id` is a job id from `GET /api/v1/cron-jobs`.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enabled\": false\n}"
                 }
               },
               "response": []
@@ -6154,6 +6367,11 @@
                     "email",
                     "test-settings"
                   ]
+                },
+                "description": "Sends a test mail with the posted settings without saving them; `to` receives it. Optional: `testMode`, `alwaysSendTo`.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"transporters\": [\n    {\n      \"name\": \"SMTP\",\n      \"service\": \"SMTP\",\n      \"host\": \"smtp.gmail.com\",\n      \"port\": 587,\n      \"secure\": false,\n      \"requiresAuth\": true,\n      \"auth\": {\n        \"user\": \"system@example.com\",\n        \"pass\": \"redacted\"\n      },\n      \"region\": \"\"\n    }\n  ],\n  \"useTransporter\": \"SMTP\",\n  \"from\": \"system@example.com\",\n  \"to\": \"{{adminEmail}}\"\n}"
                 }
               },
               "response": []
@@ -6186,7 +6404,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"host\": \"smtp.gmail.com\",\n  \"port\": 587,\n  \"username\": \"system@example.com\",\n  \"password\": \"redacted\",\n  \"fromAddress\": \"system@example.com\"\n}"
+                  "raw": "{\n  \"transporters\": [\n    {\n      \"name\": \"SMTP\",\n      \"service\": \"SMTP\",\n      \"host\": \"smtp.gmail.com\",\n      \"port\": 587,\n      \"secure\": false,\n      \"requiresAuth\": true,\n      \"auth\": {\n        \"user\": \"system@example.com\",\n        \"pass\": \"redacted\"\n      },\n      \"region\": \"\"\n    }\n  ],\n  \"useTransporter\": \"SMTP\",\n  \"testMode\": false,\n  \"from\": \"system@example.com\",\n  \"alwaysSendTo\": null\n}"
                 }
               },
               "response": [
@@ -6343,7 +6561,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/add-folder-for-gen-ai-embedding-recursive",
+                  "raw": "{{serverUrl}}/api/v1/genai/add-folder-for-gen-ai-embedding-recursive?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -6352,6 +6570,12 @@
                     "v1",
                     "genai",
                     "add-folder-for-gen-ai-embedding-recursive"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -6385,7 +6609,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/add-for-gen-ai-embedding",
+                  "raw": "{{serverUrl}}/api/v1/genai/add-for-gen-ai-embedding?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -6394,6 +6618,12 @@
                     "v1",
                     "genai",
                     "add-for-gen-ai-embedding"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -6469,7 +6699,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/check-file-ready-for-chat",
+                  "raw": "{{serverUrl}}/api/v1/genai/check-file-ready-for-chat?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -6478,6 +6708,12 @@
                     "v1",
                     "genai",
                     "check-file-ready-for-chat"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -6682,7 +6918,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/delete-chat",
+                  "raw": "{{serverUrl}}/api/v1/genai/delete-chat?chatId=999999",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -6691,8 +6927,15 @@
                     "v1",
                     "genai",
                     "delete-chat"
+                  ],
+                  "query": [
+                    {
+                      "key": "chatId",
+                      "value": "999999"
+                    }
                   ]
-                }
+                },
+                "description": "`chatId`: the `id` of one of the caller's own rows from get-file-chats / get-directory-chats."
               },
               "response": [
                 {
@@ -6724,7 +6967,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/disable-directory-gen-ai",
+                  "raw": "{{serverUrl}}/api/v1/genai/disable-directory-gen-ai?directoryId={{directoryId}}&isGenAiDisabled=true",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -6733,8 +6976,19 @@
                     "v1",
                     "genai",
                     "disable-directory-gen-ai"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    },
+                    {
+                      "key": "isGenAiDisabled",
+                      "value": "true"
+                    }
                   ]
-                }
+                },
+                "description": "`isGenAiDisabled`: `true` turns AI off for the folder, `false` turns it back on."
               },
               "response": [
                 {
@@ -6850,7 +7104,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/embedding-model-impact",
+                  "raw": "{{serverUrl}}/api/v1/genai/embedding-model-impact?provider=chatgpt&name=text-embedding-3-small",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -6859,6 +7113,28 @@
                     "v1",
                     "genai",
                     "embedding-model-impact"
+                  ],
+                  "query": [
+                    {
+                      "key": "provider",
+                      "value": "chatgpt"
+                    },
+                    {
+                      "key": "name",
+                      "value": "text-embedding-3-small"
+                    },
+                    {
+                      "key": "apiKey",
+                      "value": "",
+                      "description": "Optional override; otherwise the stored provider key",
+                      "disabled": true
+                    },
+                    {
+                      "key": "ollamaFullName",
+                      "value": "",
+                      "description": "Tag-qualified name for an Ollama model, e.g. nomic-embed-text:latest",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -6892,7 +7168,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/get-chat-status",
+                  "raw": "{{serverUrl}}/api/v1/genai/get-chat-status?chatId=999999",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -6901,8 +7177,15 @@
                     "v1",
                     "genai",
                     "get-chat-status"
+                  ],
+                  "query": [
+                    {
+                      "key": "chatId",
+                      "value": "999999"
+                    }
                   ]
-                }
+                },
+                "description": "`chatId`: the `id` of one of the caller's own chat rows."
               },
               "response": [
                 {
@@ -6934,7 +7217,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/get-directory-chats",
+                  "raw": "{{serverUrl}}/api/v1/genai/get-directory-chats?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -6945,6 +7228,10 @@
                     "get-directory-chats"
                   ],
                   "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    },
                     {
                       "key": "limit",
                       "value": "",
@@ -6991,7 +7278,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/get-directory-embedding-jobs",
+                  "raw": "{{serverUrl}}/api/v1/genai/get-directory-embedding-jobs?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7000,6 +7287,12 @@
                     "v1",
                     "genai",
                     "get-directory-embedding-jobs"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -7033,7 +7326,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/get-directory-gen-ai-status",
+                  "raw": "{{serverUrl}}/api/v1/genai/get-directory-gen-ai-status?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7042,6 +7335,12 @@
                     "v1",
                     "genai",
                     "get-directory-gen-ai-status"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -7075,7 +7374,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/get-file-chats",
+                  "raw": "{{serverUrl}}/api/v1/genai/get-file-chats?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7086,6 +7385,10 @@
                     "get-file-chats"
                   ],
                   "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    },
                     {
                       "key": "limit",
                       "value": "",
@@ -7216,7 +7519,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/jobs?page=1&limit=10",
+                  "raw": "{{serverUrl}}/api/v1/genai/jobs?page=1&pageSize=10",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7232,7 +7535,7 @@
                       "value": "1"
                     },
                     {
-                      "key": "limit",
+                      "key": "pageSize",
                       "value": "10"
                     }
                   ]
@@ -7352,7 +7655,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/model-providers/check-ollama-model-status",
+                  "raw": "{{serverUrl}}/api/v1/genai/model-providers/check-ollama-model-status?model=llama3.2&url=http://ollama:11434",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7362,6 +7665,16 @@
                     "genai",
                     "model-providers",
                     "check-ollama-model-status"
+                  ],
+                  "query": [
+                    {
+                      "key": "model",
+                      "value": "llama3.2"
+                    },
+                    {
+                      "key": "url",
+                      "value": "http://ollama:11434"
+                    }
                   ]
                 }
               },
@@ -7395,7 +7708,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/model-providers/get-available-model-versions",
+                  "raw": "{{serverUrl}}/api/v1/genai/model-providers/get-available-model-versions?model=llama3.2",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7405,6 +7718,12 @@
                     "genai",
                     "model-providers",
                     "get-available-model-versions"
+                  ],
+                  "query": [
+                    {
+                      "key": "model",
+                      "value": "llama3.2"
+                    }
                   ]
                 }
               },
@@ -7438,7 +7757,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/model-providers/list-installed-ollama-models",
+                  "raw": "{{serverUrl}}/api/v1/genai/model-providers/list-installed-ollama-models?url=http://ollama:11434",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7448,6 +7767,18 @@
                     "genai",
                     "model-providers",
                     "list-installed-ollama-models"
+                  ],
+                  "query": [
+                    {
+                      "key": "url",
+                      "value": "http://ollama:11434"
+                    },
+                    {
+                      "key": "query",
+                      "value": "",
+                      "description": "Substring filter on the model name",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -7481,7 +7812,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/model-providers/list-ollama-models",
+                  "raw": "{{serverUrl}}/api/v1/genai/model-providers/list-ollama-models?url=http://ollama:11434",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7491,6 +7822,30 @@
                     "genai",
                     "model-providers",
                     "list-ollama-models"
+                  ],
+                  "query": [
+                    {
+                      "key": "url",
+                      "value": "http://ollama:11434"
+                    },
+                    {
+                      "key": "query",
+                      "value": "",
+                      "description": "Search the remote catalogue",
+                      "disabled": true
+                    },
+                    {
+                      "key": "tag",
+                      "value": "",
+                      "description": "Filter by tag",
+                      "disabled": true
+                    },
+                    {
+                      "key": "sort",
+                      "value": "",
+                      "description": "popular · newest",
+                      "disabled": true
+                    }
                   ]
                 }
               },
@@ -7567,7 +7922,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/qa-logs?page=1&limit=10",
+                  "raw": "{{serverUrl}}/api/v1/genai/qa-logs?page=1&pageSize=10",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7583,7 +7938,7 @@
                       "value": "1"
                     },
                     {
-                      "key": "limit",
+                      "key": "pageSize",
                       "value": "10"
                     },
                     {
@@ -7651,10 +8006,16 @@
                       "value": "",
                       "description": "file | directory",
                       "disabled": true
+                    },
+                    {
+                      "key": "feedback",
+                      "value": "",
+                      "description": "'' (all) · up · down · any — the asker's verdict on the answer (GENAI-42)",
+                      "disabled": true
                     }
                   ]
                 },
-                "description": "Every Q&A log matching the filters as a CSV download (`text/csv`, UTF-8 with BOM), newest first — the same filters and rows as `GET /api/v1/genai/qa-logs`, without paging. Streamed in batches, so it is safe on large logs. Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a spreadsheet shows them as text instead of running them as formulas.\n\nColumns: ID, Question, Answer, Status, Model, Entity Type, Entity ID, File/Directory, User, User Email, Error, Created At (UTC), Processed At (UTC).\n\nSuper-admin only."
+                "description": "Every Q&A log matching the filters as a CSV download (`text/csv`, UTF-8 with BOM), newest first — the same filters (including `feedback`) and rows as `GET /api/v1/genai/qa-logs`, without paging. Streamed in batches, so it is safe on large logs. Cells that start with `=`, `+`, `-` or `@` are prefixed with `'` so a spreadsheet shows them as text instead of running them as formulas.\n\nColumns: ID, Question, Answer, Status, Model, Entity Type, Entity ID, File/Directory, User, User Email, Error, Feedback, Feedback Comment, Answer Strategy, Created At (UTC), Processed At (UTC).\n\nSuper-admin only."
               },
               "response": [
                 {
@@ -7775,7 +8136,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/subscribe-gen-ai-directory-events",
+                  "raw": "{{serverUrl}}/api/v1/genai/subscribe-gen-ai-directory-events?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7784,6 +8145,12 @@
                     "v1",
                     "genai",
                     "subscribe-gen-ai-directory-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -7817,7 +8184,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/subscribe-gen-ai-file-events",
+                  "raw": "{{serverUrl}}/api/v1/genai/subscribe-gen-ai-file-events?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7826,6 +8193,12 @@
                     "v1",
                     "genai",
                     "subscribe-gen-ai-file-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -7987,7 +8360,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/unsubscribe-gen-ai-directory-events",
+                  "raw": "{{serverUrl}}/api/v1/genai/unsubscribe-gen-ai-directory-events?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -7996,6 +8369,12 @@
                     "v1",
                     "genai",
                     "unsubscribe-gen-ai-directory-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -8029,7 +8408,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/genai/unsubscribe-gen-ai-file-events",
+                  "raw": "{{serverUrl}}/api/v1/genai/unsubscribe-gen-ai-file-events?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -8038,6 +8417,12 @@
                     "v1",
                     "genai",
                     "unsubscribe-gen-ai-file-events"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
                 }
               },
@@ -8084,7 +8469,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"chunkSize\": 1000,\n  \"chunkOverlap\": 200\n}"
+                  "raw": "{\n  \"recursiveFolderMaxFiles\": 100\n}"
                 }
               },
               "response": [
@@ -8127,6 +8512,11 @@
                     "genai",
                     "chat-on-directory"
                   ]
+                },
+                "description": "Ask a question about the files in a folder. Queued and answered asynchronously: progress and the streamed answer arrive on the caller's private room for this folder (join it with subscribe-gen-ai-directory-events). `searchInSubFolders` (default false) also searches the sub-folders the caller can read. Optional: `intent` (`lookup` · `summary` · `comparison`) answers the question as that kind instead of letting the assistant decide; `selectedModel` (`provider:model`); `chatKnowledgeBase` (`restrictiveToDocuments` · `documentsWithModelKnowledge` · `documentsOrModelKnowledge`).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"question\": \"What are the main points across these documents?\",\n  \"directoryId\": \"{{directoryId}}\",\n  \"intent\": \"summary\",\n  \"searchInSubFolders\": false\n}"
                 }
               },
               "response": []
@@ -8156,6 +8546,11 @@
                     "genai",
                     "chat-on-file"
                   ]
+                },
+                "description": "Ask a question about one file. Queued and answered asynchronously: progress and the streamed answer arrive on the caller's private room for this file (join it with subscribe-gen-ai-file-events). Optional: `intent` (`lookup` · `summary` · `comparison`) answers the question as that kind instead of letting the assistant decide; `selectedModel` (`provider:model`); `chatKnowledgeBase` (`restrictiveToDocuments` · `documentsWithModelKnowledge` · `documentsOrModelKnowledge`).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"question\": \"What does this document say about pricing?\",\n  \"fileId\": \"{{fileId}}\",\n  \"intent\": \"lookup\"\n}"
                 }
               },
               "response": []
@@ -8255,6 +8650,11 @@
                     "genai",
                     "mcp-server-settings"
                   ]
+                },
+                "description": "Replaces the stored MCP settings, so send them all: only `enabledProviders` is required, but `activeProviderModel`, `activeImageProvider` and `activeImageModel` left out are cleared (`sailsServerUrl` defaults to http://sails-server:1337).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"enabledProviders\": [\n    \"chatgpt\",\n    \"claude\"\n  ],\n  \"activeProviderModel\": {\n    \"provider\": \"claude\",\n    \"name\": \"claude-sonnet-5\"\n  },\n  \"activeImageProvider\": \"chatgpt\",\n  \"activeImageModel\": {\n    \"provider\": \"chatgpt\",\n    \"name\": \"gpt-image-2\"\n  },\n  \"sailsServerUrl\": \"http://sails-server:1337\"\n}"
                 }
               },
               "response": []
@@ -8285,6 +8685,11 @@
                     "model-providers",
                     "install-ollama-model"
                   ]
+                },
+                "description": "Optional `tag` (e.g. `3b`). Long-running: poll `check-ollama-model-status`.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"model\": \"llama3.2\",\n  \"url\": \"http://ollama:11434\"\n}"
                 }
               },
               "response": []
@@ -8315,6 +8720,10 @@
                     "model-providers",
                     "list-models"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"provider\": \"chatgpt\",\n  \"apiKey\": \"sk-your-provider-key\"\n}"
                 }
               },
               "response": []
@@ -8375,6 +8784,11 @@
                     "model-providers",
                     "test-connection"
                   ]
+                },
+                "description": "For Ollama, send `url` instead of `apiKey`.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"provider\": \"chatgpt\",\n  \"apiKey\": \"sk-your-provider-key\"\n}"
                 }
               },
               "response": []
@@ -8405,6 +8819,10 @@
                     "model-providers",
                     "uninstall-ollama-model"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"model\": \"llama3.2\",\n  \"url\": \"http://ollama:11434\"\n}"
                 }
               },
               "response": []
@@ -8434,6 +8852,11 @@
                     "genai",
                     "probe-embedding-model"
                   ]
+                },
+                "description": "Optional: `apiKey` (otherwise the stored provider key), `ollamaFullName` (tag-qualified Ollama name).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"provider\": \"chatgpt\",\n  \"name\": \"text-embedding-3-small\"\n}"
                 }
               },
               "response": []
@@ -8522,6 +8945,10 @@
                     "stable-diffusion",
                     "list-models"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"url\": \"http://stable-diffusion:7860\"\n}"
                 }
               },
               "response": []
@@ -8552,6 +8979,11 @@
                     "stable-diffusion",
                     "save-config"
                   ]
+                },
+                "description": "Replaces the stored configuration: only `url` is required, but `defaultParams` and `selectedModels` left out are reset to empty. Set `validated: true` only after `test-connection` succeeded.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"url\": \"http://stable-diffusion:7860\",\n  \"validated\": true,\n  \"defaultParams\": {\n    \"steps\": 25,\n    \"width\": 512,\n    \"height\": 512,\n    \"cfg_scale\": 7,\n    \"sampler_name\": \"DPM++ 2M\"\n  },\n  \"selectedModels\": [\n    \"sd_xl_base_1.0.safetensors\"\n  ]\n}"
                 }
               },
               "response": []
@@ -8582,6 +9014,10 @@
                     "stable-diffusion",
                     "test-connection"
                   ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"url\": \"http://stable-diffusion:7860\"\n}"
                 }
               },
               "response": []
@@ -8611,6 +9047,11 @@
                     "genai",
                     "switch-embedding-model"
                   ]
+                },
+                "description": "Optional: `reEmbedAll` (default **true** — every previously embedded file is queued for re-embedding), `chunkSettings` (`{chunkSize, chunkOverlap}`).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newProvider\": \"chatgpt\",\n  \"newName\": \"text-embedding-3-small\"\n}"
                 }
               },
               "response": []
@@ -8641,6 +9082,11 @@
                     "system-prompts",
                     ":promptKey"
                   ]
+                },
+                "description": "`:promptKey` from `GET /api/v1/genai/system-prompts`. Optional `versionLabel`. Enterprise licence required.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"You are a helpful assistant. Answer strictly from the provided context.\"\n}"
                 }
               },
               "response": []
@@ -8703,6 +9149,11 @@
                     ":promptKey",
                     "restore-version"
                   ]
+                },
+                "description": "`versionIndex`: 0-based position in the prompt's version history (`GET /api/v1/genai/system-prompts/:promptKey`). Enterprise licence required.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"versionIndex\": 0\n}"
                 }
               },
               "response": []
@@ -8786,7 +9237,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/internal/file/download",
+                  "raw": "{{serverUrl}}/api/v1/internal/file/download?fileId={{fileId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -8796,8 +9247,15 @@
                     "internal",
                     "file",
                     "download"
+                  ],
+                  "query": [
+                    {
+                      "key": "fileId",
+                      "value": "{{fileId}}"
+                    }
                   ]
-                }
+                },
+                "description": "Service-to-service only: authenticated by the `X-Olympus-Internal-Token` header, not a user token."
               },
               "response": [
                 {
@@ -8889,7 +9347,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"licenseString\": \"{{licenseString}}\"\n}"
+                  "raw": "{\n  \"licenseEmail\": \"{{adminEmail}}\",\n  \"licenseDomain\": \"olympus.your-company.com\",\n  \"licenseKey\": \"OLY-LIC-XXXX-XXXX-XXXX-XXXX\",\n  \"licenseMode\": \"paid\",\n  \"customerName\": \"Your Company Inc.\"\n}"
                 }
               },
               "response": []
@@ -9430,7 +9888,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{serverUrl}}/api/v1/scan/resync-directory",
+                  "raw": "{{serverUrl}}/api/v1/scan/resync-directory?directoryId={{directoryId}}",
                   "host": [
                     "{{serverUrl}}"
                   ],
@@ -9439,6 +9897,12 @@
                     "v1",
                     "scan",
                     "resync-directory"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
                   ]
                 }
               },
@@ -10216,7 +10680,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"emailProofToken\": \"{{emailProofToken}}\",\n  \"password\": \"NewPass!\"\n}"
+                  "raw": "{\n  \"emailProofToken\": \"{{emailProofToken}}\",\n  \"name\": \"New User\",\n  \"password\": \"NewPass!\"\n}"
                 }
               },
               "response": []
