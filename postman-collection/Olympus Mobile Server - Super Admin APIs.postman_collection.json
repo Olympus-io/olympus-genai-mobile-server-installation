@@ -3916,7 +3916,7 @@
         "{{shareId}}"
        ]
       },
-      "description": "Revoke one file share by its `SharedItems` id — works on any user's share, which is the point of the admin variant. Public links stop resolving immediately.",
+      "description": "Revoke one file share by its `SharedItems` id — works on any user's share, which is the point of the admin variant. Public links stop resolving immediately. Only this share's access is taken back; another person's share of the same file with the same user is untouched.",
       "body": {
        "mode": "raw",
        "raw": "{\n  \"id\": \"{{shareId}}\"\n}",
@@ -3952,7 +3952,7 @@
         "{{shareId}}"
        ]
       },
-      "description": "Revoke one directory share by its `SharedItems` id. Recipients lose access to the whole shared subtree.",
+      "description": "Revoke one directory share by its `SharedItems` id — works on any user's share, which is the point of the admin variant. The recipient loses what this share gave on the folder at once and on everything under it shortly after; another person's share of the same folder with the same user is untouched.",
       "body": {
        "mode": "raw",
        "raw": "{\n  \"id\": \"{{shareId}}\"\n}",

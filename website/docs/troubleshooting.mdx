@@ -151,6 +151,15 @@ docker logs olympus-setup > olympus-setup.log 2>&1
 </details>
 
 <details>
+<summary><strong>❌ Gemini Enterprise still behaves as before an Olympus update</strong></summary>
+
+Gemini Enterprise reads the list of Olympus tools only when the connector is **added**. Disconnecting and reconnecting only signs you in again, so it keeps using the tools as they were.
+
+Remove the Olympus connector and add it again (Admin → Connected apps), then sign in when asked. Do this after every Olympus update.
+
+</details>
+
+<details>
 <summary><strong>❌ I want to start over from scratch</strong></summary>
 
 :::danger This permanently deletes all your Olympus data

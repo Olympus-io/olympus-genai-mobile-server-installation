@@ -4141,6 +4141,7 @@
                     ":id"
                   ]
                 },
+                "description": "Revoke one directory share by its `SharedItems` id — works on any user's share, which is the point of the admin variant. The recipient loses what this share gave on the folder at once and on everything under it shortly after; another person's share of the same folder with the same user is untouched.",
                 "body": {
                   "mode": "raw",
                   "raw": "{}"
@@ -4175,6 +4176,7 @@
                     ":id"
                   ]
                 },
+                "description": "Revoke one file share by its `SharedItems` id — works on any user's share, which is the point of the admin variant. Public links stop resolving immediately. Only this share's access is taken back; another person's share of the same file with the same user is untouched.",
                 "body": {
                   "mode": "raw",
                   "raw": "{}"
@@ -4324,7 +4326,8 @@
                       "value": "{{directoryId}}"
                     }
                   ]
-                }
+                },
+                "description": "The caller's public link on the folder. `sharedItemData.permissionLevel` is the access the link gives — `read` or `write` (`null` if its grant is missing); it is not stored on the share row but read from the link's grant. `enablePublicAccess` is `true`. The password itself is never returned, only `linkPasswordEnabled`."
               },
               "response": [
                 {
@@ -4337,7 +4340,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"permissionLevel\":\"read\",\"enablePublicAccess\":true,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
                 },
                 {
                   "name": "404 response",
@@ -4385,7 +4388,8 @@
                       "value": "{{directoryId}}"
                     }
                   ]
-                }
+                },
+                "description": "People the caller has shared this directory with. `permission` is what the caller's own share gives (what the share form edits); `effectivePermission` is the highest level any share gives that person here — another person's share, or a shared parent folder, may give more."
               },
               "response": [
                 {
@@ -4398,7 +4402,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":[{\"id\":3,\"entityId\":\"2920619\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"linkExpiryDate\":null,\"permission\":\"read\",\"email\":\"pooja@deepakpandey.in\",\"name\":\"Pooja Pandey\",\"sid\":\"<redacted>\"}]}}"
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":[{\"id\":3,\"entityId\":\"2920619\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"linkExpiryDate\":null,\"permission\":\"read\",\"effectivePermission\":\"read\",\"email\":\"pooja@deepakpandey.in\",\"name\":\"Pooja Pandey\",\"sid\":\"<redacted>\"}]}}"
                 },
                 {
                   "name": "404 response",
@@ -4446,7 +4450,8 @@
                       "value": "{{shareId}}"
                     }
                   ]
-                }
+                },
+                "description": "Remove one of the caller's own directory shares (`shareId` = the `id` from get-shared-to-users-list). Takes back only what this share gave: another person's share of the same directory with the same user keeps its access. 404 `NOT_FOUND` \"Share not found.\" for an id that is not the caller's directory share."
               },
               "response": [
                 {
@@ -4472,6 +4477,18 @@
                     }
                   ],
                   "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"shareId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/share/directory/remove-sharing`) due to 1 missing or invalid parameter.\"}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\":[{\"code\":\"NOT_FOUND\",\"message\":\"Share not found.\"}]}"
                 }
               ]
             },
@@ -4635,7 +4652,8 @@
                       "value": "{{fileId}}"
                     }
                   ]
-                }
+                },
+                "description": "People the caller has shared this file with. `permission` is what the caller's own share gives (what the share form edits); `effectivePermission` is the highest level any share gives that person here — another person's share, or a shared parent folder, may give more."
               },
               "response": [
                 {
@@ -4648,7 +4666,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":[{\"id\":1,\"entityId\":\"6806414\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"linkExpiryDate\":null,\"permission\":\"read\",\"email\":\"pooja@deepakpandey.in\",\"name\":\"Pooja Pandey\",\"sid\":\"<redacted>\"}]}}"
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":[{\"id\":1,\"entityId\":\"6806414\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"linkExpiryDate\":null,\"permission\":\"read\",\"effectivePermission\":\"read\",\"email\":\"pooja@deepakpandey.in\",\"name\":\"Pooja Pandey\",\"sid\":\"<redacted>\"}]}}"
                 },
                 {
                   "name": "404 response",
@@ -4696,7 +4714,8 @@
                       "value": "{{shareId}}"
                     }
                   ]
-                }
+                },
+                "description": "Remove one of the caller's own file shares (`shareId` = the `id` from get-shared-to-users-list). Takes back only what this share gave: another person's share of the same file with the same user keeps its access. 404 `NOT_FOUND` \"Share not found.\" for an id that is not the caller's file share."
               },
               "response": [
                 {
@@ -4722,6 +4741,18 @@
                     }
                   ],
                   "body": "{\"code\": \"E_MISSING_OR_INVALID_PARAMS\", \"problems\": [\"\\\"shareId\\\" is required, but it was not defined.\"], \"message\": \"The server could not fulfill this request (`GET /api/v1/share/file/remove-sharing`) due to 1 missing or invalid parameter.\"}"
+                },
+                {
+                  "name": "404 response",
+                  "status": "HTTP 404",
+                  "code": 404,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"errors\":[{\"code\":\"NOT_FOUND\",\"message\":\"Share not found.\"}]}"
                 }
               ]
             },
@@ -4853,6 +4884,7 @@
                     "enable-public-access"
                   ]
                 },
+                "description": "Turn the caller's public link on the folder on or off. `permissionLevel` (`read` | `write`) is optional: left out, an existing link keeps its level and a new link gets `read`. A blank `password` on a link that is already protected keeps its password. The response's `sharedItemData.permissionLevel` is the level the link now gives. Turning the link off takes back only this link's access.",
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"enablePublicAccess\": true,\n  \"isLinkProtected\": false,\n  \"password\": \"\",\n  \"isExpiryEnabled\": false,\n  \"permissionLevel\": \"read\"\n}"
@@ -4869,7 +4901,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\"}}}"
+                  "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232452278,\"updatedAt\":1780232452278,\"id\":4,\"entityId\":\"2920619\",\"shareLink\":\"43647c0e-7867-4976-a34c-1f0aa1a39996\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"115003\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"accessLink\":\"https://mobile.deepakpandey.in/user/shared/folder/anonymous-access?accessCode=43647c0e-7867-4976-a34c-1f0aa1a39996&accessId=MTc4MDIzMjQ1MjA3NEBhbm9ueW1vdXMtdXNlci5vbHltcHVz\",\"permissionLevel\":\"read\"}}}"
                 },
                 {
                   "name": "404 response",
