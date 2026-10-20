@@ -802,9 +802,23 @@
           "v1",
           "genai",
           "get-everything-chats"
+         ],
+         "query": [
+          {
+           "key": "limit",
+           "value": "",
+           "description": "Rows per page, 1–100 (newest page first). Omitted: the whole conversation.",
+           "disabled": true
+          },
+          {
+           "key": "beforeId",
+           "value": "",
+           "description": "Only rows older than this chat id — the previous page's `data.oldestId`.",
+           "disabled": true
+          }
          ]
         },
-        "description": "The caller's \"All your files\" conversation (GENAI-41), oldest first — each row with the answer, status and `metaData.responseMetaData.citations` (file id, path, page range, snippet). Private to the caller."
+        "description": "The caller's \"All your files\" conversation (GENAI-41), oldest first — each row with the answer, status and `metaData.responseMetaData.citations` (file id, path, page range, snippet). Private to the caller. Paged with `limit` / `beforeId` (keyset on the chat id, newest page first; rows still come back oldest first): `data.hasMore` says older rows exist and `data.oldestId` is the `beforeId` for the next page back. Without `limit`, the whole conversation."
        },
        "response": [
         {
@@ -3005,7 +3019,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"downloadDetails\":{\"fileId\":6806414,\"name\":\"postman-test.txt\",\"size\":48,\"filePath\":\"/app/mounted_drives/nfs-server-1__mount1/postman-test-1780232450456/postman-test.txt\",\"contentType\":\"text/plain\",\"downloadUrl\":\"https://mobile-api.deepakpandey.in/api/v1/file/download-with-link?linkId=f741ba02-3b78-4826-af35-4079d6b0212e\",\"user\":{\"name\":\"Deepak\",\"email\":\"deepak@olympus.io\",\"id\":3,\"isFileHostingAllowed\":true},\"smbMountPointName\":\"/app/mounted_drives/nfs-server-1__mount1\",\"file\":{\"createdAt\":1780232450000,\"updatedAt\":1780232450000,\"id\":6806414,\"name\":\"postman-test.txt\",\"originalName\":\"postman-test.txt\",\"size\":\"48\",\"md5checksum\":null,\"lockedBy\":null,\"mimetype\":\"text/plain\",\"thumbnail\":null,\"viewLink\":\"/postman-test-1780232450456/postman-test.txt\",\"iconLink\":null,\"mountId\":\"6\",\"ownerIds\":[],\"lastSeenGeneration\":\"4611686018427387904\",\"directoryId\":2920619},\"fileOwnerId\":3,\"isFileHostingAllowed\":true}}}"
+         "body": "{\"success\": true, \"data\": {\"downloadDetails\": {\"fileId\": 6806414, \"name\": \"postman-test.txt\", \"size\": 48, \"contentType\": \"text/plain\", \"downloadUrl\": \"https://mobile-api.deepakpandey.in/api/v1/file/download-with-link?linkId=f741ba02-3b78-4826-af35-4079d6b0212e\", \"isFileHostingAllowed\": true}}}"
         },
         {
          "name": "404 response",
