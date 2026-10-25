@@ -829,7 +829,7 @@
           {
            "key": "limit",
            "value": "",
-           "description": "Rows per page, 1–100 (newest page first). Omitted: the whole conversation.",
+           "description": "Rows per page, 1–100 (newest page first). Omitted: the newest 50.",
            "disabled": true
           },
           {
@@ -840,7 +840,7 @@
           }
          ]
         },
-        "description": "The caller's \"All your files\" conversation (GENAI-41), oldest first — each row with the answer, status and `metaData.responseMetaData.citations` (file id, path, page range, snippet). Private to the caller. Paged with `limit` / `beforeId` (keyset on the chat id, newest page first; rows still come back oldest first): `data.hasMore` says older rows exist and `data.oldestId` is the `beforeId` for the next page back. Without `limit`, the whole conversation."
+        "description": "The caller's \"All your files\" conversation (GENAI-41), oldest first — each row with the answer, status and `metaData.responseMetaData.citations` (file id, path, page range, snippet). Private to the caller. Paged with `limit` / `beforeId` (keyset on the chat id, newest page first; rows still come back oldest first): `data.hasMore` says older rows exist and `data.oldestId` is the `beforeId` for the next page back. Without `limit`, the newest 50."
        },
        "response": [
         {
@@ -4558,7 +4558,7 @@
           }
          ]
         },
-        "description": "The caller's public link on the folder. `sharedItemData.permissionLevel` is the access the link gives — `read` or `write` (`null` if its grant is missing); it is not stored on the share row but read from the link's grant. `enablePublicAccess` is `true`. The password itself is never returned, only `linkPasswordEnabled`."
+        "description": "The caller's public link on the folder. `sharedItemData.permissionLevel` is the access the link gives — `read` or `write` (`null` if none is recorded); since 2026-10-25 it is stored on the share itself (a link from before falls back to its grant). `enablePublicAccess` is `true`. The password itself is never returned, only `linkPasswordEnabled`."
        },
        "response": [
         {
@@ -4620,7 +4620,7 @@
           }
          ]
         },
-        "description": "People the caller has shared this directory with. `permission` is what the caller's own share gives (what the share form edits); `effectivePermission` is the highest level any share gives that person here — another person's share, or a shared parent folder, may give more."
+        "description": "People the caller has shared this directory with. `permission` is what the caller's own share gives (what the share form edits); `effectivePermission` is the highest level any share gives that person here — another person's share, or a shared parent folder (the caller's own share of one included), may give more."
        },
        "response": [
         {
@@ -4835,7 +4835,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"downloadLink\":\"https://mobile.deepakpandey.in/user/shared/file/public-download?linkId=33d0c7d8-8562-42d7-b172-351191d03027\"}}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"permissionLevel\":\"read\",\"downloadLink\":\"https://mobile.deepakpandey.in/user/shared/file/public-download?linkId=33d0c7d8-8562-42d7-b172-351191d03027\"}}}"
         },
         {
          "name": "404 response",
@@ -4884,7 +4884,7 @@
           }
          ]
         },
-        "description": "People the caller has shared this file with. `permission` is what the caller's own share gives (what the share form edits); `effectivePermission` is the highest level any share gives that person here — another person's share, or a shared parent folder, may give more."
+        "description": "People the caller has shared this file with. `permission` is what the caller's own share gives (what the share form edits); `effectivePermission` is the highest level any share gives that person here — another person's share, or a shared parent folder (the caller's own share of one included), may give more."
        },
        "response": [
         {
@@ -5126,7 +5126,7 @@
           "share-privately"
          ]
         },
-        "description": "Optional `message`: a note to the recipient, shown in the invite email. Plain text, at most 500 characters — a longer one is refused (400 INPUTS_ERROR), not cut. Control and invisible characters are removed.",
+        "description": "Optional `message`: a note to the recipient, shown in the invite email. Plain text, at most 500 characters — a longer one is refused (400 INPUTS_ERROR), not cut. Control and invisible characters are removed. `sharedItemData.permissionLevel` is the level this share gives (`read` · `write` · `admin`); the recipient's access is the higher of that and any share of a folder above by the same sharer.",
         "body": {
          "mode": "raw",
          "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"userEmail\": \"{{shareTargetEmail}}\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false,\n  \"message\": \"Here is the report we discussed.\"\n}",
@@ -5148,7 +5148,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451950,\"updatedAt\":1780232451950,\"id\":3,\"entityId\":\"2920619\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0},\"note\":\"Permissions for descendant files and directories will be created asynchronously\"}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451950,\"updatedAt\":1780232451950,\"id\":3,\"entityId\":\"2920619\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":2,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"permissionLevel\":\"read\"},\"note\":\"Permissions for descendant files and directories will be created asynchronously\"}}"
         },
         {
          "name": "404 response",
@@ -5212,7 +5212,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"downloadLink\":\"https://mobile-api.deepakpandey.in/api/v1/share/file/download-via-public-link?linkId=33d0c7d8-8562-42d7-b172-351191d03027&responseType=file\"}}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451846,\"updatedAt\":1780232451846,\"id\":2,\"entityId\":\"6806414\",\"shareLink\":\"33d0c7d8-8562-42d7-b172-351191d03027\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"0\",\"isPublic\":true,\"publicLinkEnabled\":true,\"directDownloadEnabled\":true,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"permissionLevel\":\"read\",\"downloadLink\":\"https://mobile-api.deepakpandey.in/api/v1/share/file/download-via-public-link?linkId=33d0c7d8-8562-42d7-b172-351191d03027&responseType=file\"}}}"
         },
         {
          "name": "404 response",
@@ -5314,7 +5314,7 @@
           "share-privately"
          ]
         },
-        "description": "Optional `message`: a note to the recipient, shown in the invite email. Plain text, at most 500 characters — a longer one is refused (400 INPUTS_ERROR), not cut. Control and invisible characters are removed.",
+        "description": "Optional `message`: a note to the recipient, shown in the invite email. Plain text, at most 500 characters — a longer one is refused (400 INPUTS_ERROR), not cut. Control and invisible characters are removed. `sharedItemData.permissionLevel` is the level this share gives (`read` · `write` · `admin`); the recipient's access is the higher of that and any share of a folder above by the same sharer.",
         "body": {
          "mode": "raw",
          "raw": "{\n  \"fileId\": \"{{fileId}}\",\n  \"userEmail\": \"{{shareTargetEmail}}\",\n  \"permission\": \"read\",\n  \"isExpiryEnabled\": false,\n  \"message\": \"Here is the report we discussed.\"\n}",
@@ -5336,7 +5336,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451686,\"updatedAt\":1780232451686,\"id\":1,\"entityId\":\"6806414\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0}}}"
+         "body": "{\"success\":true,\"data\":{\"sharedItemData\":{\"createdAt\":1780232451686,\"updatedAt\":1780232451686,\"id\":1,\"entityId\":\"6806414\",\"shareLink\":\"\",\"sharedBy\":\"3\",\"nodeType\":1,\"orphan\":true,\"mountId\":\"6\",\"userId\":\"5003\",\"isPublic\":false,\"publicLinkEnabled\":false,\"directDownloadEnabled\":false,\"linkPasswordEnabled\":false,\"linkExpiryDate\":null,\"isBlocked\":false,\"sharingParentId\":0,\"permissionLevel\":\"read\"}}}"
         },
         {
          "name": "404 response",
