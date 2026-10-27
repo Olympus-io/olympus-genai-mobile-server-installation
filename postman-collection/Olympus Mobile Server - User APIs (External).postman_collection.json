@@ -689,7 +689,7 @@
           }
          ]
         },
-        "description": "A file's AI details (FE-19): overview, key points and tags written at indexing time, what its summary is (summaryKind: summary | text | image — `summary` is returned only for a model-written one), and its indexing job. Needs >= READ on the file (LIST is not enough — the overview quotes the content). `canGenerate` = write or admin. No model call."
+        "description": "A file's AI details (FE-19): overview, key points and tags written at indexing time, what its summary is (summaryKind: summary | text | image — `summary` is returned only for a model-written one), and its indexing job. Needs >= READ on the file (LIST is not enough — the overview quotes the content). `canGenerate` = write or admin. No model call. Since 2026-10-27, a file whose type AI can't read carries `indexingNote: 'unsupported_type'` (indexing state `not_indexed`)."
        },
        "response": [
         {
@@ -1440,7 +1440,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -1761,7 +1761,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -2024,7 +2024,8 @@
            "description": "asc · desc · neutral (no sort)"
           }
          ]
-        }
+        },
+        "description": "Lists one page of a folder's files. Each file carries `indexed` and `indexingStatus` (not_indexed | queued | processing | completed | failed). Since 2026-10-27, a file whose type AI can't read also carries `indexingNote: 'unsupported_type'`, with `indexingStatus: 'not_indexed'`. The field is only present when it applies."
        },
        "response": [
         {
@@ -2231,7 +2232,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -2279,7 +2280,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -2894,7 +2895,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -3117,7 +3118,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -3261,7 +3262,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -3510,7 +3511,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"errors\": [{\"code\": \"FILE_NOT_FOUND\", \"message\": \"Oops! The file you are trying to move doesn't exists.\"}]}"
+         "body": "{\"errors\": [{\"code\": \"FILE_NOT_FOUND\", \"message\": \"Oops! The file you are trying to move doesn't exist.\"}]}"
         }
        ]
       },
@@ -3658,7 +3659,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         },
         {
          "name": "400 — fileId sent after the file part",
@@ -3737,7 +3738,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exist or it has been removed.\"}"
         },
         {
          "name": "400 — directoryId sent after the file part",
@@ -4583,7 +4584,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -4645,7 +4646,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -4847,7 +4848,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -4909,7 +4910,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -5095,7 +5096,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -5160,7 +5161,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"Directory doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -5224,7 +5225,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         }
        ]
       },
@@ -5348,7 +5349,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exists or it has been removed.\"}"
+         "body": "{\"code\": \"NOT_FOUND\", \"message\": \"File doesn't exist or it has been removed.\"}"
         }
        ]
       }

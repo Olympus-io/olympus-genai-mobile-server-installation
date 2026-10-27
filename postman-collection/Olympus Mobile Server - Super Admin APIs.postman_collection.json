@@ -1990,7 +1990,7 @@
         }
        ]
       },
-      "description": "Re-scan one folder subtree instead of a whole mount — the *Refresh* action in the file browser. Children are processed asynchronously.\n\nThe only `is-logged-in` action in `scan/*`, because ordinary users trigger it."
+      "description": "Re-scan one folder subtree instead of a whole mount — the *Refresh* action in the file browser. Children are processed asynchronously.\n\nThe only `is-logged-in` action in `scan/*`, because ordinary users trigger it. Requires READ or better on the folder; anyone else gets 403 UNAUTHORIZED. A super-admin bypasses the check (2026-10-27)."
      },
      "response": [
       {
