@@ -45,7 +45,6 @@ The platform processes files through an AI pipeline: each file is split into tex
 | **PostgreSQL**        | File/directory metadata, permissions, ACLs, sharing (~1 KB per file) | Number of files + directories          |
 | **Redis**             | Sessions, cache, pub/sub                                             | ~100–200 MB (mostly constant)          |
 | **RabbitMQ**          | Job queues (transient)                                               | ~100–200 MB (mostly constant)          |
-| **CouchDB**           | GenAI model configs, chunk settings                                  | ~50–100 MB (mostly constant)           |
 
 #### Example scenarios
 

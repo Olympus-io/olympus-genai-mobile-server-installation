@@ -4039,7 +4039,7 @@
           "health"
          ]
         },
-        "description": "Per-dependency health of the GenAI stack (Flask, worker, vector store, queue). The first thing to check when embeddings stop appearing."
+        "description": "Per-dependency health of the GenAI stack: Milvus, OpenSearch, RabbitMQ, PostgreSQL and Redis. The first thing to check when embeddings stop appearing.\n\nThe overall `status` needs PostgreSQL. A Redis failure shows under `redis` but does not make it unhealthy, because Redis only caches the AI settings."
        },
        "response": [
         {
@@ -4053,7 +4053,7 @@
            "value": "application/json"
           }
          ],
-         "body": "{\n  \"couchdb\": {\n    \"message\": \"CouchDB is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"env\": \"development\",\n  \"milvus\": {\n    \"message\": \"Milvus is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"opensearch\": {\n    \"message\": \"OpenSearch is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"rabbitmq\": {\n    \"message\": \"RabbitMQ is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"status\": \"healthy\"\n}"
+         "body": "{\n  \"env\": \"development\",\n  \"milvus\": {\n    \"message\": \"Milvus is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"opensearch\": {\n    \"message\": \"OpenSearch is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"postgres\": {\n    \"message\": \"PostgreSQL is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"rabbitmq\": {\n    \"message\": \"RabbitMQ is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"redis\": {\n    \"message\": \"Redis is healthy\",\n    \"status\": \"healthy\"\n  },\n  \"status\": \"healthy\"\n}"
         }
        ]
       },
@@ -4521,7 +4521,7 @@
           "saved-providers"
          ]
         },
-        "description": "The full provider configuration document from CouchDB: every provider's `apiKey`, `enabled` flag, `validated` status and `selectedModels` list.\n\n**API keys are returned in clear text** — the sample response has them redacted and its model lists trimmed (the live payload is ~23 KB)."
+        "description": "The full provider configuration document: every provider's `apiKey`, `enabled` flag, `validated` status and `selectedModels` list.\n\n**API keys are returned in clear text** — the sample response has them redacted and its model lists trimmed (the live payload is ~23 KB)."
        },
        "response": [
         {
