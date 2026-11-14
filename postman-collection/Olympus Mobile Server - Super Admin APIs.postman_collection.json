@@ -5132,7 +5132,7 @@
           }
          ]
         },
-        "description": "Dry-run a model switch: how many files and vectors would have to be re-embedded, and whether the dimension change forces a Milvus collection rebuild. Read this before `switch-embedding-model`."
+        "description": "Dry-run a model switch: how many files, chunks, summaries and Milvus collections the switch affects, and the current and new vector dimensions. Every switch builds a new index generation, whatever the dimension. Read this before `switch-embedding-model`."
        },
        "response": [
         {
@@ -5172,7 +5172,7 @@
           "switch-embedding-model"
          ]
         },
-        "description": "Change the active embedding model. With `reEmbedAll: true` (the default) every previously embedded file is queued for re-embedding — the `reembed-publisher` cron job drains the batch.\n\nFor Ollama include the tag in `newName`. Optionally pass fresh `chunkSettings` in the same call so chunking and model change land together.\n\n⚠️ Not executed — it would have re-embedded the whole reference corpus.",
+        "description": "Change the active embedding model. With `reEmbedAll: true` (the default) every previously embedded file is re-embedded into the next index generation (`col_mount_<id>__g<n>` and `files__g<n>`), built beside the live one by the `reembed-publisher` cron job; AI answers keep using the live index and model until the build is complete and swapped in. With `false` an empty generation is swapped in at once.\n\nFor Ollama include the tag in `newName`. Optionally pass fresh `chunkSettings` in the same call so chunking and model change land together.\n\n⚠️ Not executed — it would have re-embedded the whole reference corpus.",
         "body": {
          "mode": "raw",
          "raw": "{\n  \"newProvider\": \"chatgpt\",\n  \"newName\": \"text-embedding-3-small\",\n  \"reEmbedAll\": true,\n  \"chunkSettings\": {\n    \"chunkSize\": 1000,\n    \"chunkOverlap\": 200\n  }\n}",
@@ -5247,7 +5247,7 @@
           "reembed-cancel"
          ]
         },
-        "description": "Abort a running re-embed. Omit `batchId` to cancel the active batch. Files already processed keep their **new** vectors while the rest keep the old ones, so the corpus is left mixed — finish or restart the migration.",
+        "description": "Abort a running re-embed. Omit `batchId` to cancel the active batch. Cancelling discards the build being made (its collections, chunk index and job rows); the live index and the active model are unchanged. Not possible once the swap has started.",
         "body": {
          "mode": "raw",
          "raw": "{\n  \"batchId\": null\n}",
@@ -5282,7 +5282,7 @@
           "rebuild-indices"
          ]
         },
-        "description": "Rebuild the vector-store indices. With `reEmbedAll: true` the source text is re-embedded as well; with `false` only the index structures are rebuilt from existing vectors — the cheaper repair for a corrupted index.",
+        "description": "Rebuild the vector-store indices. Builds the next index generation with the current embedding model and swaps it in when complete; answers keep using the live index meanwhile. With `reEmbedAll: true` (the default) every indexed file is re-embedded into it (an unchanged file reuses its chunks, so only the embeddings are recomputed); with `false` an empty generation is swapped in at once.",
         "body": {
          "mode": "raw",
          "raw": "{\n  \"reEmbedAll\": false\n}",

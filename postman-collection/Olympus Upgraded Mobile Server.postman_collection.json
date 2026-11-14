@@ -9076,7 +9076,7 @@
                     "switch-embedding-model"
                   ]
                 },
-                "description": "Optional: `reEmbedAll` (default **true** — every previously embedded file is queued for re-embedding), `chunkSettings` (`{chunkSize, chunkOverlap}`).",
+                "description": "Optional: `reEmbedAll` (default **true** — every previously embedded file is re-embedded into a new index generation built beside the live one and swapped in when complete; **false** swaps in an empty generation at once), `chunkSettings` (`{chunkSize, chunkOverlap}`).",
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"newProvider\": \"chatgpt\",\n  \"newName\": \"text-embedding-3-small\"\n}"
