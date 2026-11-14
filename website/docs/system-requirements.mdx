@@ -65,11 +65,13 @@ The estimates below assume a **1024-dimension embedding model** (e.g. Ollama `mx
 | Service                          | Estimated Storage |
 | -------------------------------- | ----------------- |
 | NFS (raw files on host)          | 15 GB             |
-| Milvus (vectors + index)         | ~800 MB           |
+| Milvus (vectors + index)         | ~1.5 GB           |
 | OpenSearch (text chunks + index) | ~1.3 GB           |
 | PostgreSQL (metadata)            | ~100 MB           |
 | **Additional storage needed**    | **~18 GB**        |
 | **Total with base (30 GB)**      | **~48 GB**        |
+
+Milvus RAM for this tier: about 0.6 GB.
 
 </details>
 
@@ -88,11 +90,13 @@ The estimates below assume a **1024-dimension embedding model** (e.g. Ollama `mx
 | Service                          | Estimated Storage |
 | -------------------------------- | ----------------- |
 | NFS (raw files on host)          | 500 GB            |
-| Milvus (vectors + index)         | ~15 GB            |
+| Milvus (vectors + index)         | ~29 GB            |
 | OpenSearch (text chunks + index) | ~25 GB            |
 | PostgreSQL (metadata)            | ~1 GB             |
-| **Additional storage needed**    | **~540 GB**       |
-| **Total with base (30 GB)**      | **~570 GB**       |
+| **Additional storage needed**    | **~555 GB**       |
+| **Total with base (30 GB)**      | **~585 GB**       |
+
+Milvus RAM for this tier: about 12 GB, so plan **32 GB** for the server.
 
 </details>
 
@@ -111,13 +115,28 @@ The estimates below assume a **1024-dimension embedding model** (e.g. Ollama `mx
 | Service                          | Estimated Storage |
 | -------------------------------- | ----------------- |
 | NFS (raw files on host)          | 1 TB              |
-| Milvus (vectors + index)         | ~30 GB            |
+| Milvus (vectors + index)         | ~57 GB            |
 | OpenSearch (text chunks + index) | ~50 GB            |
 | PostgreSQL (metadata)            | ~2 GB             |
-| **Additional storage needed**    | **~1.08 TB**      |
-| **Total with base (30 GB)**      | **~1.1 TB**       |
+| **Additional storage needed**    | **~1.11 TB**      |
+| **Total with base (30 GB)**      | **~1.14 TB**      |
+
+Milvus RAM for this tier: about 24 GB, so plan **64 GB** for the server.
 
 </details>
+
+### How the Milvus figures were measured
+
+On an 8-vCPU, 32 GB server with Milvus 3.0.6 and 1024-dimension vectors (November 2026):
+
+| Vectors | Milvus RAM | Search time, one folder | Search time, 1,000 folders |
+| ------- | ---------- | ----------------------- | -------------------------- |
+| 1 million | 6.8 GB | 8 ms (p95 12 ms) | 36 ms (p95 47 ms) |
+| 2 million | 10.6 GB | 7 ms (p95 8 ms) | 68 ms (p95 116 ms) |
+
+Plan on about **5 GB of RAM** and **12 GB of disk per million vectors** (half as much again with a 1536-dimension model). Milvus inserted about 4,000 vectors a second and indexed a million in about 30 minutes, so in practice the embedding model, not Milvus, sets the indexing pace. Searches stay well under the time the AI model takes to answer.
+
+**Leave headroom.** Right after a large import the disk held about twice the steady figure (46 GB at 2 million vectors). Milvus cleans up superseded data after about 3 hours and keeps recent writes for 3 days. A full re-index or an embedding-model switch builds the new index beside the live one, so RAM and disk for vectors can double until the switch completes.
 
 ### How chunks are calculated
 

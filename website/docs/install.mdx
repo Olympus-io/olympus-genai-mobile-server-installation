@@ -293,3 +293,65 @@ First image pulls can be slow on metered or international connections — the se
 :::
 
 Once the wizard opens, head to **[Setup Wizard →](./wizard)** for the 9-step walkthrough.
+
+---
+
+## Air-gapped install (no internet on the server)
+
+Olympus runs with no internet access at all, as long as every image is on the server before you start. **Use the Community edition:** an Enterprise licence must reach the licence server at least once every 7 days, or every user except the super-admin is locked out.
+
+On a machine **with** internet access (same CPU architecture as the server):
+
+1. Sign in to Docker Hub with the `DOCKER_USERNAME` and `DOCKER_TOKEN` from the install command above:
+
+   ```bash
+   docker login -u olympussupport
+   ```
+
+2. Pull the installer, then list the platform images it deploys:
+
+   ```bash
+   docker pull olympusmobile/olympus-master-setup:latest
+   docker run --rm --entrypoint sh olympusmobile/olympus-master-setup:latest \
+     -c "grep -h 'image:' /app/backend/bundle/compose/*.yml | sed 's/.*image: *//' | sort -u" > olympus-images.txt
+   echo olympusmobile/olympus-master-setup:latest >> olympus-images.txt
+   ```
+
+   If you want the wizard's built-in test shares, add `olympusmobile/test-nfs-server:latest` and `dperson/samba:latest` to the list.
+
+3. Pull everything and save it to one archive (use `linux/arm64` for an ARM server):
+
+   ```bash
+   xargs -n1 docker pull --platform linux/amd64 < olympus-images.txt
+   docker save --platform linux/amd64 -o olympus-images.tar $(cat olympus-images.txt)
+   ```
+
+On the **air-gapped** server:
+
+1. Copy `olympus-images.tar` over and load it:
+
+   ```bash
+   docker load -i olympus-images.tar
+   ```
+
+2. Run the install command for your OS from above, **leaving out the `docker pull` line**.
+3. In the wizard, pick:
+   - **Private Network** with a self-signed or custom certificate;
+   - the **Community** edition;
+   - **Ollama on your network** for AI (cloud providers cannot be reached);
+   - **production** file shares on your own NFS/SMB servers. For an SMB server that is not joined to Active Directory, choose `FULL_RW` or `READ_ONLY` access, not `AD_ACLS`.
+
+The deploy tries the registry once, then uses the images you loaded; expect about two extra minutes. (Installers older than 14 November 2026 instead retried every image and then failed with *Failed to pull … images*.)
+
+**Updating later:**
+1. Build a new archive the same way, then `docker load` it on the server.
+2. Run the install command again without the `docker pull` line. This starts the new installer.
+3. Open **App-Updates** and run the update. It uses the loaded images when the registry cannot be reached.
+
+**What needs the internet** and is unavailable offline:
+- cloud AI providers;
+- Let's Encrypt certificates;
+- Telegram;
+- voice-note transcription;
+- reverse geocoding of photo locations (photos are still indexed);
+- hosted MCP clients such as claude.ai. A desktop MCP client on your network works.

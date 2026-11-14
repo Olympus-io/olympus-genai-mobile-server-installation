@@ -380,6 +380,48 @@ When you see that line, **open `http://localhost:8888` in your browser** (or `ht
 
 > 💡 **Stuck on download?** First image pulls can be slow on metered or international connections — the setup image is small, but the full platform downloads later total ~6 GB across 30+ images.
 
+### Air-gapped install (no internet on the server)
+
+Olympus runs with no internet access at all, as long as every image is on the server before you start. **Use the Community edition:** an Enterprise licence must reach the licence server at least once every 7 days, or every user except the super-admin is locked out.
+
+On a machine **with** internet access (same CPU architecture as the server), sign in with the `DOCKER_USERNAME` and `DOCKER_TOKEN` from the install command, then build one archive:
+
+```bash
+docker login -u olympussupport
+docker pull olympusmobile/olympus-master-setup:latest
+docker run --rm --entrypoint sh olympusmobile/olympus-master-setup:latest \
+  -c "grep -h 'image:' /app/backend/bundle/compose/*.yml | sed 's/.*image: *//' | sort -u" > olympus-images.txt
+echo olympusmobile/olympus-master-setup:latest >> olympus-images.txt
+xargs -n1 docker pull --platform linux/amd64 < olympus-images.txt
+docker save --platform linux/amd64 -o olympus-images.tar $(cat olympus-images.txt)
+```
+
+(Use `linux/arm64` for an ARM server. For the wizard's built-in test shares, add `olympusmobile/test-nfs-server:latest` and `dperson/samba:latest` to the list.)
+
+On the **air-gapped** server:
+1. Run `docker load -i olympus-images.tar`.
+2. Run the install command above, **leaving out the `docker pull` line**.
+3. In the wizard, pick:
+   - **Private Network** with a self-signed or custom certificate;
+   - the **Community** edition;
+   - **Ollama on your network** for AI;
+   - **production** file shares on your own NFS/SMB servers. For an SMB server outside Active Directory, choose `FULL_RW` or `READ_ONLY`, not `AD_ACLS`.
+
+The deploy tries the registry once and then uses the loaded images, which takes about two extra minutes.
+
+**To update:**
+1. Load a new archive on the server.
+2. Re-run the install command without `docker pull`.
+3. Run **App-Updates**.
+
+**Unavailable offline:**
+- cloud AI providers;
+- Let's Encrypt;
+- Telegram;
+- voice-note transcription;
+- reverse geocoding of photo locations;
+- hosted MCP clients (a desktop MCP client on your network works).
+
 ---
 
 ## 🖥️ Web-Based Setup Wizard
