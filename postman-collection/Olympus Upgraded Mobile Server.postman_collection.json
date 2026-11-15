@@ -507,7 +507,7 @@
         },
         {
           "name": "File Requests",
-          "description": "Upload-only links into a folder (FE-22). No account, no session: the token in the link is the whole capability.",
+          "description": "Upload-only links into a folder (FE-22). No account, no session: the token in the link is the whole capability. Small files: one POST to upload. Large files: the resumable upload-init / -chunk / -status / -complete / -abort session (FE-27).",
           "item": [
             {
               "name": "GET /api/v1/share/file-request/info",
@@ -619,6 +619,271 @@
                     }
                   ],
                   "body": "{\"success\":true,\"data\":{\"received\":{\"name\":\"postman.txt\",\"size\":19}}}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/share/file-request/upload-init",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file-request/upload-init?token={{fileRequestToken}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file-request",
+                    "upload-init"
+                  ],
+                  "query": [
+                    {
+                      "key": "token",
+                      "value": "{{fileRequestToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"token\": \"{{fileRequestToken}}\",\n  \"password\": null,\n  \"uploaderName\": \"Jane Doe\",\n  \"uploaderEmail\": \"jane@example.com\",\n  \"fileName\": \"scan.pdf\",\n  \"totalSize\": 52428800\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "description": "Public — no auth. Open a chunked, resumable upload of ONE file through a file-request link (FE-27, 2026-11-15). For large files: a one-POST upload has no resume, and the gateway ends any stream at 30 minutes.\n\nEvery check of the one-POST upload runs here, once per file: the token, the password (attempt limits), the rate limits (200 files per hour per IP, 5000 per day per link — counted per file, not per part), the per-file size limit, and the link's 10 GiB lifetime total. `totalSize` is RESERVED against that total now; it is given back if the upload is cancelled or abandoned. Errors are the one-POST upload's: 403 INVALID_PASSWORD, 429 TOO_MANY_UPLOADS, 400 E_EXCEEDS_UPLOAD_LIMIT, 413 REQUEST_FULL / REQUEST_SPACE_EXCEEDED.\n\nThen send the parts to upload-chunk and finish with upload-complete. Save `uploadId` as {{fileRequestUploadId}}."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"uploadId\": \"8949e320c2a2bfb81068788f9ff081da\", \"chunkSize\": 8388608, \"totalChunks\": 7, \"receivedChunks\": []}, \"status\": 200}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/share/file-request/upload-chunk",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file-request/upload-chunk?uploadId={{fileRequestUploadId}}&token={{fileRequestToken}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file-request",
+                    "upload-chunk"
+                  ],
+                  "query": [
+                    {
+                      "key": "uploadId",
+                      "value": "{{fileRequestUploadId}}"
+                    },
+                    {
+                      "key": "token",
+                      "value": "{{fileRequestToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "chunkIndex",
+                      "value": "0",
+                      "type": "text"
+                    },
+                    {
+                      "key": "chunk",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Public. Send one part — the same contract as POST /api/v1/file/upload-chunk: `chunkIndex` BEFORE the file field `chunk`, parts addressed by index (any order, several at once), bytes [chunkIndex*chunkSize, min((chunkIndex+1)*chunkSize, totalSize)), and re-sending a part that already arrived is a successful no-op. Authorised by the token AND the upload id together — both in the query string; no Authorization header. 404 UPLOAD_SESSION_NOT_FOUND when the session is gone (reaped after a day without a part, or cancelled) or belongs to another link; the link's own refusals (404 REQUEST_NOT_FOUND, 410 REQUEST_EXPIRED, 403 REQUEST_CLOSED) end it too."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"uploadId\": \"8949e320c2a2bfb81068788f9ff081da\", \"chunkIndex\": 0, \"receivedChunks\": 1, \"totalChunks\": 7}, \"status\": 200}"
+                }
+              ]
+            },
+            {
+              "name": "GET /api/v1/share/file-request/upload-status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file-request/upload-status?uploadId={{fileRequestUploadId}}&token={{fileRequestToken}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file-request",
+                    "upload-status"
+                  ],
+                  "query": [
+                    {
+                      "key": "uploadId",
+                      "value": "{{fileRequestUploadId}}"
+                    },
+                    {
+                      "key": "token",
+                      "value": "{{fileRequestToken}}"
+                    }
+                  ]
+                },
+                "description": "Public. Which parts arrived — ask before resuming, and before re-sending a part whose response was lost. A stored upload answers state `completed` with every part listed (call upload-complete again for its receipt); it never names the file row. Authorised by the token AND the upload id together — both in the query string; no Authorization header. 404 UPLOAD_SESSION_NOT_FOUND when the session is gone (reaped after a day without a part, or cancelled) or belongs to another link; the link's own refusals (404 REQUEST_NOT_FOUND, 410 REQUEST_EXPIRED, 403 REQUEST_CLOSED) end it too."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"uploadId\": \"8949e320c2a2bfb81068788f9ff081da\", \"chunkSize\": 8388608, \"totalChunks\": 7, \"receivedChunks\": [0, 1, 2], \"receivedBytes\": 25165824, \"state\": \"uploading\"}, \"status\": 200}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/share/file-request/upload-complete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file-request/upload-complete?uploadId={{fileRequestUploadId}}&token={{fileRequestToken}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file-request",
+                    "upload-complete"
+                  ],
+                  "query": [
+                    {
+                      "key": "uploadId",
+                      "value": "{{fileRequestUploadId}}"
+                    },
+                    {
+                      "key": "token",
+                      "value": "{{fileRequestToken}}"
+                    }
+                  ]
+                },
+                "description": "Public. Assemble the parts and store the file in the link's folder, as the link's creator. Never overwrites: a taken name is stored as \"name (1).ext\" — the receipt gives the stored name. 400 UPLOAD_INCOMPLETE lists missing parts; 409 NAME_TAKEN means another file took the name at the same instant (call again). Calling it again after success replays the receipt. Audited as FILE_REQUEST_UPLOAD, naming the uploader. Authorised by the token AND the upload id together — both in the query string; no Authorization header. 404 UPLOAD_SESSION_NOT_FOUND when the session is gone (reaped after a day without a part, or cancelled) or belongs to another link; the link's own refusals (404 REQUEST_NOT_FOUND, 410 REQUEST_EXPIRED, 403 REQUEST_CLOSED) end it too."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"received\": {\"name\": \"scan (1).pdf\", \"size\": 52428800}}, \"status\": 200}"
+                }
+              ]
+            },
+            {
+              "name": "DELETE /api/v1/share/file-request/upload-abort",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/share/file-request/upload-abort?uploadId={{fileRequestUploadId}}&token={{fileRequestToken}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "share",
+                    "file-request",
+                    "upload-abort"
+                  ],
+                  "query": [
+                    {
+                      "key": "uploadId",
+                      "value": "{{fileRequestUploadId}}"
+                    },
+                    {
+                      "key": "token",
+                      "value": "{{fileRequestToken}}"
+                    }
+                  ]
+                },
+                "description": "Public. Cancel: delete the parts and give the reserved bytes back to the link's total. 409 UPLOAD_IN_PROGRESS while the file is being stored; an upload already stored answers `aborted: false, alreadyCompleted: true`. Authorised by the token AND the upload id together — both in the query string; no Authorization header. 404 UPLOAD_SESSION_NOT_FOUND when the session is gone (reaped after a day without a part, or cancelled) or belongs to another link; the link's own refusals (404 REQUEST_NOT_FOUND, 410 REQUEST_EXPIRED, 403 REQUEST_CLOSED) end it too."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"uploadId\": \"8949e320c2a2bfb81068788f9ff081da\", \"aborted\": true}, \"status\": 200}"
                 }
               ]
             }
@@ -10789,6 +11054,12 @@
       "value": "",
       "type": "string",
       "description": "The last path segment of a file-request link (…/user/shared/file-request/<token>)."
+    },
+    {
+      "key": "fileRequestUploadId",
+      "value": "",
+      "type": "string",
+      "description": "The uploadId upload-init returned for a file-request upload."
     }
   ]
 }
