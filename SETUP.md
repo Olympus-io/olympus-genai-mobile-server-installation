@@ -396,7 +396,7 @@ xargs -n1 docker pull --platform linux/amd64 < olympus-images.txt
 docker save --platform linux/amd64 -o olympus-images.tar $(cat olympus-images.txt)
 ```
 
-(Use `linux/arm64` for an ARM server. For the wizard's built-in test shares, add `olympusmobile/test-nfs-server:latest` and `dperson/samba:latest` to the list.)
+(Use `linux/arm64` for an ARM server. For the wizard's built-in test shares, add `olympusmobile/test-nfs-server:latest` and `olympusmobile/test-smb-server:latest` to the list.)
 
 On the **air-gapped** server:
 1. Run `docker load -i olympus-images.tar`.
