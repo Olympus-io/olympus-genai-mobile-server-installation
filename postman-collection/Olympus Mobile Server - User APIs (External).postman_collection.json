@@ -4009,6 +4009,13 @@
          {
           "key": "Authorization",
           "value": "Bearer {{userToken}}"
+         },
+         {
+          "key": "Idempotency-Key",
+          "value": "my-upload-0001",
+          "type": "text",
+          "disabled": true,
+          "description": "Optional: a repeat with the same key answers with the first upload's file."
          }
         ],
         "url": {
@@ -4039,7 +4046,7 @@
           }
          ]
         },
-        "description": "**Send `directoryId` before the `file` part** (or put it in the URL as `?directoryId=`). Sails' multipart parser only hands an action the text fields that arrive ahead of the file stream, so for anything larger than one network chunk a `directoryId` sent after the file is missing — the request is then refused with `400 MISSING_PARAM`."
+        "description": "**Send `directoryId` before the `file` part** (or put it in the URL as `?directoryId=`). Sails' multipart parser only hands an action the text fields that arrive ahead of the file stream, so for anything larger than one network chunk a `directoryId` sent after the file is missing — the request is then refused with `400 MISSING_PARAM`.\n\n**Optional `Idempotency-Key` header** (8–200 of `A-Z a-z 0-9 : _ . -`). Send the same key again — the same user, the same folder, within an hour — and you get the file the first upload stored (`data.replayed: true`) instead of a second copy named \"name (2)\". Use it when you cannot tell a failed upload from a lost answer. While the first is still running a repeat waits up to 60 s, then answers `409 UPLOAD_IN_PROGRESS`; a malformed key is `400 INVALID_IDEMPOTENCY_KEY`."
        },
        "response": [
         {

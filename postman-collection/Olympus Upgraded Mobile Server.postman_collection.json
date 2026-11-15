@@ -3877,6 +3877,13 @@
                   {
                     "key": "Authorization",
                     "value": "Bearer {{userToken}}"
+                  },
+                  {
+                    "key": "Idempotency-Key",
+                    "value": "my-upload-0001",
+                    "type": "text",
+                    "disabled": true,
+                    "description": "Optional: a repeat with the same key answers with the first upload's file."
                   }
                 ],
                 "url": {
@@ -3907,7 +3914,7 @@
                     }
                   ]
                 },
-                "description": "**Send `directoryId` before the `file` part** (or put it in the URL as `?directoryId=`). Sails' multipart parser only hands an action the text fields that arrive ahead of the file stream, so for anything larger than one network chunk a `directoryId` sent after the file is missing — the request is then refused with `400 MISSING_PARAM`."
+                "description": "**Send `directoryId` before the `file` part** (or put it in the URL as `?directoryId=`). Sails' multipart parser only hands an action the text fields that arrive ahead of the file stream, so for anything larger than one network chunk a `directoryId` sent after the file is missing — the request is then refused with `400 MISSING_PARAM`.\n\n**Optional `Idempotency-Key` header** (8–200 of `A-Z a-z 0-9 : _ . -`). Send the same key again — the same user, the same folder, within an hour — and you get the file the first upload stored (`data.replayed: true`) instead of a second copy named \"name (2)\". Use it when you cannot tell a failed upload from a lost answer. While the first is still running a repeat waits up to 60 s, then answers `409 UPLOAD_IN_PROGRESS`; a malformed key is `400 INVALID_IDEMPOTENCY_KEY`."
               },
               "response": [
                 {
@@ -7393,7 +7400,8 @@
                       "value": "{{directoryId}}"
                     }
                   ]
-                }
+                },
+                "description": "Adds every file in the folder and its sub-folders for AI indexing (files under a folder with GenAI switched off are left out; unchanged files are skipped, never re-indexed). Up to the admin's limit (Admin → GenAI Administration → Embedding Limits) the answer lists what happened to each file: `queued`, `skipped` with `skippedReasons`, `failed`. A larger folder is added in the background: the answer is at once, with `background: true`, a `batchId` and the counts at 0, and the outcome comes as `FOLDER_EMBEDDING_DONE` on the user's socket room. A second start of the same folder meanwhile answers `409 FOLDER_EMBEDDING_RUNNING`."
               },
               "response": [
                 {
