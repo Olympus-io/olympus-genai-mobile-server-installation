@@ -1020,10 +1020,10 @@
                     "chat-on-everything"
                   ]
                 },
-                "description": "Ask a question across everything the caller can access (GENAI-41) — no file or folder id. Sails builds the scope from the caller's permissions (per GenAI-enabled mount: every folder on a wide-access mount, otherwise the folders their permissions reach READ — LIST-only folders are left out, because an answer quotes the documents) and the worker never widens it. Answered asynchronously like the file / folder chats: the row is created `queued`, progress and the streamed answer arrive on the caller's private socket room (subscribe-gen-ai-everything-events), and the stored row carries the answer and its citations. Stored with `entityType: \"all\"` and `entityId` = the caller. Optional: `selectedModel` (`provider:model`), `chatKnowledgeBase` (`restrictiveToDocuments` · `documentsWithModelKnowledge` · `documentsOrModelKnowledge`), `intent` (`lookup` · `summary` · `comparison`).",
+                "description": "Ask a question across everything the caller can access (GENAI-41) — no file or folder id. Sails builds the scope from the caller's permissions (per GenAI-enabled mount: every folder on a wide-access mount, otherwise the folders their permissions reach READ — LIST-only folders are left out, because an answer quotes the documents) and the worker never widens it. Answered asynchronously like the file / folder chats: the row is created `queued`, progress and the streamed answer arrive on the caller's private socket room (subscribe-gen-ai-everything-events), and the stored row carries the answer and its citations. Stored with `entityType: \"all\"` and `entityId` = the caller. Optional: `selectedModel` (`provider:model`), `chatKnowledgeBase` (`restrictiveToDocuments` · `documentsWithModelKnowledge` · `documentsOrModelKnowledge`), `intent` (`lookup` · `summary` · `comparison`).\n\nOptional `filters` (FE-18): `types` (groups: pdf, word, spreadsheet, presentation, image, video, audio, text, email), `modifiedAfter` / `modifiedBefore` (epoch ms), `minSize` / `maxSize` (bytes), `author` (the author written in the document). They narrow the files the answer reads, on top of anything the question itself says; none matching answers \"No files … match\" without a model call. Bad filters: 400 INVALID_FILTER.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"question\": \"Which supplier is preferred, and why?\"\n}"
+                  "raw": "{\n  \"question\": \"Which supplier is preferred, and why?\",\n  \"filters\": {\n    \"types\": [\n      \"pdf\"\n    ],\n    \"modifiedAfter\": 1793836800000\n  }\n}"
                 }
               },
               "response": [
@@ -3342,9 +3342,40 @@
                     {
                       "key": "limit",
                       "value": "10"
+                    },
+                    {
+                      "key": "types",
+                      "value": "pdf,word",
+                      "disabled": true,
+                      "description": "FE-18: comma list of pdf, word, spreadsheet, presentation, image, video, audio, text, email"
+                    },
+                    {
+                      "key": "modifiedAfter",
+                      "value": "",
+                      "disabled": true,
+                      "description": "FE-18: epoch ms"
+                    },
+                    {
+                      "key": "modifiedBefore",
+                      "value": "",
+                      "disabled": true,
+                      "description": "FE-18: epoch ms"
+                    },
+                    {
+                      "key": "minSize",
+                      "value": "",
+                      "disabled": true,
+                      "description": "FE-18: bytes"
+                    },
+                    {
+                      "key": "maxSize",
+                      "value": "",
+                      "disabled": true,
+                      "description": "FE-18: bytes"
                     }
                   ]
-                }
+                },
+                "description": "Filters (FE-18, optional, combinable): `types` (groups), `modifiedAfter` / `modifiedBefore` (epoch ms), `minSize` / `maxSize` (bytes). They narrow name and content matches alike. An unknown type or an empty window answers 400 INVALID_FILTER."
               },
               "response": []
             },
@@ -3385,10 +3416,40 @@
                     {
                       "key": "limit",
                       "value": "20"
+                    },
+                    {
+                      "key": "types",
+                      "value": "pdf,word",
+                      "disabled": true,
+                      "description": "FE-18: comma list of pdf, word, spreadsheet, presentation, image, video, audio, text, email"
+                    },
+                    {
+                      "key": "modifiedAfter",
+                      "value": "",
+                      "disabled": true,
+                      "description": "FE-18: epoch ms"
+                    },
+                    {
+                      "key": "modifiedBefore",
+                      "value": "",
+                      "disabled": true,
+                      "description": "FE-18: epoch ms"
+                    },
+                    {
+                      "key": "minSize",
+                      "value": "",
+                      "disabled": true,
+                      "description": "FE-18: bytes"
+                    },
+                    {
+                      "key": "maxSize",
+                      "value": "",
+                      "disabled": true,
+                      "description": "FE-18: bytes"
                     }
                   ]
                 },
-                "description": "Every file the caller can READ that carries this AI tag (FE-19 tag collections) — `tag` replaces `searchTerm`; results have matchedOn: \"tag\"."
+                "description": "Every file the caller can READ that carries this AI tag (FE-19 tag collections) — `tag` replaces `searchTerm`; results have matchedOn: \"tag\".\n\nFilters (FE-18, optional, combinable): `types` (groups), `modifiedAfter` / `modifiedBefore` (epoch ms), `minSize` / `maxSize` (bytes). They narrow name and content matches alike. An unknown type or an empty window answers 400 INVALID_FILTER."
               },
               "response": [
                 {
