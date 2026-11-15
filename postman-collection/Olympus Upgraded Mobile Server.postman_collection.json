@@ -5729,6 +5729,217 @@
               ]
             }
           ]
+        },
+        {
+          "name": "Folder Automations",
+          "description": "\"When a file lands here, read these fields / post a summary / move it\" (FE-24).",
+          "item": [
+            {
+              "name": "GET /api/v1/directory/automation/list",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/automation/list?directoryId={{directoryId}}",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "automation",
+                    "list"
+                  ],
+                  "query": [
+                    {
+                      "key": "directoryId",
+                      "value": "{{directoryId}}"
+                    }
+                  ]
+                },
+                "description": "A folder's automations (FE-24) and each one's latest 10 runs (queued, running, finishing, done, failed, skipped — with what it read and did, or why not). Folder admins only (directory-admin-access). A rule runs as its creator on each matching file once the file has been indexed for AI; every run re-checks the creator's access and AI allowance."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"automations\": [{\"id\": 7, \"directoryId\": 3028250, \"name\": \"Invoices\", \"enabled\": true, \"includeSubfolders\": true, \"matchTypes\": [\"pdf\", \"text\"], \"nameContains\": \"invoice\", \"extractFields\": [{\"key\": \"invoice_number\", \"label\": \"Invoice number\", \"description\": null, \"kind\": \"text\"}, {\"key\": \"total_due\", \"label\": \"Total due\", \"description\": \"The amount to pay\", \"kind\": \"number\"}], \"postSummary\": true, \"moveToDirectoryId\": 3028251, \"moveToName\": \"Archive\", \"createdBy\": {\"id\": 3, \"name\": \"Deepak\"}, \"createdAt\": 1794723880000, \"updatedAt\": 1794723880000}], \"runs\": [{\"id\": 31, \"automationId\": 7, \"fileId\": 6821500, \"fileName\": \"invoice-0042.pdf\", \"status\": \"done\", \"result\": {\"fields\": {\"invoice_number\": \"INV-2027-0042\", \"total_due\": 1250.5}, \"summary\": \"An invoice from Acme Widgets for bolts, nuts and washers, due 31 January 2027.\", \"summaryPosted\": true, \"movedTo\": {\"directoryId\": 3028251, \"name\": \"Archive\"}, \"notes\": []}, \"error\": null, \"createdAt\": 1794723900000, \"finishedAt\": 1794723915000}]}, \"status\": 200}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/directory/automation/save",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/automation/save",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "automation",
+                    "save"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"automation\": {\n    \"name\": \"Invoices\",\n    \"enabled\": true,\n    \"includeSubfolders\": true,\n    \"matchTypes\": [\n      \"pdf\",\n      \"text\"\n    ],\n    \"nameContains\": \"invoice\",\n    \"postSummary\": true,\n    \"moveToDirectoryId\": null,\n    \"extractFields\": [\n      {\n        \"key\": \"invoice_number\",\n        \"label\": \"Invoice number\",\n        \"kind\": \"text\"\n      },\n      {\n        \"key\": \"total_due\",\n        \"label\": \"Total due\",\n        \"kind\": \"number\",\n        \"description\": \"The amount to pay\"\n      },\n      {\n        \"key\": \"due_date\",\n        \"label\": \"Due date\",\n        \"kind\": \"date\"\n      }\n    ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "description": "Create (no id) or change (with id) an automation. It must do something: `extractFields` (at most 20; key lower-case letters/digits/_, kind text | number | date | boolean | list), `postSummary` (a GenAI-bot comment), and/or `moveToDirectoryId` (same drive, not this folder or below it when `includeSubfolders`, and you must administer it). `matchTypes`: pdf, word, spreadsheet, presentation, image, video, audio, text, email (null = any). Saving a change makes you the rule's creator; only switching `enabled` keeps the old one. 400 INVALID_AUTOMATION / GENAI_DISABLED, 403 on the destination, at most 20 rules per folder. Folder admins only (directory-admin-access). A rule runs as its creator on each matching file once the file has been indexed for AI; every run re-checks the creator's access and AI allowance."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"automation\": {\"id\": 7, \"directoryId\": 3028250, \"name\": \"Invoices\", \"enabled\": true, \"includeSubfolders\": true, \"matchTypes\": [\"pdf\", \"text\"], \"nameContains\": \"invoice\", \"extractFields\": [{\"key\": \"invoice_number\", \"label\": \"Invoice number\", \"description\": null, \"kind\": \"text\"}, {\"key\": \"total_due\", \"label\": \"Total due\", \"description\": \"The amount to pay\", \"kind\": \"number\"}], \"postSummary\": true, \"moveToDirectoryId\": 3028251, \"moveToName\": \"Archive\", \"createdBy\": {\"id\": 3, \"name\": \"Deepak\"}, \"createdAt\": 1794723880000, \"updatedAt\": 1794723880000}}, \"status\": 200}"
+                }
+              ]
+            },
+            {
+              "name": "DELETE /api/v1/directory/automation/delete",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/automation/delete",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "automation",
+                    "delete"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"id\": 7\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "description": "Delete an automation and its run log. Files it already handled are not changed. Folder admins only (directory-admin-access). A rule runs as its creator on each matching file once the file has been indexed for AI; every run re-checks the creator's access and AI allowance."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"deleted\": true}, \"status\": 200}"
+                }
+              ]
+            },
+            {
+              "name": "POST /api/v1/directory/automation/run-now",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{userToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{serverUrl}}/api/v1/directory/automation/run-now",
+                  "host": [
+                    "{{serverUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "directory",
+                    "automation",
+                    "run-now"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"directoryId\": \"{{directoryId}}\",\n  \"id\": 7\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "description": "Run an automation on files already in the folder: the 20 newest matching files (indexed ones, when it reads fields or writes a summary). A file with a live run is skipped. 409 AUTOMATION_OFF for a rule switched off. Folder admins only (directory-admin-access). A rule runs as its creator on each matching file once the file has been indexed for AI; every run re-checks the creator's access and AI allowance."
+              },
+              "response": [
+                {
+                  "name": "OK",
+                  "status": "HTTP 200",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\"success\": true, \"data\": {\"queued\": 2, \"skipped\": 0}, \"status\": 200}"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
