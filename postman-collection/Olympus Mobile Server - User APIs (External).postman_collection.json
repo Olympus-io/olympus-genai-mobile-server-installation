@@ -5619,6 +5619,252 @@
        ]
       }
      ]
+    },
+    {
+     "name": "Activity & Notifications",
+     "description": "Activity feed, recent files, notifications and @mentions (FE-20).",
+     "item": [
+      {
+       "name": "GET /api/v1/activity/feed",
+       "request": {
+        "method": "GET",
+        "header": [
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/activity/feed?limit=30",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "activity",
+          "feed"
+         ],
+         "query": [
+          {
+           "key": "limit",
+           "value": "30"
+          }
+         ]
+        },
+        "description": "What changed in the folders you can read (FE-20), newest first: upload, update, rename, move, delete, folder create/rename/move/delete, a new comment, a file through an upload link. Each event is shown only while you can READ the folder it happened in. Optional `directoryId`: that folder and every folder below it (404 DIRECTORY_NOT_FOUND if you can't read it). Page with `before` + `beforeId` from `next`. `limit` 1–100. Signed-in regular users only: a public link's anonymous account and a super-admin get 403 NOT_AVAILABLE. Access is checked when this is read, not when things happened."
+       },
+       "response": [
+        {
+         "name": "OK",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\": true, \"data\": {\"events\": [{\"id\": 41, \"action\": \"FILE_RENAME\", \"actor\": {\"id\": 3, \"name\": \"Deepak\"}, \"actorLabel\": null, \"entityType\": \"file\", \"entityId\": 6821445, \"entityName\": \"budget-2027.xlsx\", \"directoryId\": 3028195, \"directoryName\": \"Finance\", \"meta\": {\"fromName\": \"budget.xlsx\"}, \"createdAt\": 1794721040000}], \"next\": {\"before\": 1794721040000, \"beforeId\": 41}}, \"status\": 200}"
+        }
+       ]
+      },
+      {
+       "name": "GET /api/v1/activity/recent",
+       "request": {
+        "method": "GET",
+        "header": [
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/activity/recent?limit=30",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "activity",
+          "recent"
+         ],
+         "query": [
+          {
+           "key": "limit",
+           "value": "30"
+          }
+         ]
+        },
+        "description": "The files you opened most recently (a preview or download link issued, or a download), newest first, only those you can still read. `limit` 1–50. Signed-in regular users only: a public link's anonymous account and a super-admin get 403 NOT_AVAILABLE. Access is checked when this is read, not when things happened."
+       },
+       "response": [
+        {
+         "name": "OK",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\": true, \"data\": {\"files\": [{\"id\": 6821447, \"name\": \"plan.pdf\", \"type\": \"File\", \"size\": 182044, \"mimetype\": \"application/pdf\", \"updatedAt\": 1794721000000, \"directoryId\": 3028196, \"directoryName\": \"Projects\", \"mountId\": 1, \"accessedAt\": 1794721100000}]}, \"status\": 200}"
+        }
+       ]
+      },
+      {
+       "name": "GET /api/v1/activity/mention-candidates",
+       "request": {
+        "method": "GET",
+        "header": [
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/activity/mention-candidates?entityType=file&entityId={{fileId}}&q=po",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "activity",
+          "mention-candidates"
+         ],
+         "query": [
+          {
+           "key": "entityType",
+           "value": "file"
+          },
+          {
+           "key": "entityId",
+           "value": "{{fileId}}"
+          },
+          {
+           "key": "q",
+           "value": "po"
+          }
+         ]
+        },
+        "description": "People who could be @mentioned in a comment on this file or folder, matching `q` (name or email): only people who can READ it, at most 8. You must be able to read it too (404 otherwise). To mention someone, put `@[Display name](user:<id>)` in the comment text; only these people are notified. Signed-in regular users only: a public link's anonymous account and a super-admin get 403 NOT_AVAILABLE. Access is checked when this is read, not when things happened."
+       },
+       "response": [
+        {
+         "name": "OK",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\": true, \"data\": {\"users\": [{\"id\": 5003, \"name\": \"Pooja Pandey\", \"email\": \"pooja@example.com\"}]}, \"status\": 200}"
+        }
+       ]
+      },
+      {
+       "name": "GET /api/v1/notification/list",
+       "request": {
+        "method": "GET",
+        "header": [
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/notification/list?limit=20",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "notification",
+          "list"
+         ],
+         "query": [
+          {
+           "key": "limit",
+           "value": "20"
+          }
+         ]
+        },
+        "description": "Your notifications, newest first, and the unread count: MENTION (someone mentioned you in a comment), SHARE (a file or folder was shared with you), FILE_REQUEST_UPLOAD (files arrived through your upload link; a batch is one notification, `text` \"N files\"). `available` false: the item is gone or you can no longer read it — `text` is then withheld. Page with `before` from `next`; `unreadOnly=true`. Live updates arrive on your private socket room as NOTIFICATION and NOTIFICATIONS_READ. Signed-in regular users only: a public link's anonymous account and a super-admin get 403 NOT_AVAILABLE. Access is checked when this is read, not when things happened."
+       },
+       "response": [
+        {
+         "name": "OK",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\": true, \"data\": {\"notifications\": [{\"id\": 12, \"type\": \"MENTION\", \"actor\": {\"id\": 3, \"name\": \"Deepak\"}, \"actorLabel\": null, \"entityType\": \"file\", \"entityId\": 6821446, \"entityName\": \"plan.pdf\", \"directoryId\": 3028195, \"commentId\": 88, \"text\": \"@Pooja Pandey can you sign this off?\", \"readAt\": null, \"createdAt\": 1794721200000, \"available\": true}], \"unreadCount\": 1, \"next\": null}, \"status\": 200}"
+        }
+       ]
+      },
+      {
+       "name": "POST /api/v1/notification/mark-read",
+       "request": {
+        "method": "POST",
+        "header": [
+         {
+          "key": "Authorization",
+          "value": "Bearer {{userToken}}"
+         },
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         }
+        ],
+        "url": {
+         "raw": "{{serverUrl}}/api/v1/notification/mark-read",
+         "host": [
+          "{{serverUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "notification",
+          "mark-read"
+         ]
+        },
+        "body": {
+         "mode": "raw",
+         "raw": "{\n  \"ids\": [\n    12\n  ]\n}",
+         "options": {
+          "raw": {
+           "language": "json"
+          }
+         }
+        },
+        "description": "Mark notifications read: `ids` (at most 200), or `{\"all\": true}`. Only your own are touched; the answer gives the new unread count, and your other open tabs are told. 400 INPUTS_ERROR with neither. Signed-in regular users only: a public link's anonymous account and a super-admin get 403 NOT_AVAILABLE. Access is checked when this is read, not when things happened."
+       },
+       "response": [
+        {
+         "name": "OK",
+         "status": "HTTP 200",
+         "code": 200,
+         "header": [
+          {
+           "key": "Content-Type",
+           "value": "application/json"
+          }
+         ],
+         "body": "{\"success\": true, \"data\": {\"updated\": 1, \"unreadCount\": 0}, \"status\": 200}"
+        }
+       ]
+      }
+     ]
     }
    ]
   }
