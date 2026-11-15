@@ -665,8 +665,7 @@ Then re-run the Step 2 install command.
 
 ## 📞 Support
 
-- 🐛 **Issues** — [GitLab Issues](https://gitlab.com/olympus-fs/olympus_master_setup_app/-/issues)
-- 📖 **Documentation** — [Wiki](https://gitlab.com/olympus-fs/olympus_master_setup_app/-/wikis/home)
+- 📖 **Documentation** — [setup.olympus.io](https://setup.olympus.io)
 - ✉️ **Email** — support@olympus.io
 
 When emailing support, include the output of `docker logs olympus-setup` so we can see what happened.
