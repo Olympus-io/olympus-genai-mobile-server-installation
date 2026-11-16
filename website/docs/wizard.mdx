@@ -22,8 +22,8 @@ Each step below describes what you'll see, what each option means, and any gotch
 **Your options:**
 
 - **Public Network** — internet-facing server. Unlocks **Let's Encrypt** auto-renewing certificates and real DNS validation. Best for production deployments on a cloud VM with a public domain you control.
-- **Private Network** — intranet, VPN, or air-gapped LAN. Use **self-signed** or **custom** certificates; DNS validation can be skipped.
-- **Local Machine** — laptop, dev box, single-user install. Auto-fills the domain as `olympus.local` and walks you through `/etc/hosts` setup. Skips DNS entirely.
+- **Private Network** — intranet, VPN, or air-gapped LAN: other computers and phones use Olympus. Also the right choice for a **small box set up as a server** (Jetson, NUC, mini PC). Use **self-signed** (default) or **custom** certificates; DNS validation can be skipped.
+- **Local Machine** — this computer only (laptop, dev box). Auto-fills the domain as `olympus.internal` and walks you through the hosts-file line. Nothing else on your network can open it.
 
 :::info Heads up
 You can't switch deployment type later without redeploying. Public Network requires a real domain you actually control and the ability to point its DNS at this machine.
@@ -35,14 +35,17 @@ You can't switch deployment type later without redeploying. Public Network requi
 
 **What you do:** Enter the primary domain Olympus will be reachable at (e.g. `files.acme.com`). All subdomains the platform needs — `api.`, `admin.`, `mail.`, etc. — derive from this single value.
 
-For **Local Machine**, you can type a short base name like `olympus` and the wizard turns it into `olympus.local`. You'll see the exact `/etc/hosts` lines you need to paste.
+For **Local Machine**, you can type a short base name like `olympus` and the wizard turns it into `olympus.internal`. You'll see the exact hosts-file line to add, with a one-line command for Linux, Mac and Windows.
+
+For **Private Network** the wizard suggests `olympus.internal` too, and detects **this server's network address**. Every DNS record and hosts-file line it shows uses that address. `.internal` is reserved for private networks, so it never clashes with a real website, and routers and Pi-hole resolve it normally. Phones and tablets can't use a hosts file: add the names to your router's local DNS or Pi-hole.
 
 For **Public** / **Private Network**, the wizard validates that DNS records for your domain (and key subdomains) resolve to this server's IP. There's a **Skip DNS check** escape hatch for private networks where the DNS is internal-only.
 
 **Your options:**
 
 - Primary domain (required)
-- Domain mode toggle (for Local Machine: short name → `.local` vs. custom full domain)
+- Domain mode toggle (for Local Machine: short name → `.internal` vs. custom full domain)
+- This server's network address (Private Network; detected, editable)
 - DNS validation pass/skip
 
 :::caution DNS must propagate
@@ -58,7 +61,7 @@ Even after you create the right A records at your registrar, propagation can tak
 **Your options:**
 
 - **Let's Encrypt** *(Public Network only)* — free, auto-renewing certificates. The wizard asks for a notification email Let's Encrypt will send expiry warnings to. Requires ports **80** and **443** to be reachable from the internet during issuance.
-- **Self-Signed** *(Private / Local only)* — wizard generates a 3-year RSA-2048 cert with wildcard SANs covering all the platform subdomains. You can download the root cert to install on client devices so browsers don't warn.
+- **Self-Signed** *(Private / Local only)* — Olympus creates its **own certificate authority** and signs the site's certificate with it (renewed automatically). Each device installs **one file once** — `olympus-ca.crt` — from `http://<your-server>/trust`, and every Olympus address is trusted. The wizard's last page checks your browser and walks you through it; see [Post-Install](./post-install#self-signed-installs-trust-olympus-once-on-each-device).
 - **Custom Certificates** — upload your own PEM-encoded private key + certificate chain (leaf + intermediates). The wizard validates the chain, domain match, and expiry (must have ≥1 month remaining).
 
 :::caution Public Network can't use self-signed

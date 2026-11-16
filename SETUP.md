@@ -136,7 +136,7 @@ For production deployments, point the following subdomains to your server's publ
 
 You can verify a record is live with `nslookup mobile.yourdomain.com` (Windows / macOS / Linux all support this command).
 
-> 🏠 Doing a **local-only** install (Local Development or Private Network mode)? You can skip DNS entirely — the wizard will let you choose one of those modes.
+> 🏠 Doing a **Local Machine** or **Private Network** install? You don't need public DNS. The wizard suggests the name `olympus.internal` (a suffix reserved for private networks) and shows the hosts-file line or the router / Pi-hole records to add. Installing on a small server that other devices will use (a Jetson, NUC or mini PC)? Choose **Private Network**.
 
 ### 4. (Optional) NVIDIA GPU for local AI models
 
@@ -430,9 +430,9 @@ Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard
 
 | Step                        | What you do                                                                                      |
 | --------------------------- | ------------------------------------------------------------------------------------------------ |
-| 1. **Deployment Type**      | Choose **Public Network**, **Private Network**, or **Local Machine**                             |
-| 2. **Domain Configuration** | Set your primary domain; verify DNS (public/private) or `/etc/hosts` mappings (local)            |
-| 3. **Security & SSL**       | Pick **Let's Encrypt** (public only), **Self-Signed**, or **Custom** PEM upload                  |
+| 1. **Deployment Type**      | Choose **Public Network**, **Private Network** (a server other devices use), or **Local Machine** (this computer only) |
+| 2. **Domain Configuration** | Set your domain (`olympus.internal` suggested for Local / Private); the server's network address is detected for you |
+| 3. **Security & SSL**       | Pick **Let's Encrypt** (public only), **Self-Signed** (Olympus's own certificate authority), or **Custom** PEM upload |
 | 4. **Account Setup**        | Admin username/email/password + PostgreSQL password (Generate buttons available)                 |
 | 5. **GenAI Settings**       | Optional — wire up Gemini/OpenAI/Claude API keys, and Ollama/Stable Diffusion if you have a GPU  |
 | 6. **License**              | **Olympus Core** (free) or **Enterprise** (paid key or 90-day trial)                             |
@@ -455,7 +455,26 @@ When deployment completes, the wizard automatically redirects you to your runnin
 - 🤖 **MCP server** — https://mcp.yourdomain.com (Streamable HTTP at /mcp)
 - 📊 **Grafana (monitoring)** — `https://grafana.yourdomain.com`
 
-For local-only installs, replace `yourdomain.com` with the host you chose in the wizard (often `localhost` or your server's IP).
+For Local and Private installs, replace `yourdomain.com` with the domain you chose in the wizard (for example `olympus.internal`). The wizard's last page checks that your browser can open Olympus and, if it can't, shows how to fix it.
+
+### 🔐 Self-signed installs: trust Olympus once on each device
+
+A **Local Machine** or **Private Network** install with a self-signed certificate has its **own certificate authority**. Each computer, phone or tablet that opens Olympus installs **one file once** — `olympus-ca.crt` — and every Olympus address (`mobile`, `mobile-api`, `mcp`, `grafana`) is trusted from then on, including after the certificate renews.
+
+On each device, open **`http://<your-server>/trust`** (for example `http://192.168.1.20/trust`, or `http://mobile.olympus.internal/trust`). The page recognises the device, shows its steps first, and has a download button:
+
+| Device | What it takes |
+|---|---|
+| **Windows** | One PowerShell line (no administrator needed), or double-click → *Install Certificate* → *Trusted Root Certification Authorities* |
+| **Mac** | One Terminal line, or double-click → Keychain Access → *Always Trust* |
+| **Linux** (Ubuntu, Debian, Fedora, Jetson, Raspberry Pi) | `curl -fsSL http://<your-server>/trust/install-linux.sh \| sudo sh` — covers the system **and** Chrome, Chromium and Firefox |
+| **iPhone / iPad** | Safari → download → Settings → install the profile → **General → About → Certificate Trust Settings → switch it on** |
+| **Android** | Download → Settings → search **CA certificate** → install the file |
+| **Chromebook** | Settings → Security → Manage certificates → Authorities → Import |
+
+The certificate can only vouch for addresses ending in your Olympus domain, so it cannot affect any other website. The page shows its fingerprint so you can compare it with the one the wizard showed.
+
+> 📱 **Phones and tablets can't use a hosts file.** For them to find `mobile.<your-domain>`, add the Olympus names to your router's local DNS or to Pi-hole / AdGuard Home, pointing at the server. The wizard's Domain step shows the exact records.
 
 ### Verify all services are healthy
 
@@ -584,6 +603,17 @@ Your server is reachable on the network but the port is blocked by a firewall.
 **Cloud VM (AWS / GCP / Azure):** open inbound TCP 8888 in your VM's security group / network firewall rules.
 
 For production, after install completes you'll only need ports **80** and **443** open, not 8888.
+
+</details>
+
+<details>
+<summary><strong>❌ The app says "Olympus can't reach its server" (or "Unable to fetch Auth Modes")</strong></summary>
+
+The page loaded, but its call to `https://mobile-api.<your-domain>` failed. On a new **Local** or **Private Network** install this is almost always the certificate: accepting the browser warning for `mobile.<your-domain>` does not cover `mobile-api.<your-domain>`, and that call happens in the background where no warning can be shown.
+
+1. **Install the Olympus certificate on this device** from `http://<your-server>/trust` (see *Self-signed installs* above), then restart the browser.
+2. Quick fix for one browser: open `https://mobile-api.<your-domain>` once and accept the warning, then reload the app.
+3. Still failing? Check every name resolves: `ping mobile-api.<your-domain>` should answer from the server. Each name needs its own hosts-file entry or DNS record.
 
 </details>
 

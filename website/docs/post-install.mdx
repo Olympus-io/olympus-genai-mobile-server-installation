@@ -18,7 +18,28 @@ For production (Public Cloud) deployments:
 - 🤖 **MCP server** — https://mcp.yourdomain.com (Streamable HTTP at /mcp). Using it from **Gemini Enterprise**? After each Olympus update, remove the Olympus connector and add it again (Admin → Connected apps): Gemini Enterprise reads the list of Olympus tools only when the connector is added, and reconnecting does not refresh it.
 - 📊 **Grafana (monitoring)** — `https://grafana.yourdomain.com`
 
-For local-only installs, replace `yourdomain.com` with the host you chose in the wizard (often `localhost` or your server's IP).
+For Local and Private installs, replace `yourdomain.com` with the domain you chose in the wizard (for example `olympus.internal`). The wizard's last page checks that your browser can open Olympus and, if it can't, shows how to fix it.
+
+## Self-signed installs: trust Olympus once on each device
+
+A **Local Machine** or **Private Network** install with a self-signed certificate has its **own certificate authority**. Each computer, phone or tablet that opens Olympus installs **one file once** — `olympus-ca.crt` — and every Olympus address (`mobile`, `mobile-api`, `mcp`, `grafana`) is trusted from then on, including after the certificate renews.
+
+On each device, open **`http://<your-server>/trust`** (for example `http://192.168.1.20/trust`, or `http://mobile.olympus.internal/trust`). The page recognises the device, shows its steps first, and has a download button:
+
+| Device | What it takes |
+|---|---|
+| **Windows** | One PowerShell line (no administrator needed), or double-click → *Install Certificate* → *Trusted Root Certification Authorities* |
+| **Mac** | One Terminal line, or double-click → Keychain Access → *Always Trust* |
+| **Linux** (Ubuntu, Debian, Fedora, Jetson, Raspberry Pi) | `curl -fsSL http://<your-server>/trust/install-linux.sh \| sudo sh` — covers the system **and** Chrome, Chromium and Firefox |
+| **iPhone / iPad** | Safari → download → Settings → install the profile → **General → About → Certificate Trust Settings → switch it on** |
+| **Android** | Download → Settings → search **CA certificate** → install the file |
+| **Chromebook** | Settings → Security → Manage certificates → Authorities → Import |
+
+The certificate can only vouch for addresses ending in your Olympus domain, so it cannot affect any other website. The page shows its fingerprint so you can compare it with the one the wizard showed.
+
+:::tip Phones and tablets
+ **Phones and tablets can't use a hosts file.** For them to find `mobile.<your-domain>`, add the Olympus names to your router's local DNS or to Pi-hole / AdGuard Home, pointing at the server. The wizard's Domain step shows the exact records.
+:::
 
 ## Verify all services are healthy
 
