@@ -461,7 +461,7 @@ For Local and Private installs, replace `yourdomain.com` with the domain you cho
 
 A **Local Machine** or **Private Network** install with a self-signed certificate has its **own certificate authority**. Each computer, phone or tablet that opens Olympus installs **one file once** — `olympus-ca.crt` — and every Olympus address (`mobile`, `mobile-api`, `mcp`, `grafana`) is trusted from then on, including after the certificate renews.
 
-On each device, open **`http://<your-server>/trust`** (for example `http://192.168.1.20/trust`, or `http://mobile.olympus.internal/trust`). The page recognises the device, shows its steps first, and has a download button:
+On each device, open **`http://<your-server>/trust`** (for example `http://192.168.1.20/trust`, or `http://mobile.olympus.internal/trust`) — on a phone, just scan the **QR code** on the wizard's last page. The page recognises the device, shows its steps first, and has a download button:
 
 | Device | What it takes |
 |---|---|
