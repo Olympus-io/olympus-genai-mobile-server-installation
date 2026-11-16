@@ -101,10 +101,12 @@ For each provider, the wizard validates the key and shows you the catalog of mod
 
 **Self-hosted providers** (NVIDIA GPU required):
 
-- **Ollama** — local LLMs. Disabled / Self-Hosted (with model pull list) / Remote URL (point at an existing Ollama server)
+- **Ollama** — local LLMs. Disabled / Self-Hosted (with model pull list) / Remote URL (point at an existing Ollama server — for example a GPU machine on your network)
+
+With **Remote URL**, **Test** lists the models on that server and **what each one can do** — chat, vision, tools, embedding — as Ollama itself reports it, so every model is offered for the roles it supports. If the server has **no embedding model**, the wizard says so and offers to download a small one (`qwen3-embedding:0.6b`, about 640 MB) to it, with progress: Olympus needs an embedding model to read and search your files.
 - **Stable Diffusion** — local image generation. Couples with self-hosted Ollama, requires a GPU
 
-**Default model roles** — at the bottom, pick which configured provider+model handles each role: embedding, chat, summary, vision, MCP chat, MCP image.
+**Default model roles** — at the bottom, pick which configured provider+model handles each role: embedding, chat, summary, vision, MCP chat, MCP image. Continuing with AI enabled but **no embedding model** asks for confirmation first, because AI answers and search would not work.
 
 :::info No GPU? Skip the self-hosted section
 Self-hosted Ollama and Stable Diffusion are auto-disabled on hosts without an NVIDIA GPU. Public providers work fine without one. The platform also deploys cleanly with **everything** disabled — you just won't have AI features until you configure them later.

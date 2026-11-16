@@ -434,7 +434,7 @@ Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard
 | 2. **Domain Configuration** | Set your domain (`olympus.internal` suggested for Local / Private); the server's network address is detected for you |
 | 3. **Security & SSL**       | Pick **Let's Encrypt** (public only), **Self-Signed** (Olympus's own certificate authority), or **Custom** PEM upload |
 | 4. **Account Setup**        | Admin username/email/password + PostgreSQL password (Generate buttons available)                 |
-| 5. **GenAI Settings**       | Optional — wire up Gemini/OpenAI/Claude API keys, and Ollama/Stable Diffusion if you have a GPU  |
+| 5. **GenAI Settings**       | Optional — wire up Gemini/OpenAI/Claude API keys, and Ollama (on this GPU host, or a remote Ollama server — the wizard shows what each of its models can do and offers to download an embedding model if it has none) |
 | 6. **License**              | **Olympus Core** (free) or **Enterprise** (paid key or 90-day trial)                             |
 | 7. **Optional Services**    | MailHog (test email) — genuinely optional extras, safe to skip entirely                          |
 | 8. **File Shares**          | Point Olympus at the storage it manages — a real NFS/SMB share, or a self-contained test share   |
