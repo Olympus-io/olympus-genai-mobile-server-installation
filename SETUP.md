@@ -663,8 +663,9 @@ docker ps -aq        --filter label=com.docker.compose.project=app | xargs -r do
 docker volume ls -q  --filter label=com.docker.compose.project=app | xargs -r docker volume rm -f
 docker network ls -q --filter label=com.docker.compose.project=app | xargs -r docker network rm
 
-# Step out of the folder before deleting it
-cd ~ && rm -rf ~/olympus
+# Step out of the folder before deleting it. On Linux the installer writes these
+# files as root, so deleting them needs sudo (harmless on macOS).
+cd ~ && sudo rm -rf ~/olympus
 ```
 
 ```powershell
