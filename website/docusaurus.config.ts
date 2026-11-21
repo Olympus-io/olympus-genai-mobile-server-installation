@@ -95,6 +95,7 @@ const config: Config = {
             { label: 'System Requirements', to: '/docs/system-requirements' },
             { label: 'Run the Installer', to: '/docs/install' },
             { label: 'Troubleshooting', to: '/docs/troubleshooting' },
+            { label: 'Uninstall', to: '/docs/uninstall' },
           ],
         },
         {

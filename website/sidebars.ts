@@ -8,6 +8,7 @@ const sidebars: SidebarsConfig = {
     'wizard',
     'post-install',
     'troubleshooting',
+    'uninstall',
   ],
 };
 

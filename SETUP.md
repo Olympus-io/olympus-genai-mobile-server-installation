@@ -606,9 +606,10 @@ cd ~/olympus/app 2>/dev/null && docker compose -f docker-compose.yml \
       [ -f "$f" ] && echo "-f $f"; done) down -v
 cd ~
 
-# 3. Leftovers: only containers started from ~/olympus/app, and only volumes and
-#    networks with Olympus's own names. Nothing else on this machine matches.
+# 3. Leftovers: only containers started from ~/olympus/app or by the installer, and only
+#    volumes and networks with Olympus's own names. Nothing else on this machine matches.
 docker ps -aq --filter "label=com.docker.compose.project.working_dir=$HOME/olympus/app" | xargs -r docker rm -f
+docker ps -aq --filter label=olympus.setup.helper | xargs -r docker rm -f
 docker volume ls -q --filter label=com.docker.compose.project=app \
   | grep -E '^app_(postgres_data|redis_data|rabbitmq_data|opensearch-data|milvus_v3_data|milvus_data|etcd_data|minio_data|envoy_logs|portainer-data|grafana_data|loki_data|ollama_data|sd_models)$' \
   | xargs -r docker volume rm -f
@@ -635,9 +636,10 @@ if (Test-Path "$env:USERPROFILE\olympus\app") {
   cd $env:USERPROFILE
 }
 
-# 3. Leftovers: only containers started from olympus\app, and only volumes and
-#    networks with Olympus's own names. Nothing else on this machine matches.
+# 3. Leftovers: only containers started from olympus\app or by the installer, and only
+#    volumes and networks with Olympus's own names. Nothing else on this machine matches.
 docker ps -aq --filter label=com.docker.compose.project=app | Where-Object { ((docker inspect $_ --format '{{json .Config.Labels}}' | ConvertFrom-Json).'com.docker.compose.project.working_dir') -match 'olympus[\\/]app$' } | ForEach-Object { docker rm -f $_ }
+docker ps -aq --filter label=olympus.setup.helper | ForEach-Object { docker rm -f $_ }
 docker volume ls -q --filter label=com.docker.compose.project=app | Where-Object { $_ -match '^app_(postgres_data|redis_data|rabbitmq_data|opensearch-data|milvus_v3_data|milvus_data|etcd_data|minio_data|envoy_logs|portainer-data|grafana_data|loki_data|ollama_data|sd_models)$' } | ForEach-Object { docker volume rm -f $_ }
 docker network ls --format '{{.Name}}' --filter label=com.docker.compose.project=app | Where-Object { $_ -match '^app_(gateway-public|mobile-backend|genai-backend|mcp-backend|ai-stack|portainer-agent)$' } | ForEach-Object { docker network rm $_ }
 
@@ -647,9 +649,138 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\olympus\app" -ErrorAction Silently
 
 > **Already deleted the folder by hand?** Run steps 1 and 3 anyway. Olympus's data lives in Docker **volumes**, not in the folder, and a leftover Postgres volume is reused by the next install, which then skips `init.sql` and comes up with no admin account.
 
-Then re-run the Step 2 install command.
+Then re-run the Step 2 install command. To remove Olympus for good instead, see [🧹 Uninstall Olympus completely](#-uninstall-olympus-completely) below.
 
 </details>
+
+---
+
+## 🧹 Uninstall Olympus completely
+
+Steps 1–3 run on the **server**; step 4 runs on each **computer, phone or tablet** that used Olympus. To reinstall instead, step 1 alone is enough ("I want to start over from scratch" in [Troubleshooting](#-troubleshooting)).
+
+> ⚠️ **Step 1 permanently deletes the data Olympus keeps itself:** user accounts, permissions, shares and comments, settings, chat history, the search index and embeddings, the downloaded AI models and the install's certificates. There is no undo.
+>
+> ✅ **Never removed:** files on your file shares (NAS, NFS, SMB), including everything uploaded through Olympus; your other Docker containers, volumes, networks and images; Docker itself and the NVIDIA Container Toolkit.
+
+### 1. Remove Olympus from the server
+
+Run the commands in **"❌ I want to start over from scratch"** in [Troubleshooting](#-troubleshooting) (its steps 1–4), without re-running the install command afterwards.
+
+### 2. Remove the Docker images (roughly 20–25 GB)
+
+Olympus's own images (`olympusmobile/…`, including older versions kept after updates). Nothing else uses them:
+
+```bash
+# Linux / macOS
+docker images --format '{{.Repository}} {{.ID}}' | awk '$1 ~ /^olympusmobile\//{print $2}' | sort -u | xargs -r docker rmi -f
+```
+
+```powershell
+# Windows PowerShell
+docker images --format '{{.Repository}} {{.ID}}' | ForEach-Object { $r, $id = $_ -split ' '; if ($r -like 'olympusmobile/*') { $id } } | Sort-Object -Unique | ForEach-Object { docker rmi -f $_ }
+```
+
+The public images Olympus downloaded. Skip this if other projects on this machine use Postgres, Redis, RabbitMQ, OpenSearch, Grafana or Ollama images. Removing one only means that project downloads it again, and Docker refuses to remove an image that any container still uses:
+
+```bash
+# Linux / macOS
+for i in postgres:16 redis:7-alpine rabbitmq:3.12-management opensearchproject/opensearch:latest \
+         milvusdb/milvus:v3.0.6 envoyproxy/envoy:v1.30.1 certbot/certbot:latest \
+         ollama/ollama:latest ghcr.io/ai-dock/stable-diffusion-webui:latest-cuda mailhog/mailhog:latest \
+         grafana/grafana:latest grafana/loki:latest grafana/promtail:latest prom/prometheus:latest \
+         prom/node-exporter:latest oliver006/redis_exporter:latest prometheuscommunity/postgres-exporter:latest \
+         prometheuscommunity/elasticsearch-exporter:latest dpage/pgadmin4:latest rediscommander/redis-commander:latest; do
+  docker image inspect "$i" >/dev/null 2>&1 && docker rmi "$i"
+done
+```
+
+```powershell
+# Windows PowerShell
+"postgres:16", "redis:7-alpine", "rabbitmq:3.12-management", "opensearchproject/opensearch:latest",
+"milvusdb/milvus:v3.0.6", "envoyproxy/envoy:v1.30.1", "certbot/certbot:latest",
+"ollama/ollama:latest", "ghcr.io/ai-dock/stable-diffusion-webui:latest-cuda", "mailhog/mailhog:latest",
+"grafana/grafana:latest", "grafana/loki:latest", "grafana/promtail:latest", "prom/prometheus:latest",
+"prom/node-exporter:latest", "oliver006/redis_exporter:latest", "prometheuscommunity/postgres-exporter:latest",
+"prometheuscommunity/elasticsearch-exporter:latest", "dpage/pgadmin4:latest", "rediscommander/redis-commander:latest" |
+  ForEach-Object { docker image inspect $_ *> $null; if ($LASTEXITCODE -eq 0) { docker rmi $_ } }
+```
+
+`docker image prune` then removes the untagged copies (`<none>`) that updates leave behind. It applies to every project on this machine, but only to images no container uses.
+
+### 3. Delete the Olympus folder
+
+`~/olympus/data` holds the files of the test shares the wizard can create. Look first, because deleting it cannot be undone:
+
+```bash
+# Linux / macOS
+ls -la ~/olympus ~/olympus/data
+sudo rm -rf ~/olympus
+```
+
+```powershell
+# Windows PowerShell
+Get-ChildItem "$env:USERPROFILE\olympus" -Depth 1
+Remove-Item -Recurse -Force "$env:USERPROFILE\olympus"
+```
+
+Delete any other folder you chose for a test share too. Your real file shares are never in these folders.
+
+### 4. Clean up each device
+
+**The trusted certificate (self-signed installs).** Each device that opened `http://<your-server>/trust` trusts **Olympus Local CA - &lt;your-domain&gt;**. It can only vouch for your Olympus domain, so it is harmless to leave. To remove it:
+
+```powershell
+# Windows PowerShell (no administrator needed; Windows asks you to confirm: choose Yes)
+$domain = "olympus.internal"   # your Olympus domain
+Get-ChildItem Cert:\CurrentUser\Root | Where-Object { $_.Subject -like "*CN=Olympus Local CA - $domain*" } | Remove-Item
+```
+
+```bash
+# Mac (Terminal)
+DOMAIN=olympus.internal        # your Olympus domain
+sudo security delete-certificate -c "Olympus Local CA - $DOMAIN" /Library/Keychains/System.keychain
+```
+
+```bash
+# Linux — run as yourself; it asks for sudo for the system store
+DOMAIN=olympus.internal        # your Olympus domain
+sudo rm -f "/usr/local/share/ca-certificates/olympus-ca-${DOMAIN//./-}.crt" /usr/local/share/ca-certificates/olympus-ca.crt \
+           "/etc/pki/ca-trust/source/anchors/olympus-ca-${DOMAIN//./-}.crt" "/etc/pki/trust/anchors/olympus-ca-${DOMAIN//./-}.crt"
+if command -v update-ca-trust >/dev/null; then sudo update-ca-trust extract; else sudo update-ca-certificates --fresh; fi
+for DB in ~/.pki/nssdb ~/snap/chromium/current/.pki/nssdb ~/.mozilla/firefox/*/ \
+          ~/snap/firefox/common/.mozilla/firefox/*/ ~/.var/app/org.mozilla.firefox/.mozilla/firefox/*/; do
+  if [ -f "${DB%/}/cert9.db" ] && certutil -d "sql:${DB%/}" -D -n "Olympus Local CA - $DOMAIN" 2>/dev/null; then echo "removed from ${DB%/}"; fi
+done
+```
+
+Installed another way: **Windows** `certmgr.msc` → Trusted Root Certification Authorities → Certificates → delete it · **Mac** Keychain Access → search Olympus → delete · **Firefox** Settings → Privacy & Security → View Certificates → Authorities → Olympus → Delete · **iPhone / iPad** Settings → General → VPN & Device Management → the Olympus profile → Remove Profile · **Android** Settings → search *User credentials* → Olympus Local CA → Remove · **Chromebook** Settings → Privacy and security → Security → Manage certificates → Authorities → org-Olympus → Delete.
+
+**The hosts-file line (Local Machine and Private Network installs)**, on each computer where you added it. A copy of the old file is kept next to it:
+
+```bash
+# Linux / macOS
+DOMAIN=olympus.internal        # your Olympus domain
+sudo cp /etc/hosts /etc/hosts.before-olympus && grep -vF " mobile.$DOMAIN" /etc/hosts.before-olympus | sudo tee /etc/hosts >/dev/null
+grep -n "$DOMAIN" /etc/hosts || echo "No Olympus lines left"
+# Mac only: forget the old addresses
+if [ "$(uname)" = Darwin ]; then sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder; fi
+```
+
+```powershell
+# Windows PowerShell — run as administrator
+$domain = "olympus.internal"   # your Olympus domain
+$hosts = "$env:windir\System32\drivers\etc\hosts"
+Copy-Item $hosts "$hosts.before-olympus"
+Get-Content "$hosts.before-olympus" | Where-Object { $_ -notlike "* mobile.$domain*" } | Set-Content $hosts -Encoding ascii
+ipconfig /flushdns
+```
+
+**DNS names.** Delete the `mobile`, `mobile-api`, `mcp` and `grafana` names from your router's local DNS, Pi-hole or AdGuard Home (Private Network), or the four A records at your DNS provider (Public Network).
+
+**Apps connected to Olympus.** Remove the Olympus connector from AI clients connected over MCP; uninstall Olympus if you installed it as an app from the browser; close port 8888 again if you opened it in a firewall (`sudo ufw delete allow 8888/tcp`).
+
+**Check that nothing is left:** `docker ps -a --filter "label=com.docker.compose.project.working_dir=$HOME/olympus/app"` prints only its header line, `docker images | grep olympusmobile` prints nothing, and `ls ~/olympus` reports that the folder does not exist.
 
 ---
 

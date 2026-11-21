@@ -5,6 +5,8 @@ sidebar_position: 6
 description: Common issues and copy-paste fixes for the most likely install problems.
 ---
 
+import RemoveOlympus from './_remove-olympus.mdx';
+
 # Troubleshooting
 
 The most common issues during install, with one-line fixes you can copy and paste. Expand the one that matches your situation.
@@ -185,64 +187,9 @@ That is user accounts, permissions, shares and comments, settings, chat history,
 
 To keep the downloaded AI models, delete `|ollama_data|sd_models` from the volume line before running it. On a self-signed install, each device trusts the new install's certificate once more after the reinstall (the `/trust` page).
 
-Run the block for your OS **in order**.
+<RemoveOlympus />
 
-```bash
-# Linux / macOS
-# 1. The installer: a standalone container attached to an Olympus network, so it goes first
-docker rm -f olympus-setup 2>/dev/null
-
-# 2. Olympus itself, brought down with the same compose files the installer used
-cd ~/olympus/app 2>/dev/null && docker compose -f docker-compose.yml \
-  $(for f in compose/docker-compose.optional.yml compose/docker-compose.ai-stack.yml \
-             compose/docker-compose.enterprise.yml compose/docker-compose.monitoring.yml; do
-      [ -f "$f" ] && echo "-f $f"; done) down -v
-cd ~
-
-# 3. Leftovers: only containers started from ~/olympus/app, and only volumes and
-#    networks with Olympus's own names. Nothing else on this machine matches.
-docker ps -aq --filter "label=com.docker.compose.project.working_dir=$HOME/olympus/app" | xargs -r docker rm -f
-docker volume ls -q --filter label=com.docker.compose.project=app \
-  | grep -E '^app_(postgres_data|redis_data|rabbitmq_data|opensearch-data|milvus_v3_data|milvus_data|etcd_data|minio_data|envoy_logs|portainer-data|grafana_data|loki_data|ollama_data|sd_models)$' \
-  | xargs -r docker volume rm -f
-docker network ls --format '{{.Name}}' --filter label=com.docker.compose.project=app \
-  | grep -E '^app_(gateway-public|mobile-backend|genai-backend|mcp-backend|ai-stack|portainer-agent)$' \
-  | xargs -r docker network rm
-
-# 4. The configuration the installer generated. On Linux it is written as root, so this
-#    needs sudo (harmless on macOS). ~/olympus/data and test-share folders are NOT deleted.
-sudo rm -rf ~/olympus/app
-```
-
-```powershell
-# Windows PowerShell
-# 1. The installer: a standalone container attached to an Olympus network, so it goes first
-docker rm -f olympus-setup 2>$null
-
-# 2. Olympus itself, brought down with the same compose files the installer used
-if (Test-Path "$env:USERPROFILE\olympus\app") {
-  cd "$env:USERPROFILE\olympus\app"
-  $files = @("-f", "docker-compose.yml")
-  foreach ($f in "compose/docker-compose.optional.yml", "compose/docker-compose.ai-stack.yml", "compose/docker-compose.enterprise.yml", "compose/docker-compose.monitoring.yml") { if (Test-Path $f) { $files += @("-f", $f) } }
-  docker compose @files down -v
-  cd $env:USERPROFILE
-}
-
-# 3. Leftovers: only containers started from olympus\app, and only volumes and
-#    networks with Olympus's own names. Nothing else on this machine matches.
-docker ps -aq --filter label=com.docker.compose.project=app | Where-Object { ((docker inspect $_ --format '{{json .Config.Labels}}' | ConvertFrom-Json).'com.docker.compose.project.working_dir') -match 'olympus[\\/]app$' } | ForEach-Object { docker rm -f $_ }
-docker volume ls -q --filter label=com.docker.compose.project=app | Where-Object { $_ -match '^app_(postgres_data|redis_data|rabbitmq_data|opensearch-data|milvus_v3_data|milvus_data|etcd_data|minio_data|envoy_logs|portainer-data|grafana_data|loki_data|ollama_data|sd_models)$' } | ForEach-Object { docker volume rm -f $_ }
-docker network ls --format '{{.Name}}' --filter label=com.docker.compose.project=app | Where-Object { $_ -match '^app_(gateway-public|mobile-backend|genai-backend|mcp-backend|ai-stack|portainer-agent)$' } | ForEach-Object { docker network rm $_ }
-
-# 4. The configuration the installer generated. olympus\data and test-share folders are NOT deleted.
-Remove-Item -Recurse -Force "$env:USERPROFILE\olympus\app" -ErrorAction SilentlyContinue
-```
-
-:::caution Already deleted the folder by hand?
-Run steps 1 and 3 anyway. Olympus's data lives in Docker **volumes**, not in the folder, and a leftover Postgres volume is reused by the next install, which then skips `init.sql` and comes up with no admin account.
-:::
-
-Then re-run the [Install](./install) command.
+Then re-run the [Install](./install) command. To remove Olympus for good instead — images, folders and the certificate on each device too — see [Uninstall](./uninstall).
 
 </details>
 
