@@ -239,7 +239,7 @@ if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Write-Host "�
 
 ### Step 2: Install Olympus
 
-Pick the section for your OS, then copy the command into your terminal. **If Step 1 confirmed GPU access**, use the "With GPU" variant; otherwise use "Without GPU". On **Linux** (NVIDIA Jetson included) the plain "Without GPU" command also finds the GPU: the installer test-runs a container on it once Docker can use it.
+Pick the section for your OS, then copy the command into your terminal. **If Step 1 confirmed GPU access**, use the "With GPU" variant; otherwise use "Without GPU". On **Linux** (NVIDIA Jetson included) and **Windows** (Docker Desktop) the plain "Without GPU" command also finds the GPU: the installer test-runs a container on it once Docker can use it. Docker Desktop on macOS has no NVIDIA GPU support.
 
 #### 🐧 Linux / 🍎 macOS
 
