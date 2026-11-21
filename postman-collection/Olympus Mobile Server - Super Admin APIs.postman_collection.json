@@ -3660,6 +3660,75 @@
        ]
       }
      ]
+    },
+    {
+     "name": "HTML Hosting",
+     "item": [
+      {
+       "name": "GET /api/v1/app-settings/html-hosting/get-settings",
+       "request": {
+        "method": "GET",
+        "header": [
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         }
+        ],
+        "url": {
+         "raw": "{{baseUrl}}/api/v1/app-settings/html-hosting/get-settings",
+         "host": [
+          "{{baseUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "app-settings",
+          "html-hosting",
+          "get-settings"
+         ]
+        },
+        "description": "Returns `data.allowAllUsers` (false when never set)."
+       },
+       "response": []
+      },
+      {
+       "name": "PATCH /api/v1/app-settings/html-hosting/update-settings",
+       "request": {
+        "method": "PATCH",
+        "header": [
+         {
+          "key": "Content-Type",
+          "value": "application/json"
+         }
+        ],
+        "url": {
+         "raw": "{{baseUrl}}/api/v1/app-settings/html-hosting/update-settings",
+         "host": [
+          "{{baseUrl}}"
+         ],
+         "path": [
+          "api",
+          "v1",
+          "app-settings",
+          "html-hosting",
+          "update-settings"
+         ]
+        },
+        "description": "Body: `allowAllUsers` (required, boolean). Returns `data.allowAllUsers`. Audited as HTML_HOSTING_SETTINGS_UPDATED.",
+        "body": {
+         "mode": "raw",
+         "raw": "{\n  \"allowAllUsers\": true\n}",
+         "options": {
+          "raw": {
+           "language": "json"
+          }
+         }
+        }
+       },
+       "response": []
+      }
+     ],
+     "description": "HTML hosting for every user except guest accounts (FE-30, Community). The per-user switch is 02 · User Management → toggle-file-hosting."
     }
    ]
   },
