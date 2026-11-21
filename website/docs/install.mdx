@@ -13,7 +13,7 @@ import TabItem from '@theme/TabItem';
 Two questions, then one Docker command:
 
 1. **What OS are you on?** — pick the OS tab inside each code block. Your choice is remembered across the page.
-2. **Do you have an NVIDIA GPU?** — pick **Without GPU** if you're unsure or plan to use cloud AI providers (OpenAI / Anthropic / Gemini). Pick **With NVIDIA GPU** only if you want local AI models (Ollama, Stable Diffusion) running on your own hardware.
+2. **Do you have an NVIDIA GPU?** — pick **Without GPU** if you're unsure or plan to use cloud AI providers (OpenAI / Anthropic / Gemini). Pick **With NVIDIA GPU** only if you want local AI models (Ollama, Stable Diffusion) running on your own hardware. On an **NVIDIA Jetson** (JetPack 6) pick **Without GPU**: JetPack already gives Docker the GPU, and the installer finds it by itself.
 
 ---
 
@@ -74,6 +74,8 @@ The pre-flight check uses PowerShell — switch to the PowerShell tab for this s
 
 :::info You picked the no-GPU path
 The platform works fully without a GPU — use cloud AI providers (OpenAI, Anthropic, Gemini) for chat/embeddings/vision. You can always switch to a GPU later by re-running with the **With NVIDIA GPU** path.
+
+If Docker on this machine can already use an NVIDIA GPU (a Jetson with JetPack 6, or a PC after the GPU tab's step 2a), the installer finds it anyway — it test-runs a container on the GPU. On a Jetson it runs Ollama on the GPU and suggests small models, since the GPU shares the board's memory with Olympus. Stable Diffusion is not available on ARM boards.
 :::
 
 ### Run the installer

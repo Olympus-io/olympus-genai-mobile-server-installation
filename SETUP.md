@@ -195,6 +195,8 @@ if (Get-NetTCPConnection -LocalPort 8888 -ErrorAction SilentlyContinue) { Write-
 ### Step 1: GPU Setup (skip if no GPU)
 
 > ✅ **No NVIDIA GPU?** Skip straight to [Step 2](#step-2-install-olympus). The platform works fully without a GPU.
+>
+> 🟩 **NVIDIA Jetson (JetPack 6)?** Skip this step too: JetPack already sets Docker up for the GPU. The installer detects the Jetson, runs Ollama on its GPU, and suggests small models (the GPU shares the board's memory with Olympus). Stable Diffusion is not available on ARM boards.
 
 If your machine has an NVIDIA GPU and you want local AI models (Ollama, Stable Diffusion), run the **one-liner** for your OS. It detects the GPU, installs the NVIDIA Container Toolkit if missing, and verifies Docker can actually use the GPU.
 
@@ -237,7 +239,7 @@ if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Write-Host "�
 
 ### Step 2: Install Olympus
 
-Pick the section for your OS, then copy the command into your terminal. **If Step 1 confirmed GPU access**, use the "With GPU" variant; otherwise use "Without GPU".
+Pick the section for your OS, then copy the command into your terminal. "Without GPU" works on **every** machine: the installer finds an NVIDIA GPU by itself once Docker can use it (Step 1, or JetPack on a Jetson) — it test-runs a container on the GPU. The "With GPU" variant still works too.
 
 #### 🐧 Linux / 🍎 macOS
 
