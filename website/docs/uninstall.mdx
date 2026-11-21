@@ -13,8 +13,8 @@ This page removes Olympus completely. Steps 1–3 run on the **server**; step 4 
 
 | Step | Where | What it removes | When |
 |---|---|---|---|
-| [1. Remove Olympus](#1-remove-olympus-from-the-server) | Server | Olympus's containers, its data and the configuration the installer generated | Always |
-| [2. Remove the Docker images](#2-remove-the-docker-images) | Server | The downloaded images — roughly 20–25 GB, more after several updates | To free the disk space |
+| [1. Remove Olympus](#1-remove-olympus-from-the-server) | Server | The installer (the `olympus-setup` container, which holds port 8888), Olympus's containers, its data and the configuration the installer generated | Always |
+| [2. Remove the Docker images](#2-remove-the-docker-images) | Server | The downloaded images, the installer's `olympusmobile/olympus-master-setup` included — roughly 20–25 GB | To free the disk space |
 | [3. Delete the Olympus folder](#3-delete-the-olympus-folder) | Server | `~/olympus`, including the test shares' files | If you used test shares, or want the folder gone |
 | [4. Clean up each device](#4-clean-up-each-device) | Each device | The trusted certificate, hosts-file lines, DNS names, connected apps | Self-signed, Local Machine and Private Network installs; MCP clients |
 
@@ -177,15 +177,24 @@ ipconfig /flushdns
 ```bash
 # Linux / macOS
 docker ps -a --filter "label=com.docker.compose.project.working_dir=$HOME/olympus/app"
+docker ps -a --filter publish=8888
 docker images | grep olympusmobile
 ls ~/olympus
+# Is anything still listening on the installer's port?
+sudo ss -ltnp 'sport = :8888'                 # Linux
+lsof -nP -iTCP:8888 -sTCP:LISTEN              # macOS
 ```
 
 ```powershell
 # Windows PowerShell
 docker ps -a --filter label=com.docker.compose.project=app
+docker ps -a --filter publish=8888
 docker images | Select-String olympusmobile
 Test-Path "$env:USERPROFILE\olympus"
+# Is anything still listening on the installer's port?
+Get-NetTCPConnection -LocalPort 8888 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Get-Process -Id $_.OwningProcess }
 ```
 
-Olympus is gone when the first command prints only its header line, the second prints nothing, and the third reports that `~/olympus` does not exist (`False` on Windows). On Windows, the first command also lists containers of any other Compose project of yours that is named `app`.
+Olympus is gone when both `docker ps` commands print only their header line, `docker images` prints nothing, `~/olympus` does not exist (`False` on Windows), and nothing listens on port 8888. On Windows, the first command also lists containers of any other Compose project of yours that is named `app`.
+
+**Port 8888 still in use, but no container listed?** Docker's own port forwarder still holds it: `docker-proxy` on Linux, `com.docker.backend` or `wslrelay` with Docker Desktop. Restart Docker to release it — `sudo systemctl restart docker` on Linux, or quit and reopen Docker Desktop. This restarts every container on the machine. Any other program listed there is not part of Olympus.

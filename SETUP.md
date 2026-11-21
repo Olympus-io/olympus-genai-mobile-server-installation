@@ -596,8 +596,12 @@ Run the block for your OS **in order**.
 
 ```bash
 # Linux / macOS
-# 1. The installer: a standalone container attached to an Olympus network, so it goes first
+# 1. The installer: a standalone container attached to an Olympus network, so it goes first.
+#    By its name, then any other container made from the installer's image (another name or
+#    tag) -- left running, one of those keeps port 8888 busy.
 docker rm -f olympus-setup 2>/dev/null
+docker ps -aq | xargs -r docker inspect -f '{{.Id}} {{.Config.Image}}' \
+  | awk '$2 ~ /^olympusmobile\/olympus-master-setup([:@]|$)/ {print $1}' | xargs -r docker rm -f
 
 # 2. Olympus itself, brought down with the same compose files the installer used
 cd ~/olympus/app 2>/dev/null && docker compose -f docker-compose.yml \
@@ -624,8 +628,11 @@ sudo rm -rf ~/olympus/app
 
 ```powershell
 # Windows PowerShell
-# 1. The installer: a standalone container attached to an Olympus network, so it goes first
+# 1. The installer: a standalone container attached to an Olympus network, so it goes first.
+#    By its name, then any other container made from the installer's image (another name or
+#    tag) -- left running, one of those keeps port 8888 busy.
 docker rm -f olympus-setup 2>$null
+docker ps -aq | ForEach-Object { if ((docker inspect -f '{{.Config.Image}}' $_) -match '^olympusmobile/olympus-master-setup([:@]|$)') { docker rm -f $_ } }
 
 # 2. Olympus itself, brought down with the same compose files the installer used
 if (Test-Path "$env:USERPROFILE\olympus\app") {
@@ -657,7 +664,7 @@ Then re-run the Step 2 install command. To remove Olympus for good instead, see 
 
 ## 🧹 Uninstall Olympus completely
 
-Steps 1–3 run on the **server**; step 4 runs on each **computer, phone or tablet** that used Olympus. To reinstall instead, step 1 alone is enough ("I want to start over from scratch" in [Troubleshooting](#-troubleshooting)).
+Steps 1–3 run on the **server**; step 4 runs on each **computer, phone or tablet** that used Olympus. The installer goes too: its `olympus-setup` container (which holds port 8888) in step 1, its image in step 2. To reinstall instead, step 1 alone is enough ("I want to start over from scratch" in [Troubleshooting](#-troubleshooting)).
 
 > ⚠️ **Step 1 permanently deletes the data Olympus keeps itself:** user accounts, permissions, shares and comments, settings, chat history, the search index and embeddings, the downloaded AI models and the install's certificates. There is no undo.
 >
@@ -780,7 +787,9 @@ ipconfig /flushdns
 
 **Apps connected to Olympus.** Remove the Olympus connector from AI clients connected over MCP; uninstall Olympus if you installed it as an app from the browser; close port 8888 again if you opened it in a firewall (`sudo ufw delete allow 8888/tcp`).
 
-**Check that nothing is left:** `docker ps -a --filter "label=com.docker.compose.project.working_dir=$HOME/olympus/app"` prints only its header line, `docker images | grep olympusmobile` prints nothing, and `ls ~/olympus` reports that the folder does not exist.
+**Check that nothing is left:** `docker ps -a --filter "label=com.docker.compose.project.working_dir=$HOME/olympus/app"` and `docker ps -a --filter publish=8888` print only their header line, `docker images | grep olympusmobile` prints nothing, `ls ~/olympus` reports that the folder does not exist, and nothing listens on port 8888 (`sudo ss -ltnp 'sport = :8888'` on Linux, `lsof -nP -iTCP:8888 -sTCP:LISTEN` on macOS, `Get-NetTCPConnection -LocalPort 8888 -State Listen` on Windows).
+
+**Port 8888 still in use, but no container listed?** Docker's own port forwarder still holds it (`docker-proxy` on Linux, `com.docker.backend` or `wslrelay` with Docker Desktop). Restart Docker to release it — `sudo systemctl restart docker`, or quit and reopen Docker Desktop; this restarts every container on the machine. Any other program listed there is not part of Olympus.
 
 ---
 

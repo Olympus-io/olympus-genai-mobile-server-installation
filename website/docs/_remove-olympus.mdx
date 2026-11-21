@@ -5,8 +5,12 @@ Run the block for your OS **in order**.
 
 ```bash
 # Linux / macOS
-# 1. The installer: a standalone container attached to an Olympus network, so it goes first
+# 1. The installer: a standalone container attached to an Olympus network, so it goes first.
+#    By its name, then any other container made from the installer's image (another name or
+#    tag) -- left running, one of those keeps port 8888 busy.
 docker rm -f olympus-setup 2>/dev/null
+docker ps -aq | xargs -r docker inspect -f '{{.Id}} {{.Config.Image}}' \
+  | awk '$2 ~ /^olympusmobile\/olympus-master-setup([:@]|$)/ {print $1}' | xargs -r docker rm -f
 
 # 2. Olympus itself, brought down with the same compose files the installer used
 cd ~/olympus/app 2>/dev/null && docker compose -f docker-compose.yml \
@@ -33,8 +37,11 @@ sudo rm -rf ~/olympus/app
 
 ```powershell
 # Windows PowerShell
-# 1. The installer: a standalone container attached to an Olympus network, so it goes first
+# 1. The installer: a standalone container attached to an Olympus network, so it goes first.
+#    By its name, then any other container made from the installer's image (another name or
+#    tag) -- left running, one of those keeps port 8888 busy.
 docker rm -f olympus-setup 2>$null
+docker ps -aq | ForEach-Object { if ((docker inspect -f '{{.Config.Image}}' $_) -match '^olympusmobile/olympus-master-setup([:@]|$)') { docker rm -f $_ } }
 
 # 2. Olympus itself, brought down with the same compose files the installer used
 if (Test-Path "$env:USERPROFILE\olympus\app") {
