@@ -75,7 +75,7 @@ done
   ForEach-Object { docker image inspect $_ *> $null; if ($LASTEXITCODE -eq 0) { docker rmi $_ } }
 ```
 
-Updates leave older, untagged copies behind (they show as `<none>` in `docker images`). `docker image prune` removes every untagged image that no container uses, from any project on this machine. No container can be started from one by name.
+Older, untagged copies (they show as `<none>` in `docker images`) are what updates replace. Since November 2026 each update removes them itself once it finishes cleanly; an install updated before then may still hold many. `docker image prune` removes every untagged image that no container uses, from any project on this machine. No container can be started from one by name.
 
 ## 3. Delete the Olympus folder
 
