@@ -710,7 +710,7 @@ done
 
 ### 3. Delete the Olympus folder
 
-`~/olympus/data` holds the files of the test shares the wizard can create. Look first, because deleting it cannot be undone:
+After step 1, `~/olympus` holds `data` (a folder the installer was given) and any test-share folder you created inside it, such as `~/olympus/testshare` — the files of your test shares. Look first, because deleting it cannot be undone:
 
 ```bash
 # Linux / macOS
@@ -724,7 +724,7 @@ Get-ChildItem "$env:USERPROFILE\olympus" -Depth 1
 Remove-Item -Recurse -Force "$env:USERPROFILE\olympus"
 ```
 
-Delete any other folder you chose for a test share too. Your real file shares are never in these folders.
+If you chose a test-share folder outside `~/olympus`, delete that folder too. Your real file shares are never in these folders.
 
 ### 4. Clean up each device
 

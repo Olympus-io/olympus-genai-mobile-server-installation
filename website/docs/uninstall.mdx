@@ -79,7 +79,7 @@ Updates leave older, untagged copies behind (they show as `<none>` in `docker im
 
 ## 3. Delete the Olympus folder
 
-After step 1 only `~/olympus` is left: `~/olympus/data` holds the files of the test shares the wizard can create. Look at it first, because deleting it cannot be undone:
+After step 1, `~/olympus` holds `data` (a folder the installer was given) and any test-share folder you created inside it, such as `~/olympus/testshare` — the files of your test shares. Look first, because deleting it cannot be undone:
 
 ```bash
 # Linux / macOS (files in it can belong to root, so this uses sudo)
@@ -93,7 +93,7 @@ Get-ChildItem "$env:USERPROFILE\olympus" -Depth 1
 Remove-Item -Recurse -Force "$env:USERPROFILE\olympus"
 ```
 
-If you chose a different folder for a test share in the File Shares step, delete that folder too. Your real file shares are never in these folders: Olympus mounts them inside its containers.
+If you chose a test-share folder outside `~/olympus` in the File Shares step, delete that folder too. Your real file shares are never in these folders: Olympus mounts them inside its containers.
 
 ## 4. Clean up each device
 
