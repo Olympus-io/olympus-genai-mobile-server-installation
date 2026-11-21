@@ -239,7 +239,7 @@ if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Write-Host "�
 
 ### Step 2: Install Olympus
 
-Pick the section for your OS, then copy the command into your terminal. "Without GPU" works on **every** machine: the installer finds an NVIDIA GPU by itself once Docker can use it (Step 1, or JetPack on a Jetson) — it test-runs a container on the GPU. The "With GPU" variant still works too.
+Pick the section for your OS, then copy the command into your terminal. **If Step 1 confirmed GPU access**, use the "With GPU" variant; otherwise use "Without GPU". On **Linux** (NVIDIA Jetson included) the plain "Without GPU" command also finds the GPU: the installer test-runs a container on it once Docker can use it.
 
 #### 🐧 Linux / 🍎 macOS
 
@@ -546,7 +546,7 @@ cd "$env:USERPROFILE\olympus\app"; docker compose up -d
 
 This frees the port and gives you a clean slate. The full procedure is **"❌ I want to start over from scratch"** further down in [Troubleshooting](#-troubleshooting) — it is kept in one place so the commands cannot drift.
 
-⚠️ It permanently deletes all Olympus data. Docker images are kept, so the reinstall is fast.
+⚠️ It permanently deletes the data Olympus keeps itself (accounts, settings, search index, AI models). It removes only what the Olympus installer created: your files on the file shares, your test-share folders and everything else on this machine are left alone. Docker images are kept, so the reinstall is fast.
 
 ---
 
@@ -645,50 +645,71 @@ docker logs olympus-setup > olympus-setup.log 2>&1
 <details>
 <summary><strong>❌ I want to start over from scratch</strong></summary>
 
-> ⚠️ **This permanently deletes all your Olympus data** — uploaded files, user accounts, chat history and embeddings. There is no undo. Docker **images** are kept, so the reinstall is fast.
+> ⚠️ **Warning: this permanently deletes your Olympus installation and the data Olympus keeps itself.** That is user accounts, permissions, shares and comments, settings, chat history, the search index and embeddings, the downloaded AI models (often 5–30 GB) and the install's certificates. There is no undo.
 >
-> 🧠 It also removes your downloaded AI models (`app_ollama_data`, `app_sd_models`), often 5–30 GB. To keep those, add `| grep -vE "ollama_data|sd_models"` before `xargs` on the volume line (PowerShell: `| Where-Object { $_ -notmatch "ollama_data|sd_models" }`).
+> ✅ **It removes only what the Olympus installer created. Nothing else is touched:**
+> - **Your files are safe.** Files on your file shares (NAS, NFS, SMB), including everything uploaded through Olympus (uploads are stored on those shares), stay exactly where they are. Olympus mounts the shares inside its own containers, so removing the containers only disconnects them; nothing is deleted from a mount.
+> - **Test shares are kept.** `~/olympus/data` and any test-share folder you chose stay on disk. Delete them yourself if you no longer need them.
+> - **Nothing else in Docker.** Only containers started from `~/olympus/app`, and volumes and networks with Olympus's own names, are removed. Your other containers, volumes and networks (even a container of your own called `ollama`) and all Docker images stay, so the reinstall is fast.
+>
+> 🧠 To keep the downloaded AI models, delete `|ollama_data|sd_models` from the volume line before running it.
+>
+> 🔐 On a self-signed install, each device trusts the new install's certificate once more after the reinstall (the `/trust` page).
 
-Run the block for your OS **in order** — the installer must go before the networks, and you must leave the folder before deleting it.
+Run the block for your OS **in order**.
 
 ```bash
 # Linux / macOS
-cd ~/olympus/app 2>/dev/null && docker compose down -v --remove-orphans
+# 1. The installer: a standalone container attached to an Olympus network, so it goes first
+docker rm -f olympus-setup 2>/dev/null
 
-# The installer is a standalone container, so the label sweep below does NOT match
-# it — and it stays attached to app_gateway-public, which blocks removing that
-# network. It has to go first.
-docker rm -f olympus-setup ollama sd-webui 2>/dev/null
+# 2. Olympus itself, brought down with the same compose files the installer used
+cd ~/olympus/app 2>/dev/null && docker compose -f docker-compose.yml \
+  $(for f in compose/docker-compose.optional.yml compose/docker-compose.ai-stack.yml \
+             compose/docker-compose.enterprise.yml compose/docker-compose.monitoring.yml; do
+      [ -f "$f" ] && echo "-f $f"; done) down -v
+cd ~
 
-# Sweep anything left over — scoped to Olympus, nothing else on your machine
-docker ps -aq        --filter label=com.docker.compose.project=app | xargs -r docker rm -f
-docker volume ls -q  --filter label=com.docker.compose.project=app | xargs -r docker volume rm -f
-docker network ls -q --filter label=com.docker.compose.project=app | xargs -r docker network rm
+# 3. Leftovers: only containers started from ~/olympus/app, and only volumes and
+#    networks with Olympus's own names. Nothing else on this machine matches.
+docker ps -aq --filter "label=com.docker.compose.project.working_dir=$HOME/olympus/app" | xargs -r docker rm -f
+docker volume ls -q --filter label=com.docker.compose.project=app \
+  | grep -E '^app_(postgres_data|redis_data|rabbitmq_data|opensearch-data|milvus_v3_data|milvus_data|etcd_data|minio_data|envoy_logs|portainer-data|grafana_data|loki_data|ollama_data|sd_models)$' \
+  | xargs -r docker volume rm -f
+docker network ls --format '{{.Name}}' --filter label=com.docker.compose.project=app \
+  | grep -E '^app_(gateway-public|mobile-backend|genai-backend|mcp-backend|ai-stack|portainer-agent)$' \
+  | xargs -r docker network rm
 
-# Step out of the folder before deleting it. On Linux the installer writes these
-# files as root, so deleting them needs sudo (harmless on macOS).
-cd ~ && sudo rm -rf ~/olympus
+# 4. The configuration the installer generated. On Linux it is written as root, so this
+#    needs sudo (harmless on macOS). ~/olympus/data and test-share folders are NOT deleted.
+sudo rm -rf ~/olympus/app
 ```
 
 ```powershell
 # Windows PowerShell
-cd "$env:USERPROFILE\olympus\app"; docker compose down -v --remove-orphans
+# 1. The installer: a standalone container attached to an Olympus network, so it goes first
+docker rm -f olympus-setup 2>$null
 
-# The installer is a standalone container, so the label sweep below does NOT match
-# it — and it stays attached to app_gateway-public, which blocks removing that
-# network. It has to go first.
-docker rm -f olympus-setup ollama sd-webui 2>$null
+# 2. Olympus itself, brought down with the same compose files the installer used
+if (Test-Path "$env:USERPROFILE\olympus\app") {
+  cd "$env:USERPROFILE\olympus\app"
+  $files = @("-f", "docker-compose.yml")
+  foreach ($f in "compose/docker-compose.optional.yml", "compose/docker-compose.ai-stack.yml", "compose/docker-compose.enterprise.yml", "compose/docker-compose.monitoring.yml") { if (Test-Path $f) { $files += @("-f", $f) } }
+  docker compose @files down -v
+  cd $env:USERPROFILE
+}
 
-docker ps -aq        --filter label=com.docker.compose.project=app | ForEach-Object { docker rm -f $_ }
-docker volume ls -q  --filter label=com.docker.compose.project=app | ForEach-Object { docker volume rm -f $_ }
-docker network ls -q --filter label=com.docker.compose.project=app | ForEach-Object { docker network rm $_ }
+# 3. Leftovers: only containers started from olympus\app, and only volumes and
+#    networks with Olympus's own names. Nothing else on this machine matches.
+docker ps -aq --filter label=com.docker.compose.project=app | Where-Object { ((docker inspect $_ --format '{{json .Config.Labels}}' | ConvertFrom-Json).'com.docker.compose.project.working_dir') -match 'olympus[\\/]app$' } | ForEach-Object { docker rm -f $_ }
+docker volume ls -q --filter label=com.docker.compose.project=app | Where-Object { $_ -match '^app_(postgres_data|redis_data|rabbitmq_data|opensearch-data|milvus_v3_data|milvus_data|etcd_data|minio_data|envoy_logs|portainer-data|grafana_data|loki_data|ollama_data|sd_models)$' } | ForEach-Object { docker volume rm -f $_ }
+docker network ls --format '{{.Name}}' --filter label=com.docker.compose.project=app | Where-Object { $_ -match '^app_(gateway-public|mobile-backend|genai-backend|mcp-backend|ai-stack|portainer-agent)$' } | ForEach-Object { docker network rm $_ }
 
-# Windows will not delete a folder your shell is sitting in — leave it first
-cd $env:USERPROFILE
-Remove-Item -Recurse -Force "$env:USERPROFILE\olympus"
+# 4. The configuration the installer generated. olympus\data and test-share folders are NOT deleted.
+Remove-Item -Recurse -Force "$env:USERPROFILE\olympus\app" -ErrorAction SilentlyContinue
 ```
 
-> **Deleting the folder alone is not enough.** The data lives in Docker **volumes**, not in `~/olympus`. Removing only the folder leaves all 11 volumes behind — and because the Compose project keeps the same name, the next install **reuses the old Postgres volume**, skips `init.sql`, and comes up with no admin account. Always run the volume sweep above.
+> **Already deleted the folder by hand?** Run steps 1 and 3 anyway. Olympus's data lives in Docker **volumes**, not in the folder, and a leftover Postgres volume is reused by the next install, which then skips `init.sql` and comes up with no admin account.
 
 Then re-run the Step 2 install command.
 
