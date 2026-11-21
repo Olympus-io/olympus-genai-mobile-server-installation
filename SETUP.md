@@ -192,16 +192,19 @@ if (Get-NetTCPConnection -LocalPort 8888 -ErrorAction SilentlyContinue) { Write-
 
 ## 🚀 Install
 
-### Step 1: GPU Setup (skip if no GPU)
+### Step 1: Let Docker use your NVIDIA GPU (skip if no GPU)
 
-> ✅ **No NVIDIA GPU?** Skip straight to [Step 2](#step-2-install-olympus). The platform works fully without a GPU.
->
-> 🟩 **NVIDIA Jetson (JetPack 6)?** Skip this step too: JetPack already sets Docker up for the GPU. The installer detects the Jetson, runs Ollama on its GPU, and suggests small models (the GPU shares the board's memory with Olympus). Stable Diffusion is not available on ARM boards.
+> ✅ **No NVIDIA GPU?** Skip straight to [Step 2](#step-2-install-olympus). The platform works fully without a GPU, using cloud AI providers or an Ollama server on your network.
 
-If your machine has an NVIDIA GPU and you want local AI models (Ollama, Stable Diffusion), run the **one-liner** for your OS. It detects the GPU, installs the NVIDIA Container Toolkit if missing, and verifies Docker can actually use the GPU.
+There is no special installer command for a GPU: the installer finds the GPU by itself (it test-runs a container on it). Docker only has to be able to give the GPU to containers, so that local AI models (Ollama, Stable Diffusion) can use it:
+
+- 🟩 **NVIDIA Jetson (JetPack 6):** already done by JetPack, skip this step. The installer runs Ollama on the Jetson's GPU and suggests small models (the GPU shares the board's memory with Olympus). Stable Diffusion is not available on ARM boards.
+- 🐧 **Linux PC:** run the Linux one-liner below. It installs the NVIDIA Container Toolkit if it is missing and checks that Docker can use the GPU.
+- 🪟 **Windows:** Docker Desktop (WSL 2 engine) with a current NVIDIA driver already can. The Windows check below confirms it.
+- 🍎 **macOS:** Docker Desktop has no NVIDIA GPU support. Use cloud AI providers or an Ollama server on your network.
 
 <details>
-<summary><strong>🐧 Linux / 🍎 macOS — GPU detect & install</strong></summary>
+<summary><strong>🐧 Linux — GPU detect & install</strong></summary>
 
 ```bash
 if nvidia-smi >/dev/null 2>&1; then
@@ -229,48 +232,26 @@ fi
 </details>
 
 <details>
-<summary><strong>🪟 Windows (PowerShell) — GPU detect</strong></summary>
+<summary><strong>🪟 Windows (PowerShell) — GPU check</strong></summary>
 
 ```powershell
-if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Write-Host "ℹ️  No NVIDIA GPU detected — skipping (this is fine)" -ForegroundColor Cyan } elseif (docker info 2>$null | Select-String -Quiet "nvidia") { Write-Host "✅ GPU detected and NVIDIA Container Toolkit already configured" -ForegroundColor Green } else { Write-Host "⚠️  GPU found but Docker can't access it. Install the NVIDIA Container Toolkit for Windows: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-on-windows — then restart Docker Desktop and re-run this check." -ForegroundColor Yellow }
+if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Write-Host "ℹ️  No NVIDIA GPU detected — skipping (this is fine)" -ForegroundColor Cyan } else { docker run --rm --gpus all ubuntu:24.04 nvidia-smi -L; if ($LASTEXITCODE -eq 0) { Write-Host "✅ Docker GPU access confirmed!" -ForegroundColor Green } else { Write-Host "⚠️  GPU found but Docker can't use it. Update the NVIDIA driver and Docker Desktop, check Docker Desktop uses the WSL 2 engine (Settings → General), restart Docker Desktop and re-run this check." -ForegroundColor Yellow } }
 ```
 
 </details>
 
 ### Step 2: Install Olympus
 
-Pick the section for your OS, then copy the command into your terminal. **If Step 1 confirmed GPU access**, use the "With GPU" variant; otherwise use "Without GPU". On **Linux** (NVIDIA Jetson included) and **Windows** (Docker Desktop) the plain "Without GPU" command also finds the GPU: the installer test-runs a container on it once Docker can use it. Docker Desktop on macOS has no NVIDIA GPU support.
+Pick the section for your OS, then copy the command into your terminal. **The same command works with or without a GPU:** the installer finds an NVIDIA GPU by itself (Linux, NVIDIA Jetson, and Windows with Docker Desktop) once Docker can use it (Step 1). An installer started the older way, with `--gpus all`, keeps working too.
 
 #### 🐧 Linux / 🍎 macOS
 
-**Without GPU** (most machines):
-
 ```bash
 mkdir -p "$HOME/olympus/app" "$HOME/olympus/data" && \
 docker rm -f olympus-setup >/dev/null 2>&1 || true && \
 docker pull olympusmobile/olympus-master-setup:latest && \
 docker run -d \
   --name olympus-setup \
-  -p 8888:8888 \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v "$HOME/olympus/app":"$HOME/olympus/app" \
-  -v "$HOME/olympus/data":"$HOME/olympus/data" \
-  -e HOST_PROJECT_ROOT="$HOME/olympus/app" \
-  -e DOCKER_USERNAME="olympussupport" \
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" \
-  olympusmobile/olympus-master-setup:latest >/dev/null && \
-docker logs -f olympus-setup
-```
-
-**With GPU** (only if Step 1 showed "✅ Docker GPU access confirmed"):
-
-```bash
-mkdir -p "$HOME/olympus/app" "$HOME/olympus/data" && \
-docker rm -f olympus-setup >/dev/null 2>&1 || true && \
-docker pull olympusmobile/olympus-master-setup:latest && \
-docker run -d \
-  --name olympus-setup \
-  --gpus all \
   -p 8888:8888 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v "$HOME/olympus/app":"$HOME/olympus/app" \
@@ -284,33 +265,11 @@ docker logs -f olympus-setup
 
 #### 🪟 Windows (PowerShell)
 
-**Without GPU** (most machines):
-
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\olympus\app", "$env:USERPROFILE\olympus\data" | Out-Null; `
 docker rm -f olympus-setup *> $null; `
 docker pull olympusmobile/olympus-master-setup:latest; `
 docker run -d `
-  --name olympus-setup `
-  -p 8888:8888 `
-  -v /var/run/docker.sock:/var/run/docker.sock `
-  -v "${env:USERPROFILE}\olympus\app:/olympus/app" `
-  -v "${env:USERPROFILE}\olympus\data:/olympus/data" `
-  -e HOST_PROJECT_ROOT="/olympus/app" `
-  -e DOCKER_USERNAME="olympussupport" `
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" `
-  olympusmobile/olympus-master-setup:latest > $null; `
-docker logs -f olympus-setup
-```
-
-**With GPU** (only if Step 1 showed "✅ NVIDIA Container Toolkit already configured"):
-
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\olympus\app", "$env:USERPROFILE\olympus\data" | Out-Null; `
-docker rm -f olympus-setup *> $null; `
-docker pull olympusmobile/olympus-master-setup:latest; `
-docker run -d `
-  --gpus all `
   --name olympus-setup `
   -p 8888:8888 `
   -v /var/run/docker.sock:/var/run/docker.sock `
@@ -325,35 +284,12 @@ docker logs -f olympus-setup
 
 #### 🪟 Windows (Command Prompt)
 
-**Without GPU** (most machines):
-
 ```cmd
 if not exist "%USERPROFILE%\olympus\app" mkdir "%USERPROFILE%\olympus\app"
 if not exist "%USERPROFILE%\olympus\data" mkdir "%USERPROFILE%\olympus\data"
 docker rm -f olympus-setup >nul 2>&1
 docker pull olympusmobile/olympus-master-setup:latest && ^
 docker run -d ^
-  --name olympus-setup ^
-  -p 8888:8888 ^
-  -v /var/run/docker.sock:/var/run/docker.sock ^
-  -v "%USERPROFILE%\olympus\app:/olympus/app" ^
-  -v "%USERPROFILE%\olympus\data:/olympus/data" ^
-  -e HOST_PROJECT_ROOT="/olympus/app" ^
-  -e DOCKER_USERNAME="olympussupport" ^
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" ^
-  olympusmobile/olympus-master-setup:latest >nul && ^
-docker logs -f olympus-setup
-```
-
-**With GPU** (only if `docker info | findstr /i nvidia` shows output):
-
-```cmd
-if not exist "%USERPROFILE%\olympus\app" mkdir "%USERPROFILE%\olympus\app"
-if not exist "%USERPROFILE%\olympus\data" mkdir "%USERPROFILE%\olympus\data"
-docker rm -f olympus-setup >nul 2>&1
-docker pull olympusmobile/olympus-master-setup:latest && ^
-docker run -d ^
-  --gpus all ^
   --name olympus-setup ^
   -p 8888:8888 ^
   -v /var/run/docker.sock:/var/run/docker.sock ^

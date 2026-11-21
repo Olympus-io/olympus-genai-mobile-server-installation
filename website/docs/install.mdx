@@ -2,7 +2,7 @@
 title: Install
 sidebar_label: Install
 sidebar_position: 3
-description: Run the pre-flight check, pick the GPU or no-GPU path, then start the installer with one Docker command.
+description: Run the pre-flight check, let Docker use your NVIDIA GPU if you have one, then start the installer with one Docker command.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,10 +10,9 @@ import TabItem from '@theme/TabItem';
 
 # Install Olympus
 
-Two questions, then one Docker command:
+A quick check, then one Docker command. Pick your OS tab inside each code block; your choice is remembered across the page.
 
-1. **What OS are you on?** — pick the OS tab inside each code block. Your choice is remembered across the page.
-2. **Do you have an NVIDIA GPU?** — pick **Without GPU** if you're unsure or plan to use cloud AI providers (OpenAI / Anthropic / Gemini). Pick **With NVIDIA GPU** only if you want local AI models (Ollama, Stable Diffusion) running on your own hardware. On an **NVIDIA Jetson** (JetPack 6) pick **Without GPU**: JetPack already gives Docker the GPU, and the installer finds it by itself.
+The installer command is the **same with or without a GPU**: the installer finds an NVIDIA GPU by itself. If you have one and want local AI models (Ollama, Stable Diffusion), step 2 makes sure Docker can use it.
 
 ---
 
@@ -67,95 +66,16 @@ The pre-flight check uses PowerShell — switch to the PowerShell tab for this s
 
 ---
 
-## 2. Pick your install path
+## 2. Let Docker use your NVIDIA GPU (optional)
 
-<Tabs groupId="hardware">
-<TabItem value="cpu" label="🧠 Without GPU (most machines)" default>
+**No NVIDIA GPU?** Skip to [step 3](#3-run-the-installer). Olympus works fully without one, using cloud AI providers (OpenAI, Anthropic, Gemini) or an Ollama server on your network.
 
-:::info You picked the no-GPU path
-The platform works fully without a GPU — use cloud AI providers (OpenAI, Anthropic, Gemini) for chat/embeddings/vision. You can always switch to a GPU later by re-running with the **With NVIDIA GPU** path.
+There is no special installer command for a GPU: the installer finds it by itself (it test-runs a container on it). Docker only has to be able to give the GPU to containers:
 
-If Docker on this machine can already use an NVIDIA GPU (a Jetson with JetPack 6, or a Linux or Windows PC after the GPU tab's step 2a), the installer finds it anyway — it test-runs a container on the GPU. On a Jetson it runs Ollama on the GPU and suggests small models, since the GPU shares the board's memory with Olympus. Stable Diffusion is not available on ARM boards.
-:::
-
-### Run the installer
-
-Pick your OS and run the command. It pulls the setup image (~few hundred MB) and starts the browser wizard at `http://localhost:8888`.
-
-<Tabs groupId="os">
-<TabItem value="linux-mac" label="🐧 Linux / 🍎 macOS" default>
-
-```bash
-mkdir -p "$HOME/olympus/app" "$HOME/olympus/data" && \
-docker rm -f olympus-setup >/dev/null 2>&1 || true && \
-docker pull olympusmobile/olympus-master-setup:latest && \
-docker run -d \
-  --name olympus-setup \
-  -p 8888:8888 \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v "$HOME/olympus/app":"$HOME/olympus/app" \
-  -v "$HOME/olympus/data":"$HOME/olympus/data" \
-  -e HOST_PROJECT_ROOT="$HOME/olympus/app" \
-  -e DOCKER_USERNAME="olympussupport" \
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" \
-  olympusmobile/olympus-master-setup:latest >/dev/null && \
-docker logs -f olympus-setup
-```
-
-</TabItem>
-<TabItem value="windows-ps" label="🪟 Windows (PowerShell)">
-
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\olympus\app", "$env:USERPROFILE\olympus\data" | Out-Null; `
-docker rm -f olympus-setup *> $null; `
-docker pull olympusmobile/olympus-master-setup:latest; `
-docker run -d `
-  --name olympus-setup `
-  -p 8888:8888 `
-  -v /var/run/docker.sock:/var/run/docker.sock `
-  -v "${env:USERPROFILE}\olympus\app:/olympus/app" `
-  -v "${env:USERPROFILE}\olympus\data:/olympus/data" `
-  -e HOST_PROJECT_ROOT="/olympus/app" `
-  -e DOCKER_USERNAME="olympussupport" `
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" `
-  olympusmobile/olympus-master-setup:latest > $null; `
-docker logs -f olympus-setup
-```
-
-</TabItem>
-<TabItem value="windows-cmd" label="🪟 Windows (Command Prompt)">
-
-```batch
-if not exist "%USERPROFILE%\olympus\app" mkdir "%USERPROFILE%\olympus\app"
-if not exist "%USERPROFILE%\olympus\data" mkdir "%USERPROFILE%\olympus\data"
-docker rm -f olympus-setup >nul 2>&1
-docker pull olympusmobile/olympus-master-setup:latest && ^
-docker run -d ^
-  --name olympus-setup ^
-  -p 8888:8888 ^
-  -v /var/run/docker.sock:/var/run/docker.sock ^
-  -v "%USERPROFILE%\olympus\app:/olympus/app" ^
-  -v "%USERPROFILE%\olympus\data:/olympus/data" ^
-  -e HOST_PROJECT_ROOT="/olympus/app" ^
-  -e DOCKER_USERNAME="olympussupport" ^
-  -e DOCKER_TOKEN="dckr_pat_nnZK2QRyooOHm944bKzRTKo12-w" ^
-  olympusmobile/olympus-master-setup:latest >nul && ^
-docker logs -f olympus-setup
-```
-
-</TabItem>
-</Tabs>
-
-</TabItem>
-<TabItem value="gpu" label="🎮 With NVIDIA GPU">
-
-:::info You picked the GPU path
-This adds one extra step: install the **NVIDIA Container Toolkit** so Docker can pass the GPU through to containers. Then the installer command itself includes `--gpus all`.
-:::
-
-### 2a. Install + verify the NVIDIA Container Toolkit
-
-Run the one-liner for your OS. It detects the GPU, installs the toolkit if missing, and verifies Docker can actually use the GPU.
+- 🟩 **NVIDIA Jetson (JetPack 6):** already done by JetPack, skip to step 3. The installer runs Ollama on the Jetson's GPU and suggests small models, since the GPU shares the board's memory with Olympus. Stable Diffusion is not available on ARM boards.
+- 🐧 **Linux PC:** run the Linux one-liner. It installs the NVIDIA Container Toolkit if it is missing and checks that Docker can use the GPU.
+- 🪟 **Windows:** Docker Desktop (WSL 2 engine) with a current NVIDIA driver already can. The PowerShell check confirms it.
+- 🍎 **macOS:** Docker Desktop has no NVIDIA GPU support. Use cloud AI providers or an Ollama server on your network.
 
 <Tabs groupId="os">
 <TabItem value="linux-mac" label="🐧 Linux / 🍎 macOS" default>
@@ -179,7 +99,7 @@ if nvidia-smi >/dev/null 2>&1; then
     echo "✅ Docker GPU access confirmed!"
   fi
 else
-  echo "ℹ️ No NVIDIA GPU detected — switch back to the 'Without GPU' tab above."
+  echo "ℹ️ No NVIDIA GPU detected — skipping GPU setup (this is fine)"
 fi
 ```
 
@@ -187,22 +107,26 @@ fi
 <TabItem value="windows-ps" label="🪟 Windows (PowerShell)">
 
 ```powershell
-if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Write-Host "ℹ️  No NVIDIA GPU detected — switch back to the 'Without GPU' tab above." -ForegroundColor Cyan } elseif (docker info 2>$null | Select-String -Quiet "nvidia") { Write-Host "✅ GPU detected and NVIDIA Container Toolkit already configured" -ForegroundColor Green } else { Write-Host "⚠️  GPU found but Docker can't access it. Install the NVIDIA Container Toolkit for Windows: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-on-windows — then restart Docker Desktop and re-run this check." -ForegroundColor Yellow }
+if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Write-Host "ℹ️  No NVIDIA GPU detected — skipping (this is fine)" -ForegroundColor Cyan } else { docker run --rm --gpus all ubuntu:24.04 nvidia-smi -L; if ($LASTEXITCODE -eq 0) { Write-Host "✅ Docker GPU access confirmed!" -ForegroundColor Green } else { Write-Host "⚠️  GPU found but Docker can't use it. Update the NVIDIA driver and Docker Desktop, check Docker Desktop uses the WSL 2 engine (Settings → General), restart Docker Desktop and re-run this check." -ForegroundColor Yellow } }
 ```
 
 </TabItem>
 <TabItem value="windows-cmd" label="🪟 Windows (Command Prompt)">
 
-GPU detection uses PowerShell — switch to the PowerShell tab above for this sub-step, then come back here for the installer command if you prefer `cmd`.
+The GPU check uses PowerShell — switch to the PowerShell tab for this step, then come back to Command Prompt for the installer if you prefer `cmd`.
 
 </TabItem>
 </Tabs>
 
-:::caution Don't skip this verification
-Only continue to **2b** after you see `✅ Docker GPU access confirmed!` (Linux/macOS) or `✅ NVIDIA Container Toolkit already configured` (Windows). Running the installer with `--gpus all` against an unconfigured Docker will fail at container start.
+:::tip Do this before you run the installer
+The wizard offers local AI models only when it finds a GPU that Docker can use. If the check fails, fix it, re-run the check, then go on to step 3.
 :::
 
-### 2b. Run the installer (with `--gpus all`)
+---
+
+## 3. Run the installer
+
+Pick your OS and run the command. It pulls the setup image (~few hundred MB) and starts the browser wizard at `http://localhost:8888`. An installer started the older way, with `--gpus all`, keeps working too.
 
 <Tabs groupId="os">
 <TabItem value="linux-mac" label="🐧 Linux / 🍎 macOS" default>
@@ -213,7 +137,6 @@ docker rm -f olympus-setup >/dev/null 2>&1 || true && \
 docker pull olympusmobile/olympus-master-setup:latest && \
 docker run -d \
   --name olympus-setup \
-  --gpus all \
   -p 8888:8888 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v "$HOME/olympus/app":"$HOME/olympus/app" \
@@ -233,7 +156,6 @@ New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\olympus\app", "$env:
 docker rm -f olympus-setup *> $null; `
 docker pull olympusmobile/olympus-master-setup:latest; `
 docker run -d `
-  --gpus all `
   --name olympus-setup `
   -p 8888:8888 `
   -v /var/run/docker.sock:/var/run/docker.sock `
@@ -255,7 +177,6 @@ if not exist "%USERPROFILE%\olympus\data" mkdir "%USERPROFILE%\olympus\data"
 docker rm -f olympus-setup >nul 2>&1
 docker pull olympusmobile/olympus-master-setup:latest && ^
 docker run -d ^
-  --gpus all ^
   --name olympus-setup ^
   -p 8888:8888 ^
   -v /var/run/docker.sock:/var/run/docker.sock ^
@@ -267,9 +188,6 @@ docker run -d ^
   olympusmobile/olympus-master-setup:latest >nul && ^
 docker logs -f olympus-setup
 ```
-
-</TabItem>
-</Tabs>
 
 </TabItem>
 </Tabs>
