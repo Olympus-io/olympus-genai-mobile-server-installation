@@ -16,7 +16,7 @@ This page removes Olympus completely. Steps 1–3 run on the **server**; step 4 
 | [1. Remove Olympus](#1-remove-olympus-from-the-server) | Server | The installer (the `olympus-setup` container, which holds port 8888), Olympus's containers, its data and the configuration the installer generated | Always |
 | [2. Remove the Docker images](#2-remove-the-docker-images) | Server | The downloaded images, the installer's `olympusmobile/olympus-master-setup` included — roughly 20–25 GB | To free the disk space |
 | [3. Delete the Olympus folder](#3-delete-the-olympus-folder) | Server | `~/olympus`, including the test shares' files | If you used test shares, or want the folder gone |
-| [4. Clean up each device](#4-clean-up-each-device) | Each device | The trusted certificate, hosts-file lines, DNS names, connected apps | Self-signed, Local Machine and Private Network installs; MCP clients |
+| [4. Clean up each device](#4-clean-up-each-device) | Each device | The trusted certificate, hosts-file lines, DNS names, connected apps | Self-signed and Private installs; MCP clients |
 
 :::tip Reinstalling instead?
 Run **step 1 only**, then the [Install](./install) command again. The images stay, so the reinstall is fast. This is the same procedure as "I want to start over from scratch" in [Troubleshooting](./troubleshooting).
@@ -54,7 +54,8 @@ docker images --format '{{.Repository}} {{.ID}}' | ForEach-Object { $r, $id = $_
 
 ```bash
 # Linux / macOS
-for i in postgres:16 redis:7-alpine rabbitmq:3.12-management opensearchproject/opensearch:latest \
+for i in postgres:16.16 redis:7.4.12-alpine rabbitmq:3.12.14-management opensearchproject/opensearch:3.10.0 \
+         postgres:16 redis:7-alpine rabbitmq:3.12-management opensearchproject/opensearch:latest \
          milvusdb/milvus:v3.0.6 envoyproxy/envoy:v1.30.1 certbot/certbot:latest \
          ollama/ollama:latest ghcr.io/ai-dock/stable-diffusion-webui:latest-cuda mailhog/mailhog:latest \
          grafana/grafana:latest grafana/loki:latest grafana/promtail:latest prom/prometheus:latest \
@@ -66,6 +67,7 @@ done
 
 ```powershell
 # Windows PowerShell
+"postgres:16.16", "redis:7.4.12-alpine", "rabbitmq:3.12.14-management", "opensearchproject/opensearch:3.10.0",
 "postgres:16", "redis:7-alpine", "rabbitmq:3.12-management", "opensearchproject/opensearch:latest",
 "milvusdb/milvus:v3.0.6", "envoyproxy/envoy:v1.30.1", "certbot/certbot:latest",
 "ollama/ollama:latest", "ghcr.io/ai-dock/stable-diffusion-webui:latest-cuda", "mailhog/mailhog:latest",
@@ -139,7 +141,7 @@ Then restart the browser. Installed it another way?
 | **Android** | Settings → search **User credentials** → **Olympus Local CA - …** → Remove |
 | **Chromebook** | Settings → Privacy and security → Security → Manage certificates → Authorities → **org-Olympus** → Delete |
 
-### The hosts-file line (Local Machine and Private Network installs)
+### The hosts-file line (Private installs, and the earlier Local Machine / Private Network)
 
 On each computer where you added the wizard's hosts-file line (`<address> mobile.<your-domain> mobile-api.<your-domain> …`). A copy of the old file is kept next to it:
 
@@ -163,7 +165,7 @@ ipconfig /flushdns
 
 ### DNS names
 
-- **Private Network:** delete the `mobile`, `mobile-api`, `mcp` and `grafana` names you added to your router's local DNS, Pi-hole or AdGuard Home.
+- **Private** (other devices too; earlier: Private Network): delete the `mobile`, `mobile-api`, `mcp` and `grafana` names you added to your router's local DNS, Pi-hole or AdGuard Home.
 - **Public Network:** delete the same four A records at your DNS provider.
 
 ### Apps connected to Olympus

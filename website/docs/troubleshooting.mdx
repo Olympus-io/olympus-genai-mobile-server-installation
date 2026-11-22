@@ -155,7 +155,7 @@ docker logs olympus-setup > olympus-setup.log 2>&1
 <details>
 <summary><strong>❌ The app says "Olympus can't reach its server" (or "Unable to fetch Auth Modes")</strong></summary>
 
-The page loaded, but its call to `https://mobile-api.<your-domain>` failed. On a new **Local** or **Private Network** install this is almost always the certificate: accepting the browser warning for `mobile.<your-domain>` does not cover `mobile-api.<your-domain>`, and that call happens in the background where no warning can be shown.
+The page loaded, but its call to `https://mobile-api.<your-domain>` failed. On a new **Private** install this is almost always the certificate: accepting the browser warning for `mobile.<your-domain>` does not cover `mobile-api.<your-domain>`, and that call happens in the background where no warning can be shown.
 
 1. **Install the Olympus certificate on this device** from `http://<your-server>/trust` (see [Post-Install](./post-install#self-signed-installs-trust-olympus-once-on-each-device)), then restart the browser.
 2. Quick fix for one browser: open `https://mobile-api.<your-domain>` once and accept the warning, then reload the app.

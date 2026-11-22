@@ -340,7 +340,7 @@ On the **air-gapped** server:
 1. Run `docker load -i olympus-images.tar`.
 2. Run the install command above, **leaving out the `docker pull` line**.
 3. In the wizard, pick:
-   - **Private Network** with a self-signed or custom certificate;
+   - **Private** with a self-signed or custom certificate;
    - the **Community** edition;
    - **Ollama on your network** for AI;
    - **production** file shares on your own NFS/SMB servers. For an SMB server outside Active Directory, choose `FULL_RW` or `READ_ONLY`, not `AD_ACLS`.
@@ -397,7 +397,7 @@ For Local and Private installs, replace `yourdomain.com` with the domain you cho
 
 ### 🔐 Self-signed installs: trust Olympus once on each device
 
-A **Local Machine** or **Private Network** install with a self-signed certificate has its **own certificate authority**. Each computer, phone or tablet that opens Olympus installs **one file once** — `olympus-ca.crt` — and every Olympus address (`mobile`, `mobile-api`, `mcp`, `grafana`) is trusted from then on, including after the certificate renews.
+A **Private** install (this computer only, or other devices too) with a self-signed certificate has its **own certificate authority**. Each computer, phone or tablet that opens Olympus installs **one file once** — `olympus-ca.crt` — and every Olympus address (`mobile`, `mobile-api`, `mcp`, `grafana`) is trusted from then on, including after the certificate renews.
 
 On each device, open **`http://<your-server>/trust`** (for example `http://192.168.1.20/trust`, or `http://mobile.olympus.internal/trust`) — on a phone, just scan the **QR code** on the wizard's last page. The page recognises the device, shows its steps first, and has a download button:
 
@@ -547,7 +547,7 @@ For production, after install completes you'll only need ports **80** and **443*
 <details>
 <summary><strong>❌ The app says "Olympus can't reach its server" (or "Unable to fetch Auth Modes")</strong></summary>
 
-The page loaded, but its call to `https://mobile-api.<your-domain>` failed. On a new **Local** or **Private Network** install this is almost always the certificate: accepting the browser warning for `mobile.<your-domain>` does not cover `mobile-api.<your-domain>`, and that call happens in the background where no warning can be shown.
+The page loaded, but its call to `https://mobile-api.<your-domain>` failed. On a new **Private** install this is almost always the certificate: accepting the browser warning for `mobile.<your-domain>` does not cover `mobile-api.<your-domain>`, and that call happens in the background where no warning can be shown.
 
 1. **Install the Olympus certificate on this device** from `http://<your-server>/trust` (see *Self-signed installs* above), then restart the browser.
 2. Quick fix for one browser: open `https://mobile-api.<your-domain>` once and accept the warning, then reload the app.
@@ -692,7 +692,8 @@ The public images Olympus downloaded. Skip this if other projects on this machin
 
 ```bash
 # Linux / macOS
-for i in postgres:16 redis:7-alpine rabbitmq:3.12-management opensearchproject/opensearch:latest \
+for i in postgres:16.16 redis:7.4.12-alpine rabbitmq:3.12.14-management opensearchproject/opensearch:3.10.0 \
+         postgres:16 redis:7-alpine rabbitmq:3.12-management opensearchproject/opensearch:latest \
          milvusdb/milvus:v3.0.6 envoyproxy/envoy:v1.30.1 certbot/certbot:latest \
          ollama/ollama:latest ghcr.io/ai-dock/stable-diffusion-webui:latest-cuda mailhog/mailhog:latest \
          grafana/grafana:latest grafana/loki:latest grafana/promtail:latest prom/prometheus:latest \
@@ -704,6 +705,7 @@ done
 
 ```powershell
 # Windows PowerShell
+"postgres:16.16", "redis:7.4.12-alpine", "rabbitmq:3.12.14-management", "opensearchproject/opensearch:3.10.0",
 "postgres:16", "redis:7-alpine", "rabbitmq:3.12-management", "opensearchproject/opensearch:latest",
 "milvusdb/milvus:v3.0.6", "envoyproxy/envoy:v1.30.1", "certbot/certbot:latest",
 "ollama/ollama:latest", "ghcr.io/ai-dock/stable-diffusion-webui:latest-cuda", "mailhog/mailhog:latest",
@@ -763,7 +765,7 @@ done
 
 Installed another way: **Windows** `certmgr.msc` → Trusted Root Certification Authorities → Certificates → delete it · **Mac** Keychain Access → search Olympus → delete · **Firefox** Settings → Privacy & Security → View Certificates → Authorities → Olympus → Delete · **iPhone / iPad** Settings → General → VPN & Device Management → the Olympus profile → Remove Profile · **Android** Settings → search *User credentials* → Olympus Local CA → Remove · **Chromebook** Settings → Privacy and security → Security → Manage certificates → Authorities → org-Olympus → Delete.
 
-**The hosts-file line (Local Machine and Private Network installs)**, on each computer where you added it. A copy of the old file is kept next to it:
+**The hosts-file line (Private installs, and the earlier Local Machine / Private Network)**, on each computer where you added it. A copy of the old file is kept next to it:
 
 ```bash
 # Linux / macOS
@@ -783,7 +785,7 @@ Get-Content "$hosts.before-olympus" | Where-Object { $_ -notlike "* mobile.$doma
 ipconfig /flushdns
 ```
 
-**DNS names.** Delete the `mobile`, `mobile-api`, `mcp` and `grafana` names from your router's local DNS, Pi-hole or AdGuard Home (Private Network), or the four A records at your DNS provider (Public Network).
+**DNS names.** Delete the `mobile`, `mobile-api`, `mcp` and `grafana` names from your router's local DNS, Pi-hole or AdGuard Home (Private installs that other devices use), or the four A records at your DNS provider (Public Network).
 
 **Apps connected to Olympus.** Remove the Olympus connector from AI clients connected over MCP; uninstall Olympus if you installed it as an app from the browser; close port 8888 again if you opened it in a firewall (`sudo ufw delete allow 8888/tcp`).
 
