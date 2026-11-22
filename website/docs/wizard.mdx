@@ -106,6 +106,8 @@ For each provider, the wizard validates the key and shows you the catalog of mod
 
 - **Ollama** — local LLMs. Disabled / Self-Hosted (with model pull list) / Remote URL (point at an existing Ollama server — for example a GPU machine on your network)
 
+**Already running Ollama on this computer** (for Open WebUI or similar)? The wizard finds it and offers **Use it** instead of installing a second one. On Mac and Windows it works as it is. On Linux, Ollama listens only on the computer itself by default, so Olympus (which runs in Docker) cannot reach it: the wizard shows the one-time command that lets it listen on the network (`OLLAMA_HOST=0.0.0.0`), then **Check again**. Olympus's own Ollama no longer takes port 11434, so the two never clash.
+
 With **Remote URL**, **Test** lists the models on that server and **what each one can do** — chat, vision, tools, embedding — as Ollama itself reports it, so every model is offered for the roles it supports. If the server has **no embedding model**, the wizard says so and offers to download a small one (`qwen3-embedding:0.6b`, about 640 MB) to it, with progress: Olympus needs an embedding model to read and search your files.
 - **Stable Diffusion** — local image generation. Couples with self-hosted Ollama, requires a GPU
 
@@ -162,7 +164,7 @@ The first share form is already open when you arrive — just fill it in.
 **Your two options:**
 
 - **Connect real shares** *(recommended for production)* — mount an existing NFS export or SMB share from your NAS, Windows Server, or storage appliance. You provide the server host, export/share path, and credentials for SMB.
-- **Use test shares** *(evaluation only)* — no NFS/SMB server needed. Olympus runs a small file server for a plain folder on this machine. Test shares are always **Full read/write** so you can start using the platform immediately.
+- **Use test shares** *(evaluation only)* — no NFS/SMB server needed. Olympus runs a small file server for a plain folder on this machine. Test shares are always **Full read/write** so you can start using the platform immediately. **Create a test share for me** makes an `olympus-files` folder in your Olympus data folder (`~/olympus/data`; Windows `%USERPROFILE%\olympus\data`) and fills in the share — nothing to type. Uninstalling or starting over keeps that folder.
 
 You can add up to **3** shares here. Each one becomes a browsable drive in the file panel after deployment.
 
