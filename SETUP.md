@@ -136,7 +136,7 @@ For production deployments, point the following subdomains to your server's publ
 
 You can verify a record is live with `nslookup mobile.yourdomain.com` (Windows / macOS / Linux all support this command).
 
-> 🏠 Doing a **Local Machine** or **Private Network** install? You don't need public DNS. The wizard suggests the name `olympus.internal` (a suffix reserved for private networks) and shows the hosts-file line or the router / Pi-hole records to add. Installing on a small server that other devices will use (a Jetson, NUC or mini PC)? Choose **Private Network**.
+> 🏠 Doing a **Private** install (this computer, or your network)? You don't need public DNS. The wizard suggests the name `olympus.internal` (a suffix reserved for private networks) and shows the hosts-file line or the router / Pi-hole records to add. Installing on a small server that other devices will use (a Jetson, NUC or mini PC)? Choose **Private**, then **This computer and other devices**.
 
 ### 4. (Optional) NVIDIA GPU for local AI models
 
@@ -368,13 +368,13 @@ Once you open `http://localhost:8888` (or `http://<server-ip>:8888`), the wizard
 
 | Step                        | What you do                                                                                      |
 | --------------------------- | ------------------------------------------------------------------------------------------------ |
-| 1. **Deployment Type**      | Choose **Public Network**, **Private Network** (a server other devices use), or **Local Machine** (this computer only) |
-| 2. **Domain Configuration** | Set your domain (`olympus.internal` suggested for Local / Private); the server's network address is detected for you |
+| 1. **Deployment Type**      | Choose **Public** (internet, your own domain) or **Private** (this computer, or your network) |
+| 2. **Domain Configuration** | Set your domain (`olympus.internal` suggested for Private). Private: choose **who will use it** — only this computer, or this computer and other devices (the server's network address is detected for you) |
 | 3. **Security & SSL**       | Pick **Let's Encrypt** (public only), **Self-Signed** (Olympus's own certificate authority), or **Custom** PEM upload |
 | 4. **Account Setup**        | Admin username/email/password + PostgreSQL password (Generate buttons available)                 |
 | 5. **GenAI Settings**       | Optional — wire up Gemini/OpenAI/Claude API keys, and Ollama (on this GPU host, or a remote Ollama server — the wizard shows what each of its models can do and offers to download an embedding model if it has none) |
 | 6. **License**              | **Olympus Core** (free) or **Enterprise** (paid key or 90-day trial)                             |
-| 7. **Optional Services**    | MailHog (test email) — genuinely optional extras, safe to skip entirely                          |
+| 7. **Optional Services**    | MailHog (test email), and pgAdmin / Redis Commander (database and cache consoles, off by default) — genuinely optional extras, safe to skip entirely |
 | 8. **File Shares**          | Point Olympus at the storage it manages — a real NFS/SMB share, or a self-contained test share   |
 | 9. **Final Deployment**     | Summary review, confirm checkbox, click **Deploy & Start Platform** (2–5 minutes)                |
 
